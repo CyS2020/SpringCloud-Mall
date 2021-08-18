@@ -8,6 +8,21 @@
 - 使用renren-generator工具生成五个微服务的crud的代码: controller; dao; entity; service
 - 配置pom文件解决基本的依赖问题, 配置yml文件启动项目, 测试接口是否正常运行
 
+#### 整合Mybatis-plus依赖
+- 导入依赖
+```
+<dependency>
+    <groupId>com.baomidou</groupId>
+    <artifactId>mybatis-plus-boot-starter</artifactId>
+    <version>3.2.0</version>
+</dependency>
+```
+- 配置信息
+    - 导入mysql驱动的依赖，放在gulimall-common模块了
+    - 在application.yml配置mysql数据源相关信息
+    - 配置mybatis-plus: 配置@MapperScan扫描的包路径
+    - 配置mybatis-plus: 配置classpath扫描的xml文件路径
+
 #### 微服务
 - 注册中心: 每一个微服务上线后注册到注册中心，对外提供服务;
 - 配置中心: 每一个微服务的配置都很多, 集群环境需要一个个修改, 通过配置中心来管理修改;
@@ -22,3 +37,41 @@
 - SpringCloud - Gateway：API 网关（webflux 编程模式）
 - SpringCloud - Sleuth：调用链监控
 - SpringCloud Alibaba - Seata：原 Fescar，即分布式事务解决方案
+
+#### Nacos服务注册
+- 搭建服务注册所需的服务器, 提供了可视化界面
+- 微服务中引入nacos-discovery依赖
+- 微服务需要在yml文件中配置服务注册的服务器地址; 以及当前服务的名称
+- 开启服务注册功能@EnableDiscoveryClient
+
+#### Nacos配置中心
+- 和服务注册公用的服务器
+- 微服务中引入nacos-config依赖
+- 创建bootstrap.properties文件配置 配置中心的服务器地址; 以及当前服务的名称
+- 配置中心添加一个名叫 gulimall-coupon.properties 的数据集，服务名.properties(默认规则)
+- 给服务名.properties 添加任何配置
+- 动态刷新配置@RefreshScope, 获取某个配置的值@Value("${配置项}")
+- 如果配置中心与当前文件中的配置冲突, 优先使用配置中心的配置
+
+#### Nacos配置中心细节
+- 命名空间: 用于进行租户粒度的配置隔离. 不同的命名空间下，可以存在相同的Group或Data ID的配置; 默认public; 
+开发, 测试, 生产中利用命名空间做环境隔离. 在bootstrap.properties配置命名空间的id
+- 配置集: 一组相关或者不相关的配置项的集合称为配置集
+- 配置集ID: 类似于以前的配置文件名application.yml
+- 配置组: 默认所有的配置集都属于DEFAULT_GROUP组
+- 使用细节: 每个微服务创建自己的命名空间; 使用配置分组来区分环境dev, test, prod;
+- 同时加载多个配置集, 我们的任何配置文件都可以放在配置中心中, bootstrap.properties文件中配置需要加在的配置集
+- @Value, @ConfigurationProperties...等从配置文件中获取值得使用方式仍然可用
+
+#### openFeign远程调用
+- 引入open-feign依赖
+- 编写接口，告诉springCloud这个接口需要调用的那个微服务
+- 声明方法，调用微服务的哪个请求，访问路径需要写全
+- 开启远程调用功能，@EnableFeignClients并传入扫描的包路径
+
+### 拦路虎
+#### 前端项目npm失败
+- 缺少某种驱动或者根据提示百度下需要安装啥更新啥，一般都能解决
+
+#### Nacos启动失败
+- 修改startup.cmd文件，默认使用集群模式启动，可以将启动模式改为set MODE="standalone"
