@@ -63,11 +63,24 @@
 - 同时加载多个配置集, 我们的任何配置文件都可以放在配置中心中, bootstrap.properties文件中配置需要加在的配置集
 - @Value, @ConfigurationProperties...等从配置文件中获取值得使用方式仍然可用
 
-#### openFeign远程调用
+#### OpenFeign远程调用
 - 引入open-feign依赖
 - 编写接口，告诉springCloud这个接口需要调用的那个微服务
 - 声明方法，调用微服务的哪个请求，访问路径需要写全
 - 开启远程调用功能，@EnableFeignClients并传入扫描的包路径
+
+#### GateWay网关
+- 创建一个模块作为项目的API网关微服务, 同时写需要引入注册中心与配置中心的功能
+- 开启服务注册功能@EnableDiscoveryClient
+- 使用配置中心功能并进行配置与其他项目一样
+- 启动失败是因为公共组件有Mybatis-plus因此需要配置数据源, 可以再启动项目的地方exclude掉
+
+#### GateWay技术细节
+- 功能：路由, 鉴权, 限流
+- Route: 网关的基本构建块即路由规则. 它由ID, 目标URI, 谓词集合和过滤器集合定义, 如果聚合谓词为真, 则匹配路由
+- Predicate: 这是一个Java 8函数谓词，这使您可以匹配来自HTTP请求的任何内容, 例如标头或参数
+- Filter: 这些是GatewayFilter使用特定工厂构建的实例. 在这里您可以在发送下游请求之前或之后修改请求和响应
+- Predicate如果满足某种规则才进行路由，Filter对谓词中的内容进行判断分析处理不是狭义的过滤, 可以是增删改操作
 
 ### 拦路虎
 #### 前端项目npm失败
