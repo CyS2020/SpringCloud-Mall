@@ -82,6 +82,49 @@
 - Filter: 这些是GatewayFilter使用特定工厂构建的实例. 在这里您可以在发送下游请求之前或之后修改请求和响应
 - Predicate如果满足某种规则才进行路由，Filter对谓词中的内容进行判断分析处理不是狭义的过滤, 可以是增删改操作
 
+#### 网关路由实战
+
+
+
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件，默认使用集群模式启动，可以将启动模式改为set MODE="standalone"
+
+#### 前后端的访问
+- 1.前端会配置请求的前缀(网关的地址和端口), 例如前端发来请求 http://localhost:88/api/captcha.jpg
+```
+window.SITE_CONFIG['baseUrl'] = 'http://localhost:88/api';
+```
+- 2.网关需要转到对应的微服务进行如下配置(lb代表负载均衡) http://localhost:8080/renren-fast/captcha.jpg
+```
+gateway:
+  routes:
+    - id: admin_route
+      uri: lb://renren-fast
+      predicates:
+        - Path=/api/**
+      filters:
+        - RewritePath=/api/?(?<segment>.*), /renren-fast/$\{segment}
+```
+- 3.后端的路径拼接时候前缀配置; 例子中的renren-fast的部分来自这里
+```
+server:
+  servlet:
+    context-path: /renren-fast
+```
+- 4.然后发现前端还是没法访问后端, 此时有跨域问题; 使用该类解决 GulimallCorsConfiguration
+
+
+#### 跨域问题
+- 跨域问题: 指的是浏览器不能执行其他网站的脚本, 他是浏览器的同源策略造成的, 是浏览器对javaScript施加安全的限制
+- 同源策略: 是指协议, 域名, 端口都要相同, 其中有一个不同都会产生跨域
+- 跨源资源共享(CORS): https://developer.mozilla.org/zh-CN/docs/Web/HTTP/CORS
+- 非简单请求的跨域流程: 预检请求OPTIONS; 如果不允许则不会再发真实数据
+    - 浏览器 --- 1. 预检请求    --> 服务器
+    - 浏览器 <-- 2. 响应允许跨域 --- 服务器
+    - 浏览器 --- 3. 发送真实数据 --> 服务器
+    - 浏览器 <-- 4. 响应数据    --- 服务器
+- 解决方案:
+    - 使用nginx部署为同一个域
+    - 配置当次请求允许跨域
+    
