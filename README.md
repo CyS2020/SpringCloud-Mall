@@ -22,6 +22,10 @@
     - 在application.yml配置mysql数据源相关信息
     - 配置mybatis-plus: 配置@MapperScan扫描的包路径
     - 配置mybatis-plus: 配置classpath扫描的xml文件路径
+- 逻辑删除
+    - 配置全局的逻辑删除规则(省略)
+    - 配置逻辑删除的组件Bean(省略)
+    - 给Bean(数据库的entity对象)加上逻辑删除注解@TableLogic
 
 #### 微服务
 - 注册中心: 每一个微服务上线后注册到注册中心，对外提供服务;
@@ -42,7 +46,7 @@
 - 搭建服务注册所需的服务器, 提供了可视化界面
 - 微服务中引入nacos-discovery依赖
 - 微服务需要在yml文件中配置服务注册的服务器地址; 以及当前服务的名称
-- 开启服务注册功能@EnableDiscoveryClient
+- 开启服务注册功能@EnableDiscoveryClient(可省略)
 
 #### Nacos配置中心
 - 和服务注册公用的服务器
@@ -71,7 +75,7 @@
 
 #### GateWay网关
 - 创建一个模块作为项目的API网关微服务, 同时写需要引入注册中心与配置中心的功能
-- 开启服务注册功能@EnableDiscoveryClient
+- 开启服务注册功能@EnableDiscoveryClient(可省略)
 - 使用配置中心功能并进行配置与其他项目一样
 - 启动失败是因为公共组件有Mybatis-plus因此需要配置数据源, 可以再启动项目的地方exclude掉
 
@@ -82,8 +86,8 @@
 - Filter: 这些是GatewayFilter使用特定工厂构建的实例. 在这里您可以在发送下游请求之前或之后修改请求和响应
 - Predicate如果满足某种规则才进行路由，Filter对谓词中的内容进行判断分析处理不是狭义的过滤, 可以是增删改操作
 
-#### 网关路由实战
-
+#### 网关路由与Nacos路由
+- 不使用Nacos的时候, 网关路由规则uri后面直接写ip与端口, 使用了Nacos后面写微服务的名称
 
 
 ### 拦路虎
