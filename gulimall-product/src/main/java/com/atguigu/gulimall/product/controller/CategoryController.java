@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -88,11 +87,9 @@ public class CategoryController {
      */
     @RequestMapping("/delete")
     //@RequiresPermissions("product:category:delete")
-    public R delete(@RequestBody Long[] catIds) {
-
+    public R delete(@RequestBody List<Long> catIds) {
         // 1. 检查当前的菜单是否被别的地方引用
-        categoryService.removeMenusByIds(Arrays.asList(catIds));
-
+        categoryService.removeMenusByIds(catIds);
         return R.ok();
     }
 
