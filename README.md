@@ -51,11 +51,12 @@
 #### Nacos配置中心
 - 和服务注册公用的服务器
 - 微服务中引入nacos-config依赖
-- 创建bootstrap.properties文件配置 配置中心的服务器地址; 以及当前服务的名称
-- 配置中心添加一个名叫 gulimall-coupon.properties 的数据集，服务名.properties(默认规则)
-- 给服务名.properties 添加任何配置
-- 动态刷新配置@RefreshScope, 获取某个配置的值@Value("${配置项}")
-- 如果配置中心与当前文件中的配置冲突, 优先使用配置中心的配置
+- 配置中心创建命名空间(可以省略, 使用默认的命名空间),
+- 本地resource中创建bootstrap.properties文件配置 配置中心的服务器地址; 命名空间等--本地的
+- 配置中心添加一个名叫 xxx.properties 的数据集，服务名.properties(默认规则)--配置中心的
+- bootstrap.properties文件可以配置初始加载文件(配置中心的某个文件)
+- java代码中配置类动态刷新@RefreshScope, 获取某个配置的值@Value("${配置项}")
+- 如果配置中心与本地配置文件中的冲突, 优先使用配置中心的配置
 
 #### Nacos配置中心细节
 - 命名空间: 用于进行租户粒度的配置隔离. 不同的命名空间下，可以存在相同的Group或Data ID的配置; 默认public; 
@@ -91,7 +92,13 @@
 
 #### 文件存储系统
 - 使用阿里云的-对象存储OSS; 也可以自己搭建服务器FastDFS, vsftpd
+- 采用阿里云对象存储-服务端签名后直传
 - 用户向后端服务器请求上传Policy, 后端服务器返回上传Policy, 用户(前端)直接上传数据到OSS
+
+#### 对象存储OSS
+- 引入alicloud-oss依赖
+- 配置key, secret, endpoint等相关信息
+- 自动注入OSSClient对象进行相关操作
 
 ### 拦路虎
 #### Nacos启动失败
