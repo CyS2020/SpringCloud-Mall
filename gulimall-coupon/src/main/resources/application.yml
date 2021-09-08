@@ -2,7 +2,7 @@
 #  datasource:
 #    username: root
 #    password: SUchunyang
-#    url: jdbc:mysql://192.168.0.104:3306/gulimall_sms
+#    url: jdbc:mysql://192.168.0.102:3306/gulimall_sms
 #    driver-class-name: com.mysql.cj.jdbc.Driver
 #  cloud:
 #    nacos:
