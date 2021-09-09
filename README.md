@@ -100,6 +100,12 @@
 - 配置key, secret, endpoint等相关信息
 - 自动注入OSSClient对象进行相关操作
 
+#### JSR303数据校验
+- 给Bean添加校验注解: javax.validation.constraints; 并定义自己的message提示
+- 添加校验注解@Valid放在被校验的Bean前面; 效果: 校验错误会有默认的响应
+- 给校验的Bean后面紧跟一个BindingResult, 就可以获得校验的结果
+- 
+
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件，默认使用集群模式启动，可以将启动模式改为set MODE="standalone"
@@ -150,3 +156,4 @@ server:
 
 #### 数据库突然连接不上去了
 - 虚拟机中的ip地址与无线网的ip地址冲突了, 修改下虚拟机中的ip地址即可
+- 修改完成ip地址都互相ping通过的情况下, 发现还是连接不上数据库, 关闭下防火墙(虽然之前没关闭也能用)
