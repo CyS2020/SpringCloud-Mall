@@ -104,7 +104,24 @@
 - 给Bean添加校验注解: javax.validation.constraints; 并定义自己的message提示
 - 添加校验注解@Valid放在被校验的Bean前面; 效果: 校验错误会有默认的响应
 - 给校验的Bean后面紧跟一个BindingResult, 就可以获得校验的结果
-- 
+- 分组校验: @NotBlank(message = "品牌名必须填写", groups = {UpdateGroup.class, AddGroup.class})
+    - 给实体类的字段校验注解添加groups表示什么情况需要校验
+    - @Validated({AddGroup.class})给前端入参指定校验分组
+    - 默认没有指定分组的校验注解@NotBlank, 在分组校验的情况下不生效如@Validated({AddGroup.class}), 在无分组校验的情况下生效即@Validated
+- 自定义校验
+    - 编写一个自定义的校验注解 
+    - 编写一个自定义的校验器 ConstraintValidator
+    - 关联自定义的校验器和自定义的校验注解, 一个校验注解可以设置多个校验器以进行不同类型的校验
+    ```
+    @Documented
+    @Constraint(validatedBy = {ListValueConstraintValidator.class})
+    @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
+    @Retention(RetentionPolicy.RUNTIME)
+    ```
+    
+#### 统一异常处理 @ControllerAdvice
+- 编写异常处理类, 可以直接使用@RestControllerAdvice, 设置basePackages处理某些包
+- 编写异常处理方法, 使用@ExceptionHandler, 设置value参数处理一种类型的异常
 
 ### 拦路虎
 #### Nacos启动失败
