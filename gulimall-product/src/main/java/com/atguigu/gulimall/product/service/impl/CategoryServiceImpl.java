@@ -4,11 +4,14 @@ import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.Query;
 import com.atguigu.gulimall.product.dao.CategoryDao;
 import com.atguigu.gulimall.product.entity.CategoryEntity;
+import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
 import com.atguigu.gulimall.product.service.CategoryService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +25,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
 //    @Autowired
 //    private CategoryDao categoryDao;
+
+    @Autowired
+    private CategoryBrandRelationService categoryBrandRelationService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -39,12 +45,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<CategoryEntity> entities = baseMapper.selectList(null);
 
         // 2. 组装成父子的树形结构
-        List<CategoryEntity> level1Menus = entities.stream()
+        return entities.stream()
                 .filter(categoryEntity -> categoryEntity.getParentCid() == 0)
                 .peek(categoryEntity -> categoryEntity.setChildren(getChildren(categoryEntity, entities)))
                 .sorted(this::categoryCompareTo)
                 .collect(Collectors.toList());
-        return level1Menus;
     }
 
     @Override
@@ -63,6 +68,17 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return path.toArray(new Long[0]);
     }
 
+    /**
+     * 级联更新所以关联的数据
+     */
+    @Transactional
+    @Override
+    public void updateCascade(CategoryEntity category) {
+        this.updateById(category);
+        categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+
+    }
+
     private void findParentPath(Long catelogId, List<Long> path) {
         // 收集当前节点id
         path.add(catelogId);
@@ -74,12 +90,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     // 递归查找所有菜单的子菜单
     private List<CategoryEntity> getChildren(CategoryEntity root, List<CategoryEntity> all) {
-        List<CategoryEntity> children = all.stream()
+        return all.stream()
                 .filter(categoryEntity -> categoryEntity.getParentCid().equals(root.getCatId()))
                 .peek(categoryEntity -> categoryEntity.setChildren(getChildren(categoryEntity, all)))
                 .sorted(this::categoryCompareTo)
                 .collect(Collectors.toList());
-        return children;
     }
 
     private int categoryCompareTo(CategoryEntity entity1, CategoryEntity entity2) {

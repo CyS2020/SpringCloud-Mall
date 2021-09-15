@@ -20,8 +20,8 @@
 - 配置信息
     - 导入mysql驱动的依赖，放在gulimall-common模块了
     - 在application.yml配置mysql数据源相关信息
-    - 配置mybatis-plus: 配置@MapperScan扫描的包路径
-    - 配置mybatis-plus: 配置classpath扫描的xml文件路径
+    - 配置mybatis-plus: 配置@MapperScan扫描的包路径(项目启动类)
+    - 配置mybatis-plus: 配置classpath扫描的xml文件路径(配置文件)
 - 逻辑删除
     - 配置全局的逻辑删除规则(省略)
     - 配置逻辑删除的组件Bean(省略)
@@ -122,6 +122,7 @@
 #### 统一异常处理 @ControllerAdvice
 - 编写异常处理类, 可以直接使用@RestControllerAdvice, 设置basePackages处理某些包
 - 编写异常处理方法, 使用@ExceptionHandler, 设置value参数处理一种类型的异常
+- 思想就是统一捕获异常然后处理无需try/catch了; 注意需要为不同的异常编写不同的错误码, 返回给前端; 
 
 ### 业务知识
 #### spu与sku
