@@ -122,7 +122,8 @@
 #### 统一异常处理 @ControllerAdvice
 - 编写异常处理类, 可以直接使用@RestControllerAdvice, 设置basePackages处理某些包
 - 编写异常处理方法, 使用@ExceptionHandler, 设置value参数处理一种类型的异常
-- 思想就是统一捕获异常然后处理无需try/catch了; 注意需要为不同的异常编写不同的错误码, 返回给前端; 
+- 思想就是统一捕获异常然后处理无需try/catch了; 注意需要为不同的异常编写不同的错误码, 返回给前端;
+- RestControllerAdvice会自动帮助catch,并匹配相应的ExceptionHandler, 然后重新封装异常信息, 返回值, 统一格式返回给前端。
 
 ### 业务知识
 #### spu与sku
