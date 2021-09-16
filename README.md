@@ -134,6 +134,24 @@
 - 三级分类下的商品有着共同的spu, sku属性key, 不同的是spu, sku属性的value;
 - 三级分类表 -> 属性分组表 -> (属性分组&属性关联表)-> 属性表; 商品的属性值存储在商品属性值表、销售属性值表里
 
+#### Object 划分
+- PO(persistent object)--持久对象
+  - PO 就是对应数据库中某个表中的一条记录, 多个记录可以用PO的集合, PO中应该不包含任何对数据库的操作
+- DO(Domain Object)--领域对象
+  - 就是从现实世界中抽象出来的有形或无形的业务实体。
+- TO(Transfer Object)--数据传输对象
+  - 不同应用程序之间传输的对象
+- DTO(Data Transfer Object)--数据传输对象
+  - 泛指用于展示层与服务层之间的数据传输对象
+- VO(View Object)--视图对象
+  - 接受页面传递来的数据封装对象; 将业务处理完成的对象封装成页面要用的数据
+- BO(business Object)--业务对象
+  - 主要作用是把业务逻辑封装为一个对象。这个对象可以包括一个或多个其它的对象
+- POJO(Plain Ordinary Java Object)--简单无规则java对象
+  - 我的理解就是最基本的java Bean, 只有属性字段及setter和getter方法, POJO是DO/DTO/BO/VO的统称
+- DAO(Data Access Object)--数据访问对象
+  - DAO中包含了各种数据库的操作方法, 通过它的方法结合PO对数据库进行相关的操作, 夹在业务逻辑与数据库资源中间配合VO, 提供数据库的CRUD操作
+
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件，默认使用集群模式启动，可以将启动模式改为set MODE="standalone"
