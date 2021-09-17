@@ -20,4 +20,9 @@ public class AttrRespVo extends AttrVo {
      * 所属分组
      */
     private String groupName;
+
+    /**
+     * 分类路径
+     */
+    private Long[] catelogPath;
 }
