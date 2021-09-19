@@ -28,11 +28,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("product/attr")
 public class AttrController {
+
     @Autowired
     private AttrService attrService;
 
-    //product/attr/sale/list/0?
-    ///product/attr/base/list/{catelogId}
+    // /product/attr/base/list/{catelogId}
     @GetMapping("/{attrType}/list/{catelogId}")
     public R baseAttrList(@RequestParam Map<String, Object> params,
                           @PathVariable("catelogId") Long catelogId,
@@ -92,8 +92,8 @@ public class AttrController {
     @RequestMapping("/delete")
     //@RequiresPermissions("product:attr:delete")
     public R delete(@RequestBody Long[] attrIds){
+        // TODO 删除关联关系
 		attrService.removeByIds(Arrays.asList(attrIds));
-
         return R.ok();
     }
 
