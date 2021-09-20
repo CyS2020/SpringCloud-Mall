@@ -173,7 +173,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
      * 根据分组id查找关联的所有属性
      */
     @Override
-    public List<AttrEntity> getAttrRelation(Long attrgroupId) {
+    public List<AttrEntity> getRelationAttr(Long attrgroupId) {
         List<AttrAttrgroupRelationEntity> relationEntities = relationDao.selectList(
                 new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrgroupId));
         if (relationEntities == null || relationEntities.isEmpty()) {
