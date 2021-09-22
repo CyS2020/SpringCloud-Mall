@@ -71,8 +71,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             queryWrapper.and(wrapper -> wrapper.eq("attr_id", key).or().like("attr_name", key));
         }
 
-        IPage<AttrEntity> page = this.page(
-                new Query<AttrEntity>().getPage(params), queryWrapper);
+        IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), queryWrapper);
 
         PageUtils pageUtils = new PageUtils(page);
         List<AttrEntity> records = page.getRecords();

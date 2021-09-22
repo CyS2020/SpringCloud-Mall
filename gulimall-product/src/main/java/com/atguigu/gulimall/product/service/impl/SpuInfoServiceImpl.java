@@ -31,11 +31,13 @@ import com.atguigu.gulimall.product.vo.SpuSaveVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -73,13 +75,14 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SpuInfoEntity> page = this.page(
                 new Query<SpuInfoEntity>().getPage(params),
-                new QueryWrapper<SpuInfoEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);
     }
 
     /**
+     * TODO 高级部分继续完善
      * 大保存方法
      */
     @Transactional
@@ -151,13 +154,16 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 Long skuId = skuInfoEntity.getSkuId();
 
                 // 6.2 保存sku的图片信息; pms_sku_images
-                List<SkuImagesEntity> imagesEntities = item.getImages().stream().map(image -> {
-                    SkuImagesEntity skuImagesEntity = new SkuImagesEntity();
-                    skuImagesEntity.setSkuId(skuId);
-                    skuImagesEntity.setImgUrl(image.getImgUrl());
-                    skuImagesEntity.setDefaultImg(image.getDefaultImg());
-                    return skuImagesEntity;
-                }).collect(Collectors.toList());
+                List<SkuImagesEntity> imagesEntities = item.getImages().stream()
+                        .map(image -> {
+                            SkuImagesEntity skuImagesEntity = new SkuImagesEntity();
+                            skuImagesEntity.setSkuId(skuId);
+                            skuImagesEntity.setImgUrl(image.getImgUrl());
+                            skuImagesEntity.setDefaultImg(image.getDefaultImg());
+                            return skuImagesEntity;
+                        })
+                        .filter(skuImagesEntity -> !StringUtils.isEmpty(skuImagesEntity.getImgUrl()))
+                        .collect(Collectors.toList());
                 skuImagesService.saveBatch(imagesEntities);
 
                 // 6.3 保存sku的销售属性; pms_sku_sale_attr_value
@@ -174,9 +180,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 SkuReductionTo skuReductionTo = new SkuReductionTo();
                 BeanUtils.copyProperties(item, skuReductionTo);
                 skuReductionTo.setSkuId(skuId);
-                R r1 = couponFeignService.saveSkuReduction(skuReductionTo);
-                if (r1.getCode() != 0) {
-                    log.error("远程保存sku优惠信息失败");
+                if (skuReductionTo.getFullCount() > 0 || skuReductionTo.getFullPrice().compareTo(BigDecimal.ZERO) > 0) {
+                    R r1 = couponFeignService.saveSkuReduction(skuReductionTo);
+                    if (r1.getCode() != 0) {
+                        log.error("远程保存sku优惠信息失败");
+                    }
                 }
             });
         }

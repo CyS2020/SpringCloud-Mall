@@ -14,7 +14,7 @@ public class SpuBoundTo {
 
     private Long spuId;
 
-    private BigDecimal buyBounds;
-
     private BigDecimal growBounds;
+
+    private BigDecimal buyBounds;
 }

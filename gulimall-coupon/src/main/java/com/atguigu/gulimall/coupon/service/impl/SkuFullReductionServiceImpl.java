@@ -18,6 +18,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ public class SkuFullReductionServiceImpl extends ServiceImpl<SkuFullReductionDao
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SkuFullReductionEntity> page = this.page(
                 new Query<SkuFullReductionEntity>().getPage(params),
-                new QueryWrapper<SkuFullReductionEntity>()
+                new QueryWrapper<>()
         );
 
         return new PageUtils(page);
@@ -45,30 +46,37 @@ public class SkuFullReductionServiceImpl extends ServiceImpl<SkuFullReductionDao
     @Override
     public void saveSkuReduction(SkuReductionTo reductionTo) {
         // 6.4 保存sku的优惠、满减等信息; gulimall_sms -> sms_sku_ladder、sms_sku_full_reduction、sms_member_price
-        // 1. 优惠
+        // 1. 优惠 sms_sku_ladder
         SkuLadderEntity skuLadderEntity = new SkuLadderEntity();
         skuLadderEntity.setSkuId(reductionTo.getSkuId());
         skuLadderEntity.setFullCount(reductionTo.getFullCount());
         skuLadderEntity.setDiscount(reductionTo.getDiscount());
         skuLadderEntity.setAddOther(reductionTo.getCountStatus());
-        skuLadderService.save(skuLadderEntity);
+        if (reductionTo.getFullCount() > 0) {
+            skuLadderService.save(skuLadderEntity);
+        }
 
-        // 2. 满减
+        // 2. 满减 sms_sku_full_reduction
         SkuFullReductionEntity reductionEntity = new SkuFullReductionEntity();
         BeanUtils.copyProperties(reductionTo, reductionEntity);
-        this.save(reductionEntity);
+        if (reductionEntity.getFullPrice().compareTo(BigDecimal.ZERO) > 0) {
+            this.save(reductionEntity);
+        }
 
-        // 3. 会员价格
+        // 3. 会员价格 sms_member_price
         List<MemberPrice> memberPrice = reductionTo.getMemberPrice();
-        List<MemberPriceEntity> priceEntities = memberPrice.stream().map(item -> {
-            MemberPriceEntity priceEntity = new MemberPriceEntity();
-            priceEntity.setSkuId(reductionTo.getSkuId());
-            priceEntity.setMemberLevelId(item.getId());
-            priceEntity.setMemberLevelName(item.getName());
-            priceEntity.setMemberPrice(item.getPrice());
-            priceEntity.setAddOther(1);
-            return priceEntity;
-        }).collect(Collectors.toList());
+        List<MemberPriceEntity> priceEntities = memberPrice.stream()
+                .map(item -> {
+                    MemberPriceEntity priceEntity = new MemberPriceEntity();
+                    priceEntity.setSkuId(reductionTo.getSkuId());
+                    priceEntity.setMemberLevelId(item.getId());
+                    priceEntity.setMemberLevelName(item.getName());
+                    priceEntity.setMemberPrice(item.getPrice());
+                    priceEntity.setAddOther(1);
+                    return priceEntity;
+                })
+                .filter(item -> item.getMemberPrice().compareTo(BigDecimal.ZERO) > 0)
+                .collect(Collectors.toList());
 
         memberPriceService.saveBatch(priceEntities);
 
