@@ -9,6 +9,7 @@ spring:
       discovery:
         server-addr: 127.0.0.1:8848
   jackson:
+    time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss
   application:
     name: gulimall-product
