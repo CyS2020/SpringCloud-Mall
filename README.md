@@ -136,6 +136,13 @@
 - 思想就是统一捕获异常然后处理无需try/catch了; 注意需要为不同的异常编写不同的错误码, 返回给前端;
 - RestControllerAdvice会自动帮助catch,并匹配相应的ExceptionHandler, 然后重新封装异常信息, 返回值, 统一格式返回给前端。
 
+#### ElasticSearch搜索和数据分析引擎
+- 基本概念
+  - Index索引: 类似于mysql中的Database
+  - Type类型: 类似于mysql中的Table
+  - Document文档: 类似于mysql中的一条记录, json格式
+  - 属性与属性值: 就是列名与列值
+  - 倒排索引: 记录每个词条出现在哪些文档中, 检索时计算相关性得分
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
 
