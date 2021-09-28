@@ -143,6 +143,23 @@
   - Document文档: 类似于mysql中的一条记录, json格式
   - 属性与属性值: 就是列名与列值
   - 倒排索引: 记录每个词条出现在哪些文档中, 检索时计算相关性得分
+- 增删改查--存储功能
+  - put请求/ip:port/索引/类型/id; post请求可以不带id自动生成
+  - delete请求删除文档或删除索引, 注意没有删除类型这个接口
+  - 使用put与post进行更新(同时新增); post/_update会对比原来的数据一样则什么也不做, put不能和_update组合在一起
+  - get请求/ip:port/索引/类型/id;
+- 信息检索方式
+  - 一个是通过使用REST request url发送搜索参数(url+检索参数)
+  - 一个是通过使用REST request body来发送它们(url+请求体)--常用
+- 匹配查询--检索功能
+  - match: 基本数据类型是精确匹配, 字符串类型是全文检索
+  - match_phrase: 短语当成整个单词(不分词)进行检索
+  - multi_match: 多个字段进行全文检索, 不管哪个字段包含了都算匹配上
+  - term: 全文检索字段用match, 其他非text字段匹配用term
+  - bool: 用来做复合查询; 搭配: must, should, must_not, filter(后两个不贡献相关性得分) 
+- 执行聚合--分析功能
+                            
+
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
 
