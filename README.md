@@ -1,4 +1,7 @@
 ### 谷粒商城
+
+
+
 #### 关于项目
 - 关于项目中所需要的数据库创建代码均放在data/sql目录下
 - renren_fast与renren-generator是从码云上人人开源clone下来的, 时间2021.08.13
@@ -108,7 +111,7 @@
 
 #### 对象存储OSS
 - 引入alicloud-oss依赖
-- 配置key, secret, endpoint等相关信息
+- 配置文件中配置key, secret, endpoint等相关信息
 - 自动注入OSSClient对象进行相关操作
 
 #### JSR303数据校验
@@ -158,11 +161,24 @@
   - term: 全文检索字段用match, 其他非text字段匹配用term
   - bool: 用来做复合查询; 搭配: must, should, must_not, filter(后两个不贡献相关性得分) 
 - 执行聚合--分析功能
-                            
-
+  - 聚合提供了从数据中分组和提取数据的能力. 最简单的聚合方法大致等于SQL GROUP BY和SQL聚合函数
+- 映射
+  - Mapping 是用来定义一个文档document, 以及它所包含的属性(field)是如何存储和索引的
+  - 注释: 在7.0及以后得版本不支持type了数据直接保存在索引下边
+- 分词器
+  - 一个 tokenizer(分词器)接收一个字符流, 将之分割为独立的tokens(词元，通常是独立的单词)，然后输出tokens流
+  - 使用中文分词器: 安装插件elasticsearch-analysis-ik
+  - 自定义词库: 使用nginx服务器来存储自定义的字典, 然后修改/usr/share/elasticsearch/plugins/ik/config/中的 IKAnalyzer.cfg.xml中配置远程扩展字典地址
+  
+#### ElasticSearch客户端
+  - 在docker容器中安装ElasticSearch服务并启动
+  - 引入客户端依赖elasticsearch.client
+  - 编写配置类能够访问远程的ElasticSearch服务器并向容器中注入
+  - 参照API对ElasticSearch进行操作
+  - `https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high.html`
+  
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
-
 
 ### 业务知识
 #### spu与sku
@@ -242,6 +258,7 @@ server:
 - 数据库配置的地址连接不上mybatis出问题造成项目启动失败
 - 好好检查下yaml配置文件的格式, 对齐空格之类的, 层级之间的缩进
 - 如果@Value获取不到值, 多半是@Value中${}内部的路径不对, 或者单词写错了
+- 无需配置数据源@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 
 #### 数据库突然连接不上去了
 - 虚拟机中的ip地址与无线网的ip地址冲突了, 修改下虚拟机中的ip地址即可
