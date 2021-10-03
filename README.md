@@ -1,6 +1,6 @@
 ### 谷粒商城
 
-![项目架构图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%B0%B7%E7%B2%92%E5%95%86%E5%9F%8E-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg)
+![项目架构图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%B0%B7%E7%B2%92%E5%95%86%E5%9F%8E-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg?raw=true)
 
 
 #### 关于项目
@@ -84,9 +84,10 @@
     - 如果有个Service调用了feign的Service, 并且传入了对象
     - 若有@RequestBody则将这个对象转为json
     - 去注册中心中找到该服务, 将json数据放在请求体的位置, 给对应的Rest接口发送请求
+    - 
     - 对方服务收到请求以及请求体中的json数据
-    - 将请求体中的json数据转为该接口接收对象
-- 只要json数据模型是兼容的, 远程调用双方无需使用同一个TO
+    - 将请求体中的json数据转为该接口接收的对象
+- 若json数据模型是兼容的, 远程调用双方无需使用同一个TO
     
 
 #### GateWay网关
@@ -212,6 +213,9 @@
 - 三级分类 -> spu -> sku -> 属性分组 -> 具体属性 -> 具体属性的值
 - 属性与属性分组表会记录自己的三级分类信息; 属性与属性分组有关联关系表; 品牌与分类有关联关系表
 
+#### ES保存商品信息
+- 商品上架时保存spu下的所有sku, 以及sku的品牌与分类信息, 以及可以被检索的基本属性
+
 
 ### 拦路虎
 #### Nacos启动失败
@@ -260,6 +264,23 @@ server:
 - 好好检查下yaml配置文件的格式, 对齐空格之类的, 层级之间的缩进
 - 如果@Value获取不到值, 多半是@Value中${}内部的路径不对, 或者单词写错了
 - 无需配置数据源@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+
+#### windows/Linux端口占用
+- 查看8080端口被哪个进程PID占用
+```
+netstat -aon | findstr 8080
+netstat -tunpl | grep 8080
+``` 
+- 查看当前进程PID是哪个程序
+```
+tasklist | findstr 143232
+ps -ef | grep 143232
+```
+- 关闭该进程
+```
+taskkill /T /F /PID 143232
+kill -9 143232
+```
 
 #### 数据库突然连接不上去了
 - 虚拟机中的ip地址与无线网的ip地址冲突了, 修改下虚拟机中的ip地址即可

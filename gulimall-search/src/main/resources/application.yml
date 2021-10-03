@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  application:
+    name: gulimall-search
+
+server:
+  port: 12000
+
+logging:
+  level:
+    com.atguigu.gulimall: debug

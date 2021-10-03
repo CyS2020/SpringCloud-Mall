@@ -28,15 +28,22 @@ import java.util.Map;
 @RestController
 @RequestMapping("product/spuinfo")
 public class SpuInfoController {
+
     @Autowired
     private SpuInfoService spuInfoService;
+
+    @PostMapping("/{spuId}/up")
+    public R spuUp(@PathVariable Long spuId) {
+        spuInfoService.up(spuId);
+        return R.ok();
+    }
 
     /**
      * 列表
      */
     @RequestMapping("/list")
     //@RequiresPermissions("product:spuinfo:list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = spuInfoService.queryPageByCondition(params);
 
         return R.ok().put("page", page);
