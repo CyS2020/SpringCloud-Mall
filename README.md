@@ -2,7 +2,6 @@
 
 ![项目架构图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%B0%B7%E7%B2%92%E5%95%86%E5%9F%8E-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg?raw=true)
 
-
 #### 关于项目
 - 关于项目中所需要的数据库创建代码均放在data/sql目录下
 - renren_fast与renren-generator是从码云上人人开源clone下来的, 时间2021.08.13
@@ -37,6 +36,8 @@
 - 注册中心: 每一个微服务上线后注册到注册中心，对外提供服务;
 - 配置中心: 每一个微服务的配置都很多, 集群环境需要一个个修改, 通过配置中心来管理修改;
 - 网关: 前端请求通过网关进行 鉴权; 过滤; 路由. 由网关抵达微服务;
+- nginx: 用户首先访问nginx, 将数据转发给网关, 静态资源存放在nginx里实现动静分离
+- 动静分离: 静态--image, html, js, css等以实际文件存在的资源; 动--服务器需要处理的请求
 
 #### 技术搭配方案
 - SpringCloud Alibaba - Nacos：注册中心（服务发现/注册）
@@ -84,12 +85,10 @@
     - 如果有个Service调用了feign的Service, 并且传入了对象
     - 若有@RequestBody则将这个对象转为json
     - 去注册中心中找到该服务, 将json数据放在请求体的位置, 给对应的Rest接口发送请求
-    - 
     - 对方服务收到请求以及请求体中的json数据
     - 将请求体中的json数据转为该接口接收的对象
 - 若json数据模型是兼容的, 远程调用双方无需使用同一个TO
     
-
 #### GateWay网关
 - 创建一个模块作为项目的API网关微服务, 同时写需要引入注册中心与配置中心的功能
 - 开启服务注册功能@EnableDiscoveryClient(可省略)
@@ -134,7 +133,7 @@
     @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
     @Retention(RetentionPolicy.RUNTIME)
     ```
-    
+  
 #### 统一异常处理 @ControllerAdvice
 - 编写异常处理类, 可以直接使用@RestControllerAdvice, 设置basePackages处理某些包
 - 编写异常处理方法, 使用@ExceptionHandler, 设置value参数处理一种类型的异常
@@ -179,6 +178,38 @@
   - 参照API对ElasticSearch进行操作
   - `https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high.html`
   
+#### 模板引擎
+- 引入thymeleaf的starter依赖, 并在配置文件中关闭缓存
+- 静态资源都放在static文件夹下就按照路径直接访问
+- 页面放在templates文件夹下是可以直接访问的, springBoot默认会找index.html的 
+- 页面修改无需重启服务器需要额外引入dev-tools依赖, 然后ctrl + shift + f9自动重新编译页面
+
+#### nginx + windows搭建域名访问环境
+- 正向代理: 科学上网等, 隐藏客户端信息; 帮助我访问外界
+- 反向代理: 屏蔽内网服务器信息, 负载均衡访问; 帮助外界访问我
+- 可以通过修改hosts文件来将域名与ip地址绑定, 访问gulimall.com时跳转到虚拟机的ip地址访问nginx服务器
+- 通过nginx反向代理将请求负载均衡的转发到网关, nginx.conf中配置上游服务器, 网关服务有几个就配置几个
+```
+http {
+    upstream gulimall{
+      server 192.168.0.100:88;
+    }
+    include /etc/nginx/conf.d/*.conf;
+}
+```
+- conf.d文件夹添加代理配置, 该文件夹下的所有配置文件都回包含在总配置文件中
+- nginx在将请求代理给网关的时候会丢失请求的Host, 需要配置nginx不要丢掉该信息
+```
+listen       80;
+server_name  gulimall.com;
+
+location / {
+    proxy_set_head Host $host;
+    proxy_pass http://gulimall;
+}
+```
+
+
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
 
