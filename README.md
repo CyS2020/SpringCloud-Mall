@@ -38,6 +38,7 @@
 - 网关: 前端请求通过网关进行 鉴权; 过滤; 路由. 由网关抵达微服务;
 - nginx: 用户首先访问nginx, 将数据转发给网关, 静态资源存放在nginx里实现动静分离
 - 动静分离: 静态--image, html, js, css等以实际文件存在的资源; 动--服务器需要处理的请求
+- 浏览器 -> nginx -> 网关集群 -> 微服务 -> tomcat -> 调用程序
 
 #### 技术搭配方案
 - SpringCloud Alibaba - Nacos：注册中心（服务发现/注册）
@@ -127,12 +128,12 @@
     - 编写一个自定义的校验注解 
     - 编写一个自定义的校验器 ConstraintValidator
     - 关联自定义的校验器和自定义的校验注解, 一个校验注解可以设置多个校验器以进行不同类型的校验
-    ```
-    @Documented
-    @Constraint(validatedBy = {ListValueConstraintValidator.class})
-    @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
-    @Retention(RetentionPolicy.RUNTIME)
-    ```
+      ```
+      @Documented
+      @Constraint(validatedBy = {ListValueConstraintValidator.class})
+      @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
+      @Retention(RetentionPolicy.RUNTIME)
+      ```
   
 #### 统一异常处理 @ControllerAdvice
 - 编写异常处理类, 可以直接使用@RestControllerAdvice, 设置basePackages处理某些包
@@ -168,9 +169,15 @@
   - 注释: 在7.0及以后得版本不支持type了数据直接保存在索引下边
 - 分词器
   - 一个 tokenizer(分词器)接收一个字符流, 将之分割为独立的tokens(词元，通常是独立的单词)，然后输出tokens流
-  - 使用中文分词器: 安装插件elasticsearch-analysis-ik
+  - 使用中文分词器: 安装插件elasticsearch-analysis-ik, 下载解压到elasticsearch/plugins/ik文件夹下
   - 自定义词库: 使用nginx服务器来存储自定义的字典, 然后修改/usr/share/elasticsearch/plugins/ik/config/中的 IKAnalyzer.cfg.xml中配置远程扩展字典地址
-  
+      ```
+      <properties>
+          <!--用户可以在这里配置远程扩展字典 -->
+          <entry key="remote_ext_dict">http://192.168.0.102/es/fenci.txt</entry>
+      </properties>
+      ```
+
 #### ElasticSearch客户端
   - 在docker容器中安装ElasticSearch服务并启动
   - 引入客户端依赖elasticsearch.client
@@ -199,9 +206,14 @@ http {
 ```
 - conf.d文件夹添加代理配置, 该文件夹下的所有配置文件都回包含在总配置文件中
 - nginx在将请求代理给网关的时候会丢失请求的Host, 需要配置nginx不要丢掉该信息
+- nginx配置动静分离, 所有的静态资源均由nginx返回, 并配置资源地址
 ```
 listen       80;
 server_name  gulimall.com;
+
+location /static/ {
+    root /usr/share/nginx/html;
+}
 
 location / {
     proxy_set_head Host $host;
@@ -209,6 +221,27 @@ location / {
 }
 ```
 
+#### JMeter压力测试
+- 性能指标
+  - 响应时间(Response Time: RT): 从客户端发起请求到客户端接收到服务端的返回, 整个过程的时间
+  - HPS(Hits Per Second): 每秒点击次数, 单位是次/秒
+  - TPS(Transaction per Second): 系统每秒处理交易数, 单位是笔/秒
+  - QPS(Query per Second): 系统每秒处理查询次数, 单位是次/秒
+  - 最大响应时间(Max Response Time): 指用户发出请求或者指令到系统做出反应(响应)的最大时间
+  - 最少响应时间(Min ResponseTime): 指用户发出请求或者指令到系统做出反应(响应)的最少时间
+  - 90%响应时间(90% Response Time): 是指所有用户的响应时间进行排序, 第90%的响应时间
+- 从外部看, 性能测试主要关注如下三个指标
+  - 吞吐量: 每秒钟系统能够处理的请求数、任务数
+  - 响应时间: 服务处理一个请求或一个任务的耗时
+  - 错误率: 一批请求中结果出错的请求所占比例
+  
+#### 性能优化
+- JVM内存 = (本地方法栈 + 虚拟机栈 + 程序计数器) + (堆区 + 元数据区)
+  - 单个微服务来说要优化cpu占用与内存占用
+- 中间件越多, 性能损失越大, 每一个中间件吞吐量就要下降一点(nginx -> 网关集群 -> 微服务)
+  - 调整中间件性能使得本身的吞吐量增大, 让网络交互的更快(网卡, 网线, 传输协议)
+- 业务层面的优化: Mysql优化, 模板渲染速度, 静态资源获取
+- 使用工具jvisualvm(visual GC)、JMeter等分析工具测试并发性能
 
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
@@ -316,6 +349,11 @@ kill -9 143232
 #### 数据库突然连接不上去了
 - 虚拟机中的ip地址与无线网的ip地址冲突了, 修改下虚拟机中的ip地址即可
 - 修改完成ip地址都互相ping通过的情况下, 发现还是连接不上数据库, 关闭下防火墙(虽然之前没关闭也能用--玄学)
+
+#### 网站突然访问不了
+- 由于无线网的ip地址一直变化, 需要重新重启这些微服务
+- 重新配置nginx的网关ip地址, 配置成最新的ip地址
+- 有时候还会和虚拟机的ip冲突, 这就比较麻烦了需要重置虚拟机ip
 
 ### 规范
 #### REST接口
