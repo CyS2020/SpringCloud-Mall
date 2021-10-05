@@ -245,31 +245,80 @@ location / {
 
 #### Redis缓存
 - 适合放入缓存的数据: 即时性, 数据一致性要求不高的; 访问大, 更新频率不高的(读多, 写少)
-- docker容器安装并启动redis, 同时下载Another Redis Desktop Manager客户端记性可视化操作
+- docker容器安装并启动redis, 同时下载Another Redis Desktop Manager客户端进行可视化操作
 - 项目中引入依赖data-redis, 并在yml配置文件中配置数据源ip地址与端口号
 - 使用SpringBoot自动配置好的StringRedisTemplate进行操作
 - redis中的数据类型其实是针对于K-V中的V来说的, V可以为Value, Hash, List, Set, ZSet
 
-#### 分布式缓存
+#### SpringCache管理缓存
+- 项目中引入依赖data-redis与cache, 均为starter组件
+- 自动配置中CacheAutoConfiguration会导入RedisCacheConfiguration, 自动配置了缓存管理器RedisCacheManager
+- 所以我们只需要在yaml配置spring.cache.type=redis; 使用redis作为缓存
+- 开启缓存功能@EnableCaching; 并在方法上添加注解对返回结果进行相应的缓存操作
+- 通过使用注解来使用缓存功能
+  - @Cacheable: 触发将数据保存到缓存的操作
+  - @CacheEvict: 触发将数据从缓存删除的操作; 失效模式
+  - @CachePut: 不影响方法执行的方式更新缓存; 双写模式
+  - @Caching: 组合以上多个操作
+  - @CacheConfig: 在类级别共享缓存的相同配置
+- 每个需要缓存的数据我们都来在注解参数里指定缓存分区(按照业务类型划分)
+- 默认行为需要自定义参考CacheConfig类与yml配置文件
+  - 如果缓存中存在, 则方法不调用
+  - key是默认自动生成的; 自定义缓存生成的key; 使用注解的key参数指定spEL
+  - value默认使用jdk序列化然后存到缓存中; 将数据保存为json格式
+  - 默认时间是-1, 永不过期; 指定缓存数据的存活时间; 在yaml配置文件中修改ttl
+  - 更改缓存的配置, 只需要给容器中放入一个RedisCacheConfiguration应用到所有的缓存分区中
+- 配置文件与配置类是绑定的, 使用的时候需要放在容器中的; (可省略)
+```
+@ConfigurationProperties(prefix = "spring.cache")
+@EnableConfigurationProperties(CacheProperties.class);
+```
+- 删除多个缓存可以使用@Caching组合操作, 可以指定@CacheEvict里面的allEntries参数设为true
+- 最佳实战: 存储同一类型的数据, 都可以指定同一个分区, 可以批量删除
+
+#### 缓存问题
 - 缓存穿透: 将null结果缓存, 并加入短暂的过期时间
 - 缓存雪崩: 在原有的失效时间基础上添加随机值, 例如1-5分钟随机
 - 缓存击穿: 查数据库加本地锁, 查到以后释放锁; 双重检查 + 原子操作(查mysql, 写redis)
-- 分布式锁: 加锁值设置为uuid(唯一id), 并设置过期时间; 解锁使用lua脚本保证原子性
+- 分布式锁: 加锁值设置为uuid(唯一id), 并设置过期时间; 解锁使用lua脚本保证原子性; 使用StringRedisTemplate实现
 ```
 String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
 Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Lists.newArrayList("lock"), uuid);
 ```
 
+#### 缓存数据一致性
+- 双写模式: 修改数据库, 然后修改缓存
+- 失效模式: 修改数据库, 删除缓存
+- 用户维度那么没有这么高的并发量, 基础数据对数据实时性要求不高, 都可以通过缓存 + 过期时间足够用了; 如果觉得不够用再用分布式读写锁就好了
+- 遇到实时性一致性高的场景就应该查数据库, 即使慢点
+- 完美解决: 数据异步同步, mysql会将操作记录在Binary log日志中, 通过canal去监听数据库日志二进制文件, 解析log日志, 同步到redis中进行增删改操作
+- 注释: 关于canal还可以解决数据异构的问题, 监听不同用户的访问记录生成用户推荐表
+
+#### springCache不足
+- 读模式
+  - 缓存穿透: 缓存空数据, yml配置spring.cache.redis.cache-null-values=true
+  - 缓存击穿: 加锁, @Cacheable中参数sync = true控制this锁
+  - 缓存雪崩: 加上过期时间(不用随机), yml配置spring.cache.redis.time-to-live=3600000
+- 写模式(数据一致性), springCache并没有考虑
+- 总结: 常规数据(读多写少, 即时性, 实时性要求不高的数据), 完全可以使用springCache; 特殊数据需要特殊设计
+
+
+  
+
+
 #### Redisson分布式锁
 - 项目中引入redisson依赖, 并进行配置RedissonConfig
 - 使用RedissonClient作为客户端对Redis进行操作
+- 可以使用该组件当做分布式的juc包, 本项目不会直接使用该组件处理缓存一致性
 
-#### Redisson细节
+#### Redisson分布式锁细节
 - 实现了juc包下的各种高级锁功能, 且实现了juc包下接口无缝衔接; 只要key一样就是同一把锁
-- 默认加锁时间是30s, 锁会自动续期, 如果业务超长则自动续上新的30s; 无需担心业务时间长, 锁被过期清理
-- 加锁的业务执行完成后不会给锁续期; 即使不手动解锁, 锁默认在30s后自动删除
+- 熟悉使用互斥锁, 读写锁, 信号量(分布式限流), CountDownLatch, Condition
+- 默认加锁时间是30s, 锁会自动续期, 如果业务超长则自动续上新的30s; 无需担心业务时间长锁被过期清理
+- 加锁的业务执行完成后不会再给锁自动续期了; 即使不手动解锁, 锁默认在30s后自动删除
 - 如果指定了锁的超时时间, 锁到期后不会自动续期; 自动解锁时间一定要大于业务执行时间
 - 最佳实战: lock.lock(30, TimeUnit.SECONDS); 省掉续期操作, 并手动解锁
+
 
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出

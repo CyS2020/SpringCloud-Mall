@@ -34,7 +34,6 @@ public class IndexController {
     public String indexPage(Model model) {
         // 查询所有的一级分类
         List<CategoryEntity> categoryEntities = categoryService.getLevel1Categories();
-
         model.addAttribute("categorys", categoryEntities);
         // 视图解析器进行拼串: "classpath:/templates/" + 返回值 + ".html";
         return "index";
