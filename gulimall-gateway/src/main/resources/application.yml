@@ -52,7 +52,11 @@ spring:
         - id: gulimall_host_route
           uri: lb://gulimall-product
           predicates:
-            - Host=**.gulimall.com,gulimall.com
+            - Host=gulimall.com
+        - id: gulimall_search_route
+          uri: lb://gulimall-search
+          predicates:
+            - Host=search.gulimall.com
 
   ## 前端项目发送请求都会带api前缀
   ## 前端发来请求 http://localhost:88/api/captcha.jpg

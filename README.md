@@ -188,13 +188,19 @@
 #### 模板引擎
 - 引入thymeleaf的starter依赖, 并在配置文件中关闭缓存
 - 静态资源都放在static文件夹下就按照路径直接访问
-- 页面放在templates文件夹下是可以直接访问的, springBoot默认会找index.html的 
+- 页面放在templates文件夹下是可以直接访问的, springBoot访问项目时默认会找index.html; 其他html需要编写Controller返回
 - 页面修改无需重启服务器需要额外引入dev-tools依赖, 然后ctrl + shift + f9自动重新编译页面
+- yml配置文件中关闭thymeleaf缓存; 
 
 #### nginx + windows搭建域名访问环境
 - 正向代理: 科学上网等, 隐藏客户端信息; 帮助我访问外界
 - 反向代理: 屏蔽内网服务器信息, 负载均衡访问; 帮助外界访问我
-- 可以通过修改hosts文件来将域名与ip地址绑定, 访问gulimall.com时跳转到虚拟机的ip地址访问nginx服务器
+- 可以通过记事本修改hosts文件来将域名与ip地址绑定, 访问gulimall.com时跳转到虚拟机的ip地址访问nginx服务器
+```
+//C:\Windows\System32\drivers\etc\hosts
+192.168.0.102 gulimall.com
+192.168.0.102 search.gulimall.com
+```
 - 通过nginx反向代理将请求负载均衡的转发到网关, nginx.conf中配置上游服务器, 网关服务有几个就配置几个
 ```
 http {
@@ -207,9 +213,10 @@ http {
 - conf.d文件夹添加代理配置, 该文件夹下的所有配置文件都回包含在总配置文件中
 - nginx在将请求代理给网关的时候会丢失请求的Host, 需要配置nginx不要丢掉该信息
 - nginx配置动静分离, 所有的静态资源均由nginx返回, 并配置资源地址
+- gateway的路由规则需要配置, 根据不同的域名转发到不同微服务上
 ```
 listen       80;
-server_name  gulimall.com;
+server_name  gulimall.com  *.gulimall.com;
 
 location /static/ {
     root /usr/share/nginx/html;
@@ -301,10 +308,6 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
   - 缓存雪崩: 加上过期时间(不用随机), yml配置spring.cache.redis.time-to-live=3600000
 - 写模式(数据一致性), springCache并没有考虑
 - 总结: 常规数据(读多写少, 即时性, 实时性要求不高的数据), 完全可以使用springCache; 特殊数据需要特殊设计
-
-
-  
-
 
 #### Redisson分布式锁
 - 项目中引入redisson依赖, 并进行配置RedissonConfig
@@ -453,6 +456,8 @@ kill -9 143232
 </dependency>
 ```
 
+#### nginx静态文件修改不生效
+- 清除浏览器缓存最有效; 网上查到的没一个有用的
 
 ### 规范
 #### REST接口
