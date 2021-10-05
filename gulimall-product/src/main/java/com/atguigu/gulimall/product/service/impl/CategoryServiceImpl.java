@@ -10,15 +10,23 @@ import com.atguigu.gulimall.product.vo.Catelog2Vo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -30,6 +38,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+    private Gson gson = new Gson();
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -87,6 +100,42 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Override
     public Map<String, List<Catelog2Vo>> getCatalogJson() {
+        // 1. 加入缓存逻辑
+        String catalogJSON = redisTemplate.opsForValue().get("catalogJSON");
+        if (StringUtils.isEmpty(catalogJSON)) {
+            // 2. 缓存中没有
+            return getCatalogJsonFromDbWithRedisLock();
+        }
+        return gson.fromJson(catalogJSON, new TypeToken<Map<String, List<Catelog2Vo>>>() {
+        }.getType());
+    }
+
+    public Map<String, List<Catelog2Vo>> getCatalogJsonFromDbWithRedisLock() {
+        String uuid = UUID.randomUUID().toString();
+        Boolean lock = redisTemplate.opsForValue().setIfAbsent("lock", uuid, 60L, TimeUnit.SECONDS);
+        Map<String, List<Catelog2Vo>> dataFromDb;
+        if (lock) {
+            System.out.println("获取分布式锁成功...");
+            try {
+                dataFromDb = getDataFromDb();
+            } finally {
+                String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+                redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Lists.newArrayList("lock"), uuid);
+            }
+            return dataFromDb;
+        } else {
+            System.out.println("获取分布式锁失败...进行重试...");
+            return getCatalogJsonFromDbWithRedisLock();
+        }
+    }
+
+    private Map<String, List<Catelog2Vo>> getDataFromDb() {
+        String catalogJSON = redisTemplate.opsForValue().get("catalogJSON");
+        if (!StringUtils.isEmpty(catalogJSON)) {
+            return gson.fromJson(catalogJSON, new TypeToken<Map<String, List<Catelog2Vo>>>() {
+            }.getType());
+        }
+        System.out.println("查询数据库...");
         // 查询所有分类
         List<CategoryEntity> allEntities = baseMapper.selectList(null);
         // 查询1级分类
@@ -114,7 +163,14 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             }
             map.put(l1.getCatId().toString(), catelog2Vos);
         }
+        // 3. 将查出的对象转为json放入缓存中
+        String s = gson.toJson(map);
+        redisTemplate.opsForValue().set("catalogJSON", s, 1, TimeUnit.DAYS);
         return map;
+    }
+
+    public synchronized Map<String, List<Catelog2Vo>> getCatalogJsonFromDbLocalLock() {
+        return getDataFromDb();
     }
 
     private List<CategoryEntity> getParentCid(List<CategoryEntity> allEntities, Long parentCid) {

@@ -179,10 +179,10 @@
       ```
 
 #### ElasticSearch客户端
-  - 在docker容器中安装ElasticSearch服务并启动
+  - 在docker容器中安装ElasticSearch服务并启动, 并安装Kibana可视化服务
   - 引入客户端依赖elasticsearch.client
   - 编写配置类能够访问远程的ElasticSearch服务器并向容器中注入
-  - 参照API对ElasticSearch进行操作
+  - 使用RestHighLevelClient类参照API对ElasticSearch进行操作
   - `https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high.html`
   
 #### 模板引擎
@@ -242,6 +242,34 @@ location / {
   - 调整中间件性能使得本身的吞吐量增大, 让网络交互的更快(网卡, 网线, 传输协议)
 - 业务层面的优化: Mysql优化, 模板渲染速度, 静态资源获取
 - 使用工具jvisualvm(visual GC)、JMeter等分析工具测试并发性能
+
+#### Redis缓存
+- 适合放入缓存的数据: 即时性, 数据一致性要求不高的; 访问大, 更新频率不高的(读多, 写少)
+- docker容器安装并启动redis, 同时下载Another Redis Desktop Manager客户端记性可视化操作
+- 项目中引入依赖data-redis, 并在yml配置文件中配置数据源ip地址与端口号
+- 使用SpringBoot自动配置好的StringRedisTemplate进行操作
+- redis中的数据类型其实是针对于K-V中的V来说的, V可以为Value, Hash, List, Set, ZSet
+
+#### 分布式缓存
+- 缓存穿透: 将null结果缓存, 并加入短暂的过期时间
+- 缓存雪崩: 在原有的失效时间基础上添加随机值, 例如1-5分钟随机
+- 缓存击穿: 查数据库加本地锁, 查到以后释放锁; 双重检查 + 原子操作(查mysql, 写redis)
+- 分布式锁: 加锁值设置为uuid(唯一id), 并设置过期时间; 解锁使用lua脚本保证原子性
+```
+String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Lists.newArrayList("lock"), uuid);
+```
+
+#### Redisson分布式锁
+- 项目中引入redisson依赖, 并进行配置RedissonConfig
+- 使用RedissonClient作为客户端对Redis进行操作
+
+#### Redisson细节
+- 实现了juc包下的各种高级锁功能, 且实现了juc包下接口无缝衔接; 只要key一样就是同一把锁
+- 默认加锁时间是30s, 锁会自动续期, 如果业务超长则自动续上新的30s; 无需担心业务时间长, 锁被过期清理
+- 加锁的业务执行完成后不会给锁续期; 即使不手动解锁, 锁默认在30s后自动删除
+- 如果指定了锁的超时时间, 锁到期后不会自动续期; 自动解锁时间一定要大于业务执行时间
+- 最佳实战: lock.lock(30, TimeUnit.SECONDS); 省掉续期操作, 并手动解锁
 
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
@@ -354,6 +382,28 @@ kill -9 143232
 - 由于无线网的ip地址一直变化, 需要重新重启这些微服务
 - 重新配置nginx的网关ip地址, 配置成最新的ip地址
 - 有时候还会和虚拟机的ip冲突, 这就比较麻烦了需要重置虚拟机ip
+
+#### redis的OutOfDirectMemoryError错误
+- 原因: SpringBoot2.0以后默认使用lettuce作为操作redis的客户端, 使用netty进行通信
+- netty通信具有极高的吞吐量, 但是lettuce没有及时释放堆外内存造成堆外内存溢出
+- 解决: 升级lettuce客户端; 或切换使用jedis客户端
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>io.lettuce</groupId>
+            <artifactId>lettuce-core</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+<dependency>
+    <groupId>redis.clients</groupId>
+    <artifactId>jedis</artifactId>
+</dependency>
+```
+
 
 ### 规范
 #### REST接口
