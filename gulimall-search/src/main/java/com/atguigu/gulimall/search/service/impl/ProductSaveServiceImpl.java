@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
  * @author: CyS2020
  * @date: 2021/10/3
  * 描述：商品存储到Es的实现类
+ * TODO 需要首先在ES中创建索引 放在resources/gulimall_product_mapping.json
  */
 
 @Slf4j
@@ -34,11 +35,11 @@ public class ProductSaveServiceImpl implements ProductSaveService {
     private RestHighLevelClient restHighLevelClient;
 
     /**
-     * 返回成功则无错误
+     * 返回true则无错误
      */
     @Override
     public boolean productStatusUp(List<SkuEsModel> skuEsModels) throws IOException {
-        // 1. 给es中建立索引
+        // 1. 给es中建立索引 见下方注释
         // 2. 给es中保存这些数据
         BulkRequest bulkRequest = new BulkRequest();
         for (SkuEsModel model : skuEsModels) {

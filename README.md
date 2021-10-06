@@ -182,6 +182,7 @@
   - 在docker容器中安装ElasticSearch服务并启动, 并安装Kibana可视化服务
   - 引入客户端依赖elasticsearch.client
   - 编写配置类能够访问远程的ElasticSearch服务器并向容器中注入
+  - 创建mapping映射关系, 即创建表及表中字段类型等, 然后才能增删改查数据
   - 使用RestHighLevelClient类参照API对ElasticSearch进行操作
   - `https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high.html`
   
@@ -359,7 +360,10 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 
 #### ES保存商品信息
 - 商品上架时保存spu下的所有sku, 以及sku的品牌与分类信息, 以及可以被检索的基本属性
-
+- ES搜索的时候全文匹配使用must搜索(参与评分), 其他都使用filter过滤(不参与评分)
+- 查询的时候需要完成功能: 模糊匹配, 过滤(按照属性, 分类, 品牌, 价格区间, 库存), 排序, 分页, 高亮功能, 聚合分析
+- 用户在搜手机的时候模糊匹配, 然后确定手机分类(图书等其他分类也有的), 确定苹果华为小米等品牌, 确定屏幕摄像头cpu等属性, 再确定价格区间, 有现货不要预约的, 综合排序展示; 聚合分析和用户无关
+- 如果是嵌入式的属性, 查询, 聚合, 分析都应该使用嵌入式的方式(使用嵌入式是为了避免数组类型数据扁平化)
 
 ### 拦路虎
 #### Nacos启动失败

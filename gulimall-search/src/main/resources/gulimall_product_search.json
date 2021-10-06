@@ -1,0 +1,168 @@
+//GET gulimall_product/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          // 模糊匹配
+          "match": {
+            "skuTitle": "苹果"
+          }
+        }
+      ],
+      "filter": [
+        {
+          // 分类过滤
+          "term": {
+            "catalogId": "225"
+          }
+        },
+        {
+          // 品牌过滤
+          "terms": {
+            "brandId": [
+              "1",
+              "6",
+              "8"
+            ]
+          }
+        },
+        {
+          "nested": {
+            "path": "attrs",
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    // 属性1过滤
+                    "term": {
+                      "attrs.attrId": {
+                        "value": "18"
+                      }
+                    }
+                  },
+                  {
+                    // 属性2过滤
+                    "terms": {
+                      "attrs.attrValue": [
+                        "2019",
+                        "2021"
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          // 库存过滤
+          "term": {
+            "hasStock": {
+              "value": "true"
+            }
+          }
+        },
+        {
+          // 价格区间过滤
+          "range": {
+            "skuPrice": {
+              "gte": 0,
+              "lte": 7000
+            }
+          }
+        }
+      ]
+    }
+  },
+  // 排序规则
+  "sort": [
+    {
+      "skuPrice": {
+        "order": "desc"
+      }
+    }
+  ],
+  // 分页功能,
+  "from": 0,
+  "size": 5,
+  // 命中高亮,
+  "highlight": {
+    "fields": {
+      "skuTitle": {}
+    },
+    "pre_tags": "<b style='color:red'>",
+    "post_tags": "</b>"
+  },
+  "aggs": {
+    // 品牌聚合,
+    "brand_agg": {
+      "terms": {
+        "field": "brandId",
+        "size": 10
+      },
+      "aggs": {
+        // 品牌名子聚合,
+        "brand_name_agg": {
+          "terms": {
+            "field": "brandName",
+            "size": 10
+          }
+        },
+        // 品牌图片子聚合,
+        "brand_img_agg": {
+          "terms": {
+            "field": "brandImg",
+            "size": 10
+          }
+        }
+      }
+    },
+    // 分类聚合
+    "catalog_agg": {
+      "terms": {
+        "field": "catalogId",
+        "size": 10
+      },
+      "aggs": {
+        // 分类名子聚合
+        "catalog_name_agg": {
+          "terms": {
+            "field": "catalogName",
+            "size": 10
+          }
+        }
+      }
+    },
+    "attr_agg": {
+      "nested": {
+        "path": "attrs"
+      },
+      "aggs": {
+        // 属性聚合
+        "attr_id_agg": {
+          "terms": {
+            "field": "attrs.attrId",
+            "size": 10
+          },
+          "aggs": {
+            // 属性名子聚合
+            "attr_name_agg": {
+              "terms": {
+                "field": "attrs.attrName",
+                "size": 10
+              }
+            },
+            // 属性值子聚合
+            "attr_value_agg": {
+              "terms": {
+                "field": "attrs.attrValue",
+                "size": 10
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
