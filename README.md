@@ -181,7 +181,7 @@
 #### ElasticSearch客户端
   - 在docker容器中安装ElasticSearch服务并启动, 并安装Kibana可视化服务
   - 引入客户端依赖elasticsearch.client
-  - 编写配置类能够访问远程的ElasticSearch服务器并向容器中注入
+  - 编写配置类能够访问远程的ElasticSearch服务器并向容器中注入RestHighLevelClient
   - 创建mapping映射关系, 即创建表及表中字段类型等, 然后才能增删改查数据
   - 使用RestHighLevelClient类参照API对ElasticSearch进行操作
   - `https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high.html`
