@@ -34,7 +34,7 @@ public class SearchParam {
      * brandId=1
      * attr=2_5寸:6寸
      */
-    private Integer hasStock = 1; // 是否显示有货
+    private Integer hasStock; // 是否显示有货
 
     private String skuPrice; // 价格区间
 
