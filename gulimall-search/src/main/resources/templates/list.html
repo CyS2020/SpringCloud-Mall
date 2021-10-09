@@ -403,7 +403,7 @@
         <a href="http://gulimall.com"><img src="/static/search/./image/logo1.jpg" alt=""></a>
     </div>
     <div class="header_form">
-        <input id="keyword_input" type="text" placeholder="手机"/>
+        <input id="keyword_input" type="text" placeholder="手机" th:value="${param.keyword}"/>
         <a href="javascript:searchByKeyword();">搜索</a>
     </div>
     <div class="header_ico">
@@ -1047,9 +1047,9 @@
                     <!--综合排序-->
                     <div class="filter_top">
                         <div class="filter_top_left">
-                            <a href="/static/search/#">综合排序</a>
-                            <a href="/static/search/#">销量</a>
-                            <a href="/static/search/#">价格</a>
+                            <a class="sort_a" sort="hotScore" href="/static/search/#">综合排序</a>
+                            <a class="sort_a" sort="saleCount" href="/static/search/#">销量</a>
+                            <a class="sort_a" sort="skuPrice" href="/static/search/#">价格</a>
                             <a href="/static/search/#">评论分</a>
                             <a href="/static/search/#">上架时间</a>
                         </div>
@@ -2007,18 +2007,57 @@
 
        var href = location.href;
        if(href.indexOf("pageNum") != -1){
-            location.href = replaceParamVal(href,"pageNum",pn);
+            location.href = replaceAndAddParamVal(href,"pageNum",pn);
        }else{
             location.href = location.href + "&pageNum=" + pn;
        }
        return false;
     });
 
-    function replaceParamVal(url,paramName,replaceVal){
-<!--        val oUrl = url.toString();-->
-<!--        var re = eval('/(' + paramName + '=)([^&]*)/gi');-->
-<!--        var nUrl = oUrl.replace(re,paramName+'='+replaceVal);-->
-        return "haha";
+    function replaceAndAddParamVal(url,paramName,replaceVal){
+        var oUrl = url.toString();
+        if(oUrl.indexOf(paramName) != -1){
+            var re = eval('/(' + paramName + '=)([^&]*)/gi');
+            var nUrl = oUrl.replace(re,paramName+'='+replaceVal);
+            return nUrl;
+        }else{
+            var nUrl = "";
+            if(oUrl.indexOf("?") != -1){
+                var nUrl = oUrl + "&" + paramName + "=" + replaceVal;
+            }else{
+                var nUrl = oUrl + "?" + paramName + "=" + replaceVal;
+            }
+            return nUrl;
+        }
+    }
+
+    $(".sort_a").click(function(){
+        // 改变样式
+        changeStyle(this);
+        // 跳转位置
+        var sort = $(this).attr("sort");
+        sort = $(this).hasClass("desc") ? sort + "_desc" : sort + "_asc";
+        location.href = replaceAndAddParamVal(location.href, "sort", sort);
+        return false;
+    });
+
+    function changeStyle(ele){
+        $(".sort_a").css({"color":"#333", "border-color":"#CCC", "background":"#FFF"});
+        $(".sort_a").each(function(){
+            var text = $(this).text().replace("↑","").replace("↓","");
+            $(this).text(text);
+        })
+        $(ele).css({"color":"#FFF", "border-color":"#e4393c", "background":"#e4393c"});
+        $(ele).toggleClass("desc");
+        if($(ele).hasClass("desc")){
+            var text = $(ele).text().replace("↑","").replace("↓","");
+            text = text + "↓";
+            $(ele).text(text);
+        }else{
+           var text = $(ele).text().replace("↑","").replace("↓","");
+            text = text + "↑";
+            $(ele).text(text);
+        }
     }
 
 
