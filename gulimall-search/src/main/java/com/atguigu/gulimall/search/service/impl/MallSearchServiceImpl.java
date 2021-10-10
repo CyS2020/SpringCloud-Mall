@@ -262,7 +262,7 @@ public class MallSearchServiceImpl implements MallSearchService {
         long total = hits.getTotalHits().value;
         result.setTotal(total);
         int totalPages = (int) total % EsConstant.PRODUCT_PAGESIZE == 0 ? (int) total : ((int) total / EsConstant.PRODUCT_PAGESIZE + 1);
-        result.setTotalPage(totalPages);
+        result.setTotalPages(totalPages);
         return result;
     }
 }

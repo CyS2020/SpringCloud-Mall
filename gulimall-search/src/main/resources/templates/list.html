@@ -1046,12 +1046,23 @@
                 <div class="filter">
                     <!--综合排序-->
                     <div class="filter_top">
-                        <div class="filter_top_left">
-                            <a class="sort_a" sort="hotScore" href="/static/search/#">综合排序</a>
-                            <a class="sort_a" sort="saleCount" href="/static/search/#">销量</a>
-                            <a class="sort_a" sort="skuPrice" href="/static/search/#">价格</a>
+                        <div class="filter_top_left" th:with="p = ${param.sort}">
+                            <a th:class="${(!#strings.isEmpty(p) && #strings.startsWith(p, 'hotScore') && #strings.endsWith(p,'desc')) ? 'sort_a desc' : 'sort_a'}"
+                               th:attr="style=${(#strings.isEmpty(p) || #strings.startsWith(p, 'hotScore')) ? 'color:#FFF;border-color:#e4393c;background:#e4393c' : 'color:#333;border-color:#CCC;background:#FFF'}"
+                               sort="hotScore" href="/static/search/#">综合排序 [[${(!#strings.isEmpty(p) &&
+                                #strings.startsWith(p, 'hotScore') && #strings.endsWith(p,'desc')) ? '↓' : '↑'}]]</a>
+                            <a th:class="${(!#strings.isEmpty(p) && #strings.startsWith(p, 'saleCount') && #strings.endsWith(p,'desc')) ? 'sort_a desc' : 'sort_a'}"
+                               th:attr="style=${(!#strings.isEmpty(p) && #strings.startsWith(p, 'saleCount')) ? 'color:#FFF;border-color:#e4393c;background:#e4393c' : 'color:#333;border-color:#CCC;background:#FFF'}"
+                               sort="saleCount" href="/static/search/#">销量 [[${(!#strings.isEmpty(p) &&
+                                #strings.startsWith(p, 'saleCount') && #strings.endsWith(p,'desc')) ? '↓' : '↑'}]]</a>
+                            <a th:class="${(!#strings.isEmpty(p) && #strings.startsWith(p, 'skuPrice') && #strings.endsWith(p,'desc')) ? 'sort_a desc' : 'sort_a'}"
+                               th:attr="style=${(!#strings.isEmpty(p) && #strings.startsWith(p, 'skuPrice')) ? 'color:#FFF;border-color:#e4393c;background:#e4393c' : 'color:#333;border-color:#CCC;background:#FFF'}"
+                               sort="skuPrice" href="/static/search/#">价格 [[${(!#strings.isEmpty(p) &&
+                                #strings.startsWith(p, 'skuPrice') && #strings.endsWith(p,'desc')) ? '↓' : '↑'}]]</a>
                             <a href="/static/search/#">评论分</a>
                             <a href="/static/search/#">上架时间</a>
+                            <input style="width:100px;margin-left:30px;"> - <input style="width:100px;">
+                            <button id="skuPriceSearchBtn">确定</button>
                         </div>
                         <div class="filter_top_right">
                             <span class="fp-text">
@@ -1228,14 +1239,14 @@
                                 </a>
                                 <a class="page_a"
                                    th:attr="pn=${index},style=${index == result.pageNum ? 'border: 0;color:#ee2222;background: #fff' : ''}"
-                                   th:each="index:${#numbers.sequence(1,result.totalPage)}">[[${index}]]</a>
+                                   th:each="index:${#numbers.sequence(1,result.totalPages)}">[[${index}]]</a>
                                 <a class="page_a" th:attr="pn=${result.pageNum + 1}"
-                                   th:if="${result.pageNum < result.totalPage}">
+                                   th:if="${result.pageNum < result.totalPages}">
                                     下一页 >
                                 </a>
                             </span>
                             <span class="page_span2">
-                                <em>共<b>[[${result.totalPage}]]</b>页&nbsp;&nbsp;到第</em>
+                                <em>共<b>[[${result.totalPages}]]</b>页&nbsp;&nbsp;到第</em>
                                 <input type="number" value="1">
                                 <em>页</em>
                                 <a class="page_submit">确定</a>
@@ -1853,6 +1864,7 @@
     </div>
 </div>
 
+</body>
 <script>
     $(".sl_ext a:nth-child(1)").hover(function(){
         $(this).children("b").stop(true).animate({top:"3px"},50);
@@ -2033,7 +2045,10 @@
 
     $(".sort_a").click(function(){
         // 改变样式
-        changeStyle(this);
+        // changeStyle(this);
+
+        $(this).toggleClass("desc");
+
         // 跳转位置
         var sort = $(this).attr("sort");
         sort = $(this).hasClass("desc") ? sort + "_desc" : sort + "_asc";
@@ -2062,5 +2077,4 @@
 
 
 </script>
-</body>
 </html>

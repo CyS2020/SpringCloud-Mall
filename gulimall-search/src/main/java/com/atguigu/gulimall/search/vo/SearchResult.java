@@ -23,7 +23,7 @@ public class SearchResult {
 
     private Long total;
 
-    private Integer totalPage;
+    private Integer totalPages;
 
     /*
      * 当前查询结果, 所有涉及到的品牌
