@@ -40,7 +40,9 @@ public class SearchParam {
 
     private List<Long> brandId; // 品牌
 
-    private List<String> attrs; //按照属性进行筛选
+    private List<String> attrs; // 按照属性进行筛选
 
     private Integer pageNum = 1; // 页码
+
+    private String queryString; // 原生的查询条件
 }

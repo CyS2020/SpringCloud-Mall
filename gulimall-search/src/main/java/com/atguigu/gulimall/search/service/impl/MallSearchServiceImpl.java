@@ -35,8 +35,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -263,6 +266,34 @@ public class MallSearchServiceImpl implements MallSearchService {
         result.setTotal(total);
         int totalPages = (int) total % EsConstant.PRODUCT_PAGESIZE == 0 ? (int) total : ((int) total / EsConstant.PRODUCT_PAGESIZE + 1);
         result.setTotalPages(totalPages);
+
+        // 构造面包屑导航功能
+        if (param.getAttrs() != null) {
+            List<SearchResult.NavVo> collect = param.getAttrs().stream().map(attr -> {
+                SearchResult.NavVo navVo = new SearchResult.NavVo();
+                String[] split = attr.split("_");
+                Long attrId = Long.parseLong(split[0]);
+                navVo.setNavValue(split[1]);
+                Optional<SearchResult.AttrVo> optional = attrVos.stream().filter(attrVo -> attrVo.getAttrId().equals(attrId)).findFirst();
+                if (optional.isPresent()) {
+                    navVo.setNavName(optional.get().getAttrName());
+                } else {
+                    navVo.setNavName(attrId.toString());
+                }
+                String encode = null;
+                try {
+                    encode = URLEncoder.encode(attr, "UTF-8");
+                    encode = encode.replace("+", "%20");
+                    encode = encode.replace("%2F", "/");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                String link = param.getQueryString().replace("&attrs=" + encode, "");
+                navVo.setLink("http://search.gulimall.com/list.html?" + link);
+                return navVo;
+            }).collect(Collectors.toList());
+            result.setNavs(collect);
+        }
         return result;
     }
 }
