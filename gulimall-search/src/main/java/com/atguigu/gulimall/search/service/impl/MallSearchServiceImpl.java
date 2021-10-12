@@ -214,7 +214,8 @@ public class MallSearchServiceImpl implements MallSearchService {
         for (Terms.Bucket bucket : attrIdAgg.getBuckets()) {
             SearchResult.AttrVo attrVo = new SearchResult.AttrVo();
             // 得到属性的id
-            attrVo.setAttrId(bucket.getKeyAsNumber().longValue());
+            long attrId = bucket.getKeyAsNumber().longValue();
+            attrVo.setAttrId(attrId);
             // 得到属性的名字
             String attrName = ((ParsedStringTerms) bucket.getAggregations().get("attr_name_agg")).getBuckets().get(0).getKeyAsString();
             attrVo.setAttrName(attrName);
@@ -227,7 +228,7 @@ public class MallSearchServiceImpl implements MallSearchService {
         }
         result.setAttrs(attrVos);
 
-        // 3. 当前商品设计到的的品牌信息
+        // 3. 当前商品涉及到的的品牌信息
         List<SearchResult.BrandVo> brandVos = new ArrayList<>();
         ParsedLongTerms brandAgg = response.getAggregations().get("brand_agg");
         for (Terms.Bucket bucket : brandAgg.getBuckets()) {
@@ -270,30 +271,65 @@ public class MallSearchServiceImpl implements MallSearchService {
         // 构造面包屑导航功能
         if (param.getAttrs() != null) {
             List<SearchResult.NavVo> collect = param.getAttrs().stream().map(attr -> {
+
                 SearchResult.NavVo navVo = new SearchResult.NavVo();
                 String[] split = attr.split("_");
                 Long attrId = Long.parseLong(split[0]);
                 navVo.setNavValue(split[1]);
+                result.getAttrIds().add(attrId);
+                // 查询属性名
                 Optional<SearchResult.AttrVo> optional = attrVos.stream().filter(attrVo -> attrVo.getAttrId().equals(attrId)).findFirst();
                 if (optional.isPresent()) {
                     navVo.setNavName(optional.get().getAttrName());
                 } else {
                     navVo.setNavName(attrId.toString());
                 }
-                String encode = null;
-                try {
-                    encode = URLEncoder.encode(attr, "UTF-8");
-                    encode = encode.replace("+", "%20");
-                    encode = encode.replace("%2F", "/");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                String link = param.getQueryString().replace("&attrs=" + encode, "");
+                String link = getUrlLink(param, attr, "attrs");
                 navVo.setLink("http://search.gulimall.com/list.html?" + link);
                 return navVo;
             }).collect(Collectors.toList());
             result.setNavs(collect);
         }
+        // 品牌和分类也构造面包屑导航
+        List<SearchResult.NavVo> navs = result.getNavs();
+        if (param.getBrandId() != null && !param.getBrandId().isEmpty()) {
+            SearchResult.NavVo navVo = new SearchResult.NavVo();
+            navVo.setNavName("品牌");
+            List<String> brandNames = brandVos.stream().map(SearchResult.BrandVo::getBrandName).collect(Collectors.toList());
+            String value = String.join(",", brandNames);
+            String replace = "";
+            for (SearchResult.BrandVo brandVo : brandVos) {
+                String brandName = brandVo.getBrandId().toString();
+                replace = getUrlLink(param, brandName, "brandId");
+            }
+            navVo.setNavValue(value);
+            navVo.setLink("http://search.gulimall.com/list.html?" + replace);
+            navs.add(navVo);
+        }
+        if (param.getCatalog3Id() != null) {
+            SearchResult.NavVo navVo = new SearchResult.NavVo();
+            navVo.setNavName("分类");
+            List<String> catalogNames = catalogVos.stream().map(SearchResult.CatalogVo::getCatalogName).collect(Collectors.toList());
+            String value = String.join(",", catalogNames);
+            navVo.setNavValue(value);
+            navs.add(navVo);
+        }
         return result;
+    }
+
+    private String getUrlLink(SearchParam param, String value, String key) {
+        String encode = null;
+        try {
+            encode = URLEncoder.encode(value, "UTF-8");
+            encode = encode.replace("+", "%20");
+            encode = encode.replace("%2F", "/");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        int index = param.getQueryString().indexOf(key);
+        if (index != 0) {
+            key = "&" + key;
+        }
+        return param.getQueryString().replace(key + "=" + encode, "");
     }
 }
