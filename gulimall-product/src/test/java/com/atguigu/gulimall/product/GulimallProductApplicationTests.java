@@ -1,7 +1,9 @@
 package com.atguigu.gulimall.product;
 
+import com.atguigu.gulimall.product.dao.AttrGroupDao;
 import com.atguigu.gulimall.product.service.BrandService;
 import com.atguigu.gulimall.product.service.CategoryService;
+import com.atguigu.gulimall.product.vo.SpuItemAttrGroupVo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +15,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -31,6 +34,15 @@ public class GulimallProductApplicationTests {
 
     @Autowired
     private RedissonClient redissonClient;
+
+    @Autowired
+    private AttrGroupDao groupDao;
+
+    @Test
+    public void testAttrGroupDao() {
+        List<SpuItemAttrGroupVo> group = groupDao.getAttrGroupWithAttrsBySpuId(7L, 225L);
+        System.out.println(group);
+    }
 
     @Test
     public void testRedisson() {

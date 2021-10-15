@@ -31,6 +31,11 @@
     - 给Bean(数据库的entity对象)加上逻辑删除注解@TableLogic
 - 分页插件
     - 给项目添加MybatisConfig分页功能的配置项
+- 数据库交互
+    - service层实现类继承ServiceImpl<Dao, Entity>使用其baseMapper对象编写增删改查java代码与数据库交互
+    - dao层接口继承BaseMapper<Entity>, 就是service层里的那个baseMapper; 拥有继承来的CRUD, 和自己定义的复杂交互方法
+    - dao继承BaseMapper<T>该接口后,无需编写mapper.xml文件, 即可获得CRUD功能; 复杂的逻辑仍需最好还是编写xml文件
+    - this.baseMapper就是实现了dao层接口的实例, 由框架自动注入进来的, 不需要我们手动实例化; (dao == mapper)
 
 #### 微服务
 - 注册中心: 每一个微服务上线后注册到注册中心，对外提供服务;
