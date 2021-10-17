@@ -1,8 +1,10 @@
 package com.atguigu.gulimall.product;
 
 import com.atguigu.gulimall.product.dao.AttrGroupDao;
+import com.atguigu.gulimall.product.dao.SkuSaleAttrValueDao;
 import com.atguigu.gulimall.product.service.BrandService;
 import com.atguigu.gulimall.product.service.CategoryService;
+import com.atguigu.gulimall.product.vo.SkuItemSaleAttrVo;
 import com.atguigu.gulimall.product.vo.SpuItemAttrGroupVo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -37,6 +39,15 @@ public class GulimallProductApplicationTests {
 
     @Autowired
     private AttrGroupDao groupDao;
+
+    @Autowired
+    private SkuSaleAttrValueDao skuSaleAttrValueDao;
+
+    @Test
+    public void testSkuSaleAttrValueDao() {
+        List<SkuItemSaleAttrVo> saleAttrsBySpuId = skuSaleAttrValueDao.getSaleAttrsBySpuId(6L);
+        System.out.println(saleAttrsBySpuId);
+    }
 
     @Test
     public void testAttrGroupDao() {

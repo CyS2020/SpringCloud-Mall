@@ -9,7 +9,9 @@ import com.atguigu.gulimall.product.entity.SpuInfoDescEntity;
 import com.atguigu.gulimall.product.service.AttrGroupService;
 import com.atguigu.gulimall.product.service.SkuImagesService;
 import com.atguigu.gulimall.product.service.SkuInfoService;
+import com.atguigu.gulimall.product.service.SkuSaleAttrValueService;
 import com.atguigu.gulimall.product.service.SpuInfoDescService;
+import com.atguigu.gulimall.product.vo.SkuItemSaleAttrVo;
 import com.atguigu.gulimall.product.vo.SkuItemVo;
 import com.atguigu.gulimall.product.vo.SpuItemAttrGroupVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -36,6 +38,9 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
     @Autowired
     private AttrGroupService attrGroupService;
+
+    @Autowired
+    private SkuSaleAttrValueService skuSaleAttrValueService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -103,24 +108,27 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
         // 1. sku基本信息 pms_sku_info表
         SkuInfoEntity skuInfo = getById(skuId);
-        skuItemVo.setSkuInfo(skuInfo);
+        skuItemVo.setInfo(skuInfo);
 
         // 2. sku的图片信息 pms_sku_images
         List<SkuImagesEntity> images = imagesService.getImagesBySkuId(skuId);
         skuItemVo.setImages(images);
 
+        Long spuId = skuInfo.getSpuId();
+
         // 3. spu的销售属性组合
+        List<SkuItemSaleAttrVo> saleAttrVos = skuSaleAttrValueService.getSaleAttrsBySpuId(spuId);
+        skuItemVo.setSaleAttr(saleAttrVos);
 
         // 4. spu的介绍 pms_spu_info_desc
-        Long spuId = skuInfo.getSpuId();
         SpuInfoDescEntity spuInfoDescEntity = spuInfoDescService.getById(spuId);
-        skuItemVo.setDesc(spuInfoDescEntity);
+        skuItemVo.setDesp(spuInfoDescEntity);
 
         // 5. spu规格参数
         List<SpuItemAttrGroupVo> groupAttrs = attrGroupService.getAttrGroupWithAttrsBySpuId(spuId, skuInfo.getCatalogId());
         skuItemVo.setGroupAttrs(groupAttrs);
 
-        return null;
+        return skuItemVo;
     }
 
 }

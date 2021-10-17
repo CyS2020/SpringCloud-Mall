@@ -16,17 +16,20 @@ import java.util.List;
 public class SkuItemVo {
 
     // 1. sku基本信息 pms_sku_info表
-    private SkuInfoEntity skuInfo;
+    private SkuInfoEntity info;
 
     // 2. sku的图片信息 pms_sku_images
     private List<SkuImagesEntity> images;
 
     // 3. spu的销售属性组合
-    private List<SkuItemSaleAttrVo> saleAttrs;
+    private List<SkuItemSaleAttrVo> saleAttr;
 
     // 4. spu的介绍 pms_spu_info_desc
-    SpuInfoDescEntity desc;
+    private SpuInfoDescEntity desp;
 
     // 5. spu规格参数
-    List<SpuItemAttrGroupVo> groupAttrs;
+    private List<SpuItemAttrGroupVo> groupAttrs;
+
+    // 6. 有货无货信息
+    private boolean hasStock = true;
 }
