@@ -609,9 +609,10 @@
 					<div class="box-attr clear" th:each="attr : ${item.saleAttr}">
 						<dl>
 							<dt>选择[[${attr.attrName}]]</dt>
-							<dd th:each="val:${#strings.listSplit(attr.attrValues,',')}">
-								<a href="/static/item/#">
-									[[${val}]]
+							<dd th:each="val : ${attr.attrValues}">
+								<a th:attr=" class=${#lists.contains(#strings.listSplit(val.skuIds,','),item.info.skuId.toString())
+                                   ? 'sku_attr_value checked': 'sku_attr_value'}, skus=${val.skuIds} ">
+									[[${val.attrValue}]]
 								</a>
 							</dd>
 						</dl>
@@ -1234,6 +1235,41 @@
 <script src="/static/item/js/jquery1.9.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/item/js/js.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
+</script>
+
+<script>
+    $(".sku_attr_value").click(function () {
+        // 1、点击的元素添加上自定义的属性
+        let skus = new Array();
+        let curr = $(this).attr("skus").split(",");
+
+        $(this).parent().parent().find(".sku_attr_value").removeClass("checked");
+        $(this).addClass("checked");
+        changeCheckedStyle();
+
+        $("a[class='sku_attr_value checked']").each(function () {
+            skus.push($(this).attr("skus").split(","));
+        });
+
+        let filterEle = skus[0];
+        for (let i = 1; i < skus.length; i++) {
+            filterEle = $(filterEle).filter(skus[i])[0];
+        }
+
+        location.href = "http://item.gulimall.com/" + filterEle + ".html";
+
+        return false;
+    });
+
+    $(function () {
+        changeCheckedStyle();
+    })
+
+    function changeCheckedStyle() {
+        $(".sku_attr_value").parent().css({"border": "solid 1px #ccc"});
+        $("a[class='sku_attr_value checked']").parent().css({"border": "solid 1px red"});
+    }
+
 </script>
 
 </html>

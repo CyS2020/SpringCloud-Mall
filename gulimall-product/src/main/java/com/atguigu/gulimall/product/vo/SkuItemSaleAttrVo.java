@@ -2,6 +2,8 @@ package com.atguigu.gulimall.product.vo;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author: CyS2020
  * @date: 2021/10/16
@@ -13,5 +15,5 @@ public class SkuItemSaleAttrVo {
 
     private String attrName;
 
-    private String attrValues;
+    private List<SkuItemSaleAttrVo> attrValues;
 }
