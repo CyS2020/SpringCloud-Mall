@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.thirdparty;
 
 import com.aliyun.oss.OSSClient;
+import com.atguigu.gulimall.thirdparty.component.SmsComponent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,12 @@ public class GulimallThirdPartyApplicationTests {
 	@Autowired
 	private OSSClient ossClient;
 
+	@Autowired
+	private SmsComponent smsComponent;
+
 	@Test
-	public void contextLoads() {
+	public void testSendSms() {
+		smsComponent.sendSmsCode("18851822270", "5201314");
 	}
 
 	@Test

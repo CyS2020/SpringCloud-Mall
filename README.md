@@ -84,7 +84,7 @@
 #### OpenFeign远程调用
 - 引入open-feign依赖
 - 编写接口，告诉springCloud这个接口需要调用的那个微服务
-- 声明方法，调用微服务的哪个请求，访问路径需要写全
+- 声明方法，调用微服务的那个请求，访问路径需要写全
     - 访问路径写法有两种一种是过网关(网关微服务 + /api/xx/xxx), 一种是不过网关(指定微服务 + /xx/xxx)
 - 开启远程调用功能，@EnableFeignClients并传入扫描的包路径
 - SpringCloud整个远程调用的逻辑
@@ -328,6 +328,11 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 加锁的业务执行完成后不会再给锁自动续期了; 即使不手动解锁, 锁默认在30s后自动删除
 - 如果指定了锁的超时时间, 锁到期后不会自动续期; 自动解锁时间一定要大于业务执行时间
 - 最佳实战: lock.lock(30, TimeUnit.SECONDS); 省掉续期操作, 并手动解锁
+
+#### 短信验证码
+- 使用阿里云市场中的某个短信服务, 参照文档中的实例代码进行断行验证码的发送
+- Nacos配置中心里配置好必要的参数 host, path, appcode(最重要), templateId 等
+- 验证码两个问题: 接口防刷; 验证码校验--redis保存验证码
 
 
 #### 无需回滚的方式

@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,7 +41,7 @@ public class OssController {
     }
 
     @RequestMapping("/oss/policy")
-    public R policy(HttpServletRequest request, HttpServletResponse response) {
+    public R policy() {
 
         String host = "https://" + bucket + "." + endpoint; // host的格式为 bucketname.endpoint
         // callbackUrl为上传回调服务器的URL，请将下面的IP和Port配置为您自己的真实信息。
