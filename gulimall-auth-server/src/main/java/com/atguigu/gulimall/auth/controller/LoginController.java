@@ -4,17 +4,26 @@ import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.exception.BizCodeEnum;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.auth.feign.SendSmsFeignService;
+import com.atguigu.gulimall.auth.vo.UserRegistVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author: CyS2020
@@ -52,13 +61,45 @@ public class LoginController {
             }
         }
 
-
         // redis缓存验证码，防止同一个phone在60s内再次发送验证码
         String code = generateCode();
         redisTemplate.opsForValue().set(key, code, 10, TimeUnit.MINUTES);
         log.info("验证码是:{}", code);
         sendSmsFeignService.sendCode(phone, code);
         return R.ok();
+    }
+
+    /**
+     * 模拟重定向携带数据
+     * TODO 重定向携带数据是利用session原理，将数据放在session中
+     * 只要重定向后从session中取，取完之后session里面的数据就会删掉
+     */
+    @PostMapping("/regist")
+    public String regist(@Valid UserRegistVo vo, BindingResult result, RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            // 如果校验出错转发到注册页
+            Map<String, String> errors = result.getFieldErrors().stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
+            redirectAttributes.addFlashAttribute("errors", errors);
+            return "redirect:http://auth.gulimall.com/reg.html";
+        }
+        // 1. 校验验证码
+        String code = vo.getCode();
+        String s = redisTemplate.opsForValue().get(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
+        if (!StringUtils.isEmpty(s) && code.equals(s.substring(0, 6))) {
+            // 校验通过后删除redis中验证码
+            redisTemplate.delete(AuthServerConstant.SMS_CODE_CACHE_PREFIX + vo.getPhone());
+            // 真正的注册，调用远程服务进行
+
+
+        } else {
+            // 如果校验出错转发到注册页
+            Map<String, String> errors = new HashMap<>();
+            errors.put("code", "验证码错误");
+            redirectAttributes.addFlashAttribute("errors", errors);
+            return "redirect:http://auth.gulimall.com/reg.html";
+        }
+
+        return "redirect:/login.html";
     }
 
     private String generateCode() {

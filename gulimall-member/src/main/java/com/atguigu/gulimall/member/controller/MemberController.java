@@ -5,8 +5,10 @@ import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.member.entity.MemberEntity;
 import com.atguigu.gulimall.member.feign.CouponFeignService;
 import com.atguigu.gulimall.member.service.MemberService;
+import com.atguigu.gulimall.member.vo.MemberRegistVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,8 +39,20 @@ public class MemberController {
     public R test() {
         MemberEntity memberEntity = new MemberEntity();
         memberEntity.setNickname("安南");
-        R memeberCoupons = couponFeignService.memeberCoupons();
-        return R.ok().put("member", memberEntity).put("coupons", memeberCoupons.get("coupons"));
+        R memberCoupons = couponFeignService.memeberCoupons();
+        return R.ok().put("member", memberEntity).put("coupons", memberCoupons.get("coupons"));
+    }
+
+    @PostMapping("/regist")
+    public R regist(@RequestBody MemberRegistVo vo) {
+
+        try {
+            memberService.regist(vo);
+        } catch (Exception e) {
+
+        }
+
+        return R.ok();
     }
 
     /**

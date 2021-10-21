@@ -474,6 +474,12 @@ kill -9 143232
 #### nginx静态文件修改不生效
 - 清除浏览器缓存最有效; 网上查到的没一个有用的
 
+#### Request method 'POST' not supported -- 405
+- 在该项目中 /regist 请求是POST请求, 注册出错后转发到注册页面; return "forward:/reg.html";
+- 而reg.html是使用路径映射的方式做的, 路径映射默认都是GET方式访问的
+- 转发就是原来的请求原封不动转给下个页面, 将一个POST请求转发给了GET请求所以产生这个问题
+- 不使用转发直接渲染界面 return "reg";
+
 ### 规范
 #### REST接口
 - Controller处理请求, 接收和校验数据
