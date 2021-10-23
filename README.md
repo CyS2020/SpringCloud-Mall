@@ -386,13 +386,15 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 如果是嵌入式的属性, 查询, 聚合, 分析都应该使用嵌入式的方式(使用嵌入式是为了避免数组类型数据扁平化)
 
 #### OAuth2.0 社交登录
-我  ----向用户申请请求认证---->       resource owner(用户本人) </br>
-们   &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;|</br>
-的   &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;使用授权进行认证</br>
-应   &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;↓</br>
-用  <----认证通过返回访问令牌----- Authorization Server(QQ服务器)</br>
-程  ----使用访问令牌获取开放保护信息----> Resource Server(QQ服务器)</br>
-序  <----认证令牌, 返回受保护的信息----- Resource Server(QQ服务器)</br> 
+```
+我  -----向用户申请请求认证---->     resource owner(用户本人)
+们                                         |
+的                                   使用授权进行认证
+应                                         ↓
+用  <----认证通过返回访问令牌----- Authorization Server(QQ服务器)
+程  ----使用访问令牌获取开放保护信息----> Resource Server(QQ服务器)
+序  <----认证令牌返回受保护的信息----- Resource Server(QQ服务器)
+```
                                         
 ### 拦路虎
 #### Nacos启动失败
