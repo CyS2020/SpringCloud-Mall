@@ -332,7 +332,16 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 #### 短信验证码
 - 使用阿里云市场中的某个短信服务, 参照文档中的实例代码进行断行验证码的发送
 - Nacos配置中心里配置好必要的参数 host, path, appcode(最重要), templateId 等
-- 验证码两个问题: 接口防刷; 验证码校验--redis保存验证码
+- 验证码两个问题 
+  - 接口防刷
+  - 验证码校验: 使用redis保存验证码一是防止短时间内重复发送验证码二是用于特定时间内校验
+
+#### MD5加密
+- Message Digest algorithm 5 信息摘要算法
+- 压缩性, 容易计算性, 抗修改性, 强抗碰撞, 不可逆性
+- 加盐: 随机数与MD5生成字符串进行组合; 数据库同时存储MD5值与salt值
+- MD5不能直接用于密码的直接存储, 彩虹表的会暴力破解
+- 使用spring中的BCryptPasswordEncoder进行加密; 盐与MD5值放在一起了, 但是你不知道那部分是盐
 
 
 #### 无需回滚的方式
@@ -471,8 +480,9 @@ kill -9 143232
 </dependency>
 ```
 
-#### nginx静态文件修改不生效
-- 清除浏览器缓存最有效; 网上查到的没一个有用的
+#### nginx遇到的问题
+- nginx静态文件修改不生效: 清除浏览器缓存最有效; 网上查到的没一个有用的
+- nginx的404 not found: 本地使用的网络ip地址一直变化, 需要确保nginx配置的网关ip是正确的
 
 #### Request method 'POST' not supported -- 405
 - 在该项目中 /regist 请求是POST请求, 注册出错后转发到注册页面; return "forward:/reg.html";

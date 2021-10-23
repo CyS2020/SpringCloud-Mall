@@ -1,10 +1,14 @@
 package com.atguigu.gulimall.member.controller;
 
+import com.atguigu.common.exception.BizCodeEnum;
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.member.entity.MemberEntity;
+import com.atguigu.gulimall.member.exception.PhoneExistException;
+import com.atguigu.gulimall.member.exception.UsernameExistException;
 import com.atguigu.gulimall.member.feign.CouponFeignService;
 import com.atguigu.gulimall.member.service.MemberService;
+import com.atguigu.gulimall.member.vo.MemberLoginVo;
 import com.atguigu.gulimall.member.vo.MemberRegistVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,13 +47,24 @@ public class MemberController {
         return R.ok().put("member", memberEntity).put("coupons", memberCoupons.get("coupons"));
     }
 
+    @PostMapping("/login")
+    public R login(@RequestBody MemberLoginVo vo) {
+        MemberEntity entity = memberService.login(vo);
+        if (entity == null) {
+            return R.error(BizCodeEnum.LOGINACCT_PASSWORD_INVALID_EXCEPTION.getCode(),
+                    BizCodeEnum.LOGINACCT_PASSWORD_INVALID_EXCEPTION.getMsg());
+        }
+        return R.ok();
+    }
+
     @PostMapping("/regist")
     public R regist(@RequestBody MemberRegistVo vo) {
-
         try {
             memberService.regist(vo);
-        } catch (Exception e) {
-
+        } catch (PhoneExistException e) {
+            return R.error(BizCodeEnum.PHONE_EXIST_EXCEPTION.getCode(), BizCodeEnum.PHONE_EXIST_EXCEPTION.getMsg());
+        } catch (UsernameExistException e) {
+            return R.error(BizCodeEnum.USER_EXIST_EXCEPTION.getCode(), BizCodeEnum.USER_EXIST_EXCEPTION.getMsg());
         }
 
         return R.ok();
