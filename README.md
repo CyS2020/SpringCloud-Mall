@@ -385,6 +385,15 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 用户在搜手机的时候模糊匹配, 然后确定手机分类(图书等其他分类也有的), 确定苹果华为小米等品牌, 确定屏幕摄像头cpu等属性, 再确定价格区间, 有现货不要预约的, 综合排序展示; 聚合分析和用户无关
 - 如果是嵌入式的属性, 查询, 聚合, 分析都应该使用嵌入式的方式(使用嵌入式是为了避免数组类型数据扁平化)
 
+#### OAuth2.0 社交登录
+我  ----向用户申请请求认证---->       resource owner(用户本人) </br>
+们                                            |</br>
+的                                        使用授权进行认证</br>
+应                                            ↓</br>
+用  <----认证通过返回访问令牌----- Authorization Server(QQ服务器)</br>
+程  ----使用访问令牌获取开放保护信息----> Resource Server(QQ服务器)</br>
+序  <----认证令牌, 返回受保护的信息----- Resource Server(QQ服务器)</br> 
+
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件，默认使用集群模式启动，可以将启动模式改为set MODE="standalone"
