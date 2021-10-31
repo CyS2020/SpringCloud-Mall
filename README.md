@@ -211,7 +211,7 @@
 ```
 http {
     upstream gulimall{
-      server 192.168.0.100:88;
+      server 192.168.0.101:88; // 注意该位置配置的是正确的服务器地址, wifi环境下经常变化
     }
     include /etc/nginx/conf.d/*.conf;
 }
