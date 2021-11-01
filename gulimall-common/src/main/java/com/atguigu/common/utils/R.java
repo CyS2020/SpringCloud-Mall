@@ -32,6 +32,11 @@ public class R extends HashMap<String, Object> {
 		return JSON.parseObject(s, typeReference);
 	}
 
+	public R setData(Object data) {
+		put("data", data);
+		return this;
+	}
+
 	public static R error() {
 		return error(HttpStatus.SC_INTERNAL_SERVER_ERROR, "未知异常，请联系管理员");
 	}

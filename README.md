@@ -385,7 +385,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 用户在搜手机的时候模糊匹配, 然后确定手机分类(图书等其他分类也有的), 确定苹果华为小米等品牌, 确定屏幕摄像头cpu等属性, 再确定价格区间, 有现货不要预约的, 综合排序展示; 聚合分析和用户无关
 - 如果是嵌入式的属性, 查询, 聚合, 分析都应该使用嵌入式的方式(使用嵌入式是为了避免数组类型数据扁平化)
 
-#### OAuth2.0 社交登录
+#### OAuth2.0 社交登录交互
 ```
 我  -----向用户申请请求认证---->     resource owner(用户本人)
 们                                         |
@@ -395,6 +395,27 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 程  ----使用访问令牌获取开放保护信息----> Resource Server(QQ服务器)
 序  <----认证令牌返回受保护的信息----- Resource Server(QQ服务器)
 ```
+#### 微博授权认证步骤
+- 引导需要授权的用户到如下地址
+```
+https://api.weibo.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=YOUR_REGISTERED_REDIRECT_URI
+```
+- 如果用户同意授权, 页面跳转至YOUR_REGISTERED_REDIRECT_URI/?code=CODE; 获取Code只能使用一次
+- Code换取Access Token, 其中client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET可以使用basic方式加入header中，返回值
+```
+// post请求
+https://api.weibo.com/oauth2/access_token?client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET&grant_type=authorization_code&redirect_uri=YOUR_REGISTERED_REDIRECT_URI&code=CODE
+// 返回报文
+{
+    "access_token": "2.00d2F6FGHOKiVB05b2d6f0d109Dp_S",
+    "remind_in": "157679999",
+    "expires_in": 157679999,
+    "uid": "5576657433",
+    "isRealName": "true"
+}
+```
+- 使用获得的Access Token调用API(接口管理中的已有权限); 同一个用户的Access Token一段时间内是不变化的
+
                                         
 ### 拦路虎
 #### Nacos启动失败

@@ -1,4 +1,4 @@
-package com.atguigu.gulimall.thirdparty.util;
+package com.atguigu.common.utils;
 
 /**
  * @author: CyS2020
