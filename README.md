@@ -416,7 +416,27 @@ https://api.weibo.com/oauth2/access_token?client_id=YOUR_CLIENT_ID&client_secret
 ```
 - 使用获得的Access Token调用API(接口管理中的已有权限); 同一个用户的Access Token一段时间内是不变化的
 
-                                        
+#### cookie session 跨域
+- cookie不安全session安全, 后端开发只操作session, session与cookie不分家, session就是用到了cookie来实现的, cookie是实现Session的一种方式
+- 服务端需要通过session来识别具体的用户, 服务端要为特定用户创建特定的session, 用于标识这个用户并且跟踪
+- 那么问题来了session如何来识别具体的用户呢？客户端会将cookie信息发送到服务端, cookie里面记录一个Session ID(字段jsessionid)
+- session是抽象的概念, cookie是具体的概念, cookie是session一种具体的实现方式
+- 会话跟踪cookie与session，可以理解为cookie是一个箱子，里面可以填内容信息；如果填具体信息那就是cookie客户端机制，如果是填sessionId具体信息存在服务器则是session机制
+- 在很多操作中都需要检查用户是否登录因此通过在代码中编写拦截器进行预检查(实现HandlerInterceptor.preHandle())还需配置拦截哪些url; 另外还可以用AOP的方式拦截
+```
+       前端        ->           后端
+cookie(sessionId)  ->   session(HttpSession)
+```
+
+#### session共享问题与解决办法
+- 不能跨不同域名共享
+- 不同微服务拥有不同的域名, 微服务间session不能共享
+- 集群环境下一个微服务会部署到多个服务器上, session不能同步
+- 解决办法1: hash一致性; 使用ip地址或者业务字段进行hash
+- 解决办法2: 后端统一存储session; 使用mysql或者redis
+- 不同服务, 子域session共享; jsessionid这个cookie默认是当前域名
+- 解决办法1: 返回jsessionid的时候设置作用域为父域, 放大作用域
+                                            
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件，默认使用集群模式启动，可以将启动模式改为set MODE="standalone"
