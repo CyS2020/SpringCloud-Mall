@@ -82,7 +82,7 @@
 - @Value, @ConfigurationProperties...等从配置文件中获取值得使用方式仍然可用
 
 #### OpenFeign远程调用
-- 引入open-feign依赖
+- 引入openfeign依赖
 - 编写接口，告诉springCloud这个接口需要调用的那个微服务
 - 声明方法，调用微服务的那个请求，访问路径需要写全
     - 访问路径写法有两种一种是过网关(网关微服务 + /api/xx/xxx), 一种是不过网关(指定微服务 + /xx/xxx)
@@ -343,6 +343,11 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - MD5不能直接用于密码的直接存储, 彩虹表的会暴力破解
 - 使用spring中的BCryptPasswordEncoder进行加密; 盐与MD5值放在一起了, 但是你不知道那部分是盐
 
+#### springSession管理session
+- 引入session-data-redis依赖, 所有需要使用session的模块都要依赖并且配置
+- 配置session存储类型为redis, 过期时间30m等各种配置项
+- @EnableRedisHttpSession开启springSession功能, 并在controller里面设置session属性值
+- 设置其他配置属性GulimallSessionConfig, 包括序列化方式, 修改作用域为父域
 
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出

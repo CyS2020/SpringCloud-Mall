@@ -4,6 +4,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
  * 1. 整个Mybatis-plus依赖
@@ -19,6 +20,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * - 配置mybatis-plus: 配置@MapperScan扫描的包路径
  * - 配置mybatis-plus: 配置classpath扫描的xml文件路径
  */
+@EnableRedisHttpSession
 @EnableFeignClients(basePackages = "com.atguigu.gulimall.product.feign")
 @MapperScan("com.atguigu.gulimall.product.dao")
 @SpringBootApplication

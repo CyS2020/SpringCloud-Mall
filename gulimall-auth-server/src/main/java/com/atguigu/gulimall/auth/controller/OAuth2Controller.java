@@ -3,8 +3,8 @@ package com.atguigu.gulimall.auth.controller;
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.utils.HttpUtils;
 import com.atguigu.common.utils.R;
+import com.atguigu.common.vo.MemberRespVo;
 import com.atguigu.gulimall.auth.feign.MemberFeignService;
-import com.atguigu.gulimall.auth.vo.MemberRespVo;
 import com.atguigu.gulimall.auth.vo.SocialUser;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpSession;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,13 +27,13 @@ import java.util.Map;
  */
 @Slf4j
 @Controller
-public class Auth2Controller {
+public class OAuth2Controller {
 
     @Autowired
     private MemberFeignService memberFeignService;
 
     @GetMapping("/oauth2.0/weibo/success")
-    public String weibo(@RequestParam("code") String code) throws Exception {
+    public String weibo(@RequestParam("code") String code, HttpSession session) throws Exception {
         Map<String, String> map = new HashMap<>();
         map.put("client_id", "1384724995");
         map.put("client_secret", "2458cdc6c30b0f2d840d0536f1ed8f0a");
@@ -52,6 +53,7 @@ public class Auth2Controller {
                 MemberRespVo data = r.getData("data", new TypeReference<MemberRespVo>() {
                 });
                 log.info("登录成功, 用户信息: {}", data.toString());
+                session.setAttribute("loginUser", data);
                 return "redirect:http://gulimall.com";
             }
         }
