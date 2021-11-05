@@ -65,7 +65,7 @@ public class MemberController {
             return R.error(BizCodeEnum.LOGINACCT_PASSWORD_INVALID_EXCEPTION.getCode(),
                     BizCodeEnum.LOGINACCT_PASSWORD_INVALID_EXCEPTION.getMsg());
         }
-        return R.ok();
+        return R.ok().setData(entity);
     }
 
     @PostMapping("/regist")

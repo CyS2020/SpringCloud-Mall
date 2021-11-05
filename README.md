@@ -347,7 +347,35 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 引入session-data-redis依赖, 所有需要使用session的模块都要依赖并且配置
 - 配置session存储类型为redis, 过期时间30m等各种配置项
 - @EnableRedisHttpSession开启springSession功能, 并在controller里面设置session属性值
-- 设置其他配置属性GulimallSessionConfig, 包括序列化方式, 修改作用域为父域
+- 设置其他配置属性GulimallSessionConfig, 包括序列化方式, 修改作用域为父域等配置
+
+#### springSession核心原理
+- @EnableRedisHttpSession注解导入了RedisHttpSessionConfiguration配置
+- 给容器中添加了一个组件RedisOperationsSessionRepository, 是redis操作session的DAO, 进行session增删改查
+- 给容器中添加了一个过滤器SessionRepositoryFilter, 创建的时候就导入了RedisOperationsSessionRepository
+- 原始的request, response都被包装成如下对象; 以后获取session都要获取request.getSession()相当于调用的wrappedRequest.getSession()
+- wrappedRequest.getSession()是从RedisOperationsSessionRepository中获取的, 就是从redis中获取的; 主要是装饰者设计模式
+- 网站交互session自动续期, 浏览器关闭session在设定的过期时间内过期
+```
+protected void doFilterInternal(HttpServletRequest request,
+        HttpServletResponse response, FilterChain filterChain)
+        throws ServletException, IOException {
+    request.setAttribute(SESSION_REPOSITORY_ATTR, this.sessionRepository);
+    
+    SessionRepositoryRequestWrapper wrappedRequest = new SessionRepositoryRequestWrapper(
+            request, response, this.servletContext);    // 包装request
+    SessionRepositoryResponseWrapper wrappedResponse = new SessionRepositoryResponseWrapper(
+            wrappedRequest, response);    //包装response
+
+    try {
+        filterChain.doFilter(wrappedRequest, wrappedResponse);
+    }
+    finally {
+        wrappedRequest.commitSession();
+    }
+}
+```
+
 
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
@@ -434,12 +462,12 @@ cookie(sessionId)  ->   session(HttpSession)
 ```
 
 #### session共享问题与解决办法
-- 不能跨不同域名共享
-- 不同微服务拥有不同的域名, 微服务间session不能共享
+- 不能跨不同域名共享, 多系统登录的共享问题
+- 解决办法1: 单点登录技术
 - 集群环境下一个微服务会部署到多个服务器上, session不能同步
 - 解决办法1: hash一致性; 使用ip地址或者业务字段进行hash
 - 解决办法2: 后端统一存储session; 使用mysql或者redis
-- 不同服务, 子域session共享; jsessionid这个cookie默认是当前域名
+- 不同微服务服务, 子域session共享; jsessionid这个cookie默认是当前域名
 - 解决办法1: 返回jsessionid的时候设置作用域为父域, 放大作用域
                                             
 ### 拦路虎
@@ -482,6 +510,8 @@ server:
 - 解决方案:
     - 使用nginx部署为同一个域
     - 配置当次请求允许跨域
+- 跨域报错: 后端收到请求并且成功返回, 只不过浏览器把结果返回拦截并报错, 满足同源策略浏览器才能读到服务端的响应
+- spring支持跨域的各种配置就是根据request往response中增加header; 一般在网关中配置这些跨域请求
     
 #### 启动失败
 - springBoot启动失败多半是因为配置文件没有配置好造成的

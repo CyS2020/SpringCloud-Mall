@@ -58,18 +58,25 @@
 				</li>
 			</ul>
 			<ul class="header_ul_right">
-				<li style="border: 0;"><a href="/static/item/../登录页面\index.html" class="aa">你好，请登录</a></li>
-				<li><a href="/static/item/../注册页面\index.html" style="color: red;">免费注册</a> |</li>
-				<li><a href="/static/item/javascript:;" class="aa">我的订单</a> |</li>
-				<li class="jingdong"><a href="/static/item/javascript:;">我的京东</a><span
-						class="glyphicon glyphicon-menu-down">|</span>
-					<ol class="jingdong_ol">
-						<li><a href="/static/item/javascript:;">待处理订单</a></li>
-						<li><a href="/static/item/javascript:;">消息</a></li>
-						<li><a href="/static/item/javascript:;">返修退换货</a></li>
-						<li><a href="/static/item/javascript:;">我的回答</a></li>
-						<li><a href="/static/item/javascript:;">降价商品</a></li>
-						<li><a href="/static/item/javascript:;">我的关注</a></li>
+                <li style="border: 0;">
+                    <a th:if="${session.loginUser == null}" href="http://auth.gulimall.com/login.html"
+                       class="aa">你好，请登录</a>
+                    <a th:if="${session.loginUser != null}" class="aa" style="width: 100px">[[${session.loginUser.nickname}]]</a>
+                </li>
+                <li>
+                    <a th:if="${session.loginUser == null}" href="http://auth.gulimall.com/reg.html"
+                       style="color: red;">免费注册</a>
+                </li>
+                <li><a href="/static/item/javascript:;" class="aa">我的订单</a> |</li>
+                <li class="jingdong"><a href="/static/item/javascript:;">我的京东</a><span
+                        class="glyphicon glyphicon-menu-down">|</span>
+                    <ol class="jingdong_ol">
+                        <li><a href="/static/item/javascript:;">待处理订单</a></li>
+                        <li><a href="/static/item/javascript:;">消息</a></li>
+                        <li><a href="/static/item/javascript:;">返修退换货</a></li>
+                        <li><a href="/static/item/javascript:;">我的回答</a></li>
+                        <li><a href="/static/item/javascript:;">降价商品</a></li>
+                        <li><a href="/static/item/javascript:;">我的关注</a></li>
 						<li style="width: 100%;height: 1px;background: lavender;margin-top: 15px;"></li>
 						<li style="margin-top: 0;"><a href="/static/item/javascript:;">我的京豆</a></li>
 						<li style="margin-top: 0;"><a href="/static/item/javascript:;">我的优惠券</a></li>
@@ -255,18 +262,19 @@
 	</header>
 	<nav>
 		<div class="nav_min">
-			<div class="nav_top">
-				<div class="nav_top_one"><a href="/static/item/#"><img src="/static/item/img/111.png"/></a></div>
-				<div class="nav_top_two"><input type="text"/>
-					<button>搜索</button>
-				</div>
-				<div class="nav_top_three"><a href="/static/item/../JD_Shop/One_JDshop.html">我的购物车</a><span
-						class="glyphicon glyphicon-shopping-cart"></span>
-					<div class="nav_top_three_1">
-						<img src="/static/item/img/44.png"/>购物车还没有商品，赶紧选购吧！
-					</div>
-				</div>
-			</div>
+            <div class="nav_top">
+                <div class="nav_top_one"><a href="http://gulimall.com"><img src="/static/search/./image/logo1.jpg"/></a>
+                </div>
+                <div class="nav_top_two"><input type="text"/>
+                    <button>搜索</button>
+                </div>
+                <div class="nav_top_three"><a href="/static/item/../JD_Shop/One_JDshop.html">我的购物车</a><span
+                        class="glyphicon glyphicon-shopping-cart"></span>
+                    <div class="nav_top_three_1">
+                        <img src="/static/item/img/44.png"/>购物车还没有商品，赶紧选购吧！
+                    </div>
+                </div>
+            </div>
 			<div class="nav_down">
 				<ul class="nav_down_ul">
 					<li class="nav_down_ul_1" style="width: 24%;float: left;"><a

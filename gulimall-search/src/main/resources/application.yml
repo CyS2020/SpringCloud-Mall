@@ -10,6 +10,11 @@ spring:
     cache: false
   application:
     name: gulimall-search
+  redis:
+    host: 192.168.0.102
+    port: 6379
+  session:
+    store-type=redis
 
 server:
   port: 12000
