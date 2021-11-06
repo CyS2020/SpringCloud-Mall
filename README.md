@@ -463,12 +463,18 @@ cookie(sessionId)  ->   session(HttpSession)
 
 #### session共享问题与解决办法
 - 不能跨不同域名共享, 多系统登录的共享问题
-- 解决办法1: 单点登录技术
+- 解决办法1: 单点登录技术, 使用中央认证服务器
 - 集群环境下一个微服务会部署到多个服务器上, session不能同步
 - 解决办法1: hash一致性; 使用ip地址或者业务字段进行hash
 - 解决办法2: 后端统一存储session; 使用mysql或者redis
 - 不同微服务服务, 子域session共享; jsessionid这个cookie默认是当前域名
 - 解决办法1: 返回jsessionid的时候设置作用域为父域, 放大作用域
+
+#### 单点登录技术
+- 给中央认证服务器留下登录痕迹, 使用redis保存登录信息, 浏览器cookie中保存token
+- 中央认证服务器要将token信息在重定向的时候放在url上面
+- 其他系统服务器要处理url上的token信息, 只要有token就该保存到自己的session中
+- 当前系统将用户保存在自己的会话中; 其他系统访问时会带上浏览器cookie中的token的不需要重新登录了
                                             
 ### 拦路虎
 #### Nacos启动失败
