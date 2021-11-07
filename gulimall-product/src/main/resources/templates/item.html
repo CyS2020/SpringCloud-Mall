@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
@@ -629,7 +630,7 @@
 
 				<div class="box-btns clear">
 					<div class="box-btns-one">
-						<input type="text" name="" id="" value="1"/>
+						<input type="text" name="" id="numInput" value="1"/>
 						<div class="box-btns-one1">
 
 							<div>
@@ -646,8 +647,8 @@
 						</div>
 					</div>
 					<div class="box-btns-two">
-						<a href="/static/item/../商品分类\index.html">
-							立即预约
+						<a class="addToCart" href="#" th:attr="skuId=${item.info.skuId}">
+							加入购物车
 						</a>
 					</div>
 					<div class="box-btns-three">
@@ -828,7 +829,7 @@
 
 			</ul>
 			<button class="Lijiyuyuessss">
-				立即预约
+				加入购物车
 			</button>
 			<ul class="shopjieshaos posi" style="display: none;">
 				<li class="jieshoa" style="background: #e4393c;">
@@ -1277,6 +1278,13 @@
         $(".sku_attr_value").parent().css({"border": "solid 1px #ccc"});
         $("a[class='sku_attr_value checked']").parent().css({"border": "solid 1px red"});
     }
+
+    $(".addToCart").click(function () {
+        var num = $("#numInput").val();
+        var skuId = $(this).attr("skuId");
+        location.href = "http://cart.gulimall.com/addToCart?skuId=" + skuId + "&num=" + num;
+        return false;
+    });
 
 </script>
 

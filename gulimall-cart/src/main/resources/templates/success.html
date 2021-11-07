@@ -65,21 +65,21 @@
     <div class="success-wrap">
         <div class="w" id="result">
             <div class="m succeed-box">
-                <div th:if="${cartItem!=null}" class="mc success-cont">
+                <div th:if="${item!=null}" class="mc success-cont">
                     <div class="success-lcol">
                         <div class="success-top"><b class="succ-icon"></b>
                             <h3 class="ftx-02">商品已成功加入购物车</h3></div>
                         <div class="p-item">
                             <div class="p-img">
                                 <a href="/javascript:;" target="_blank"><img style="height: 60px;width:60px;"
-                                                                             th:src="${cartItem.image}"></a>
+                                                                             th:src="${item.image}"></a>
                             </div>
                             <div class="p-info">
                                 <div class="p-name">
-                                    <a th:href="'http://item.gulimall.com/'+${cartItem.skuId}+'.html'"
-                                       th:text="${cartItem.title}">TCL 55A950C 55英寸32核人工智能 HDR曲面超薄4K电视金属机身（枪色）</a>
+                                    <a th:href="'http://item.gulimall.com/'+${item.skuId}+'.html'"
+                                       th:text="${item.title}">TCL 55A950C 55英寸32核人工智能 HDR曲面超薄4K电视金属机身（枪色）</a>
                                 </div>
-                                <div class="p-extra"><span class="txt" th:text="'数量：'+${cartItem.count}">  数量：1</span>
+                                <div class="p-extra"><span class="txt" th:text="'数量：'+${item.count}">  数量：1</span>
                                 </div>
                             </div>
                             <div class="clr"></div>
@@ -91,14 +91,15 @@
                         </div>
                         <div class="clr"></div>
                         <div class="bg_shop">
-                            <a class="btn-tobback" th:href="'http://item.gulimall.com/'+${cartItem.skuId}+'.html'">查看商品详情</a>
+                            <a class="btn-tobback"
+                               th:href="'http://item.gulimall.com/'+${item.skuId}+'.html'">查看商品详情</a>
                             <a class="btn-addtocart" href="http://cart.gulimall.com/cart.html"
                                id="GotoShoppingCart"><b></b>去购物车结算</a>
                         </div>
                     </div>
                 </div>
-                <div th:if="${cartItem==null}" class="mc success-cont">
-                    <h2>购物车中无此商品</h2>
+                <div th:if="${item==null}" class="mc success-cont">
+                    <h2>购物车中无商品</h2>
                     <a href="http://gulimall.com/">去购物</a>
                 </div>
             </div>

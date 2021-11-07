@@ -43,6 +43,7 @@ public class RedisUtils {
     public final static long DEFAULT_EXPIRE = 60 * 60 * 24;
     /**  不设置过期时长 */
     public final static long NOT_EXPIRE = -1;
+
     private final static Gson gson = new Gson();
 
     public void set(String key, Object value, long expire){

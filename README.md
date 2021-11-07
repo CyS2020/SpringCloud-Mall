@@ -261,8 +261,9 @@ location / {
 - 适合放入缓存的数据: 即时性, 数据一致性要求不高的; 访问大, 更新频率不高的(读多, 写少)
 - docker容器安装并启动redis, 同时下载Another Redis Desktop Manager客户端进行可视化操作
 - 项目中引入依赖data-redis, 并在yml配置文件中配置数据源ip地址与端口号
-- 使用SpringBoot自动配置好的StringRedisTemplate进行操作
+- 使用SpringBoot自动配置好的StringRedisTemplate进行操作, opsForXXX, boundXXXOps等操作
 - redis中的数据类型其实是针对于K-V中的V来说的, V可以为Value, Hash, List, Set, ZSet
+- 
 
 #### SpringCache管理缓存
 - 项目中引入依赖data-redis与cache, 均为starter组件
