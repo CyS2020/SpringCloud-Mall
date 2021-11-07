@@ -23,6 +23,24 @@ public class CartController {
     @Autowired
     private CartService cartService;
 
+    @GetMapping("checkItem")
+    public String checkItem(@RequestParam("skuId") Long skuId, @RequestParam("check") Integer check) {
+        cartService.checkItem(skuId, check);
+        return "redirect:http://cart.gulimall.com/cart.html";
+    }
+
+    @GetMapping("countItem")
+    public String countItem(@RequestParam("skuId") Long skuId, @RequestParam("num") Integer num) {
+        cartService.changeItemCount(skuId, num);
+        return "redirect:http://cart.gulimall.com/cart.html";
+    }
+
+    @GetMapping("deleteItem")
+    public String deleteItem(@RequestParam("skuId") Long skuId) {
+        cartService.deleteItem(skuId);
+        return "redirect:http://cart.gulimall.com/cart.html";
+    }
+
     @GetMapping("/cart.html")
     public String cartListPage(Model model) throws ExecutionException, InterruptedException {
         // 快速得到用户信息，登录使用userId, 未登录使用userKey

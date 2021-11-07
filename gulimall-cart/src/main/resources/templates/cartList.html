@@ -94,7 +94,7 @@
 					</div>
 					<div>
 						<ol>
-							<li><input type="checkbox" th:attr="skuId=${item.skuId}" class="itemChecked"
+							<li><input type="checkbox" th:attr="skuId=${item.skuId}" class="itemCheck"
 									   th:checked="${item.check}"></li>
 							<li>
 								<dt><img th:src="${item.image}" alt=""></dt>
@@ -108,7 +108,7 @@
 								</dd>
 							</li>
 							<li>
-								<p class="dj" th:text="'￥' + ${#numbers.formatDecimal(item.price,3,2)}">￥4599.00</p>
+								<p class="dj" th:text="'￥' + ${#numbers.formatDecimal(item.price,1,2)}">￥4599.00</p>
 
 							</li>
 							<li>
@@ -120,7 +120,7 @@
 
 							</li>
 							<li style="font-weight:bold"><p class="zj">
-								￥[[${#numbers.formatDecimal(item.totalPrice,3,2)}]]</p></li>
+								￥[[${#numbers.formatDecimal(item.totalPrice,1,2)}]]</p></li>
 							<li>
 								<p class="deleteItemBtn" th:attr="skuId=${item.skuId}">删除</p>
 							</li>
@@ -149,7 +149,7 @@
 			</div>
 			<div>
 				<ol>
-					<li>总价:<span style="color:#e64346;font-weight:bold;font-size:16px;" class="fnt">￥[[${#numbers.formatDecimal(cart.totalAmount, 3, 2)}]]</span>
+					<li>总价:<span style="color:#e64346;font-weight:bold;font-size:16px;" class="fnt">￥[[${#numbers.formatDecimal(cart.totalAmount, 1, 2)}]]</span>
 					<li>优惠：￥[[${#numbers.formatDecimal(cart.reduce,1,2)}]]</li>
 				</ol>
 			</div>
@@ -769,10 +769,10 @@
         $(this).children("p").children("img").attr("src", "img/one_mian_gwc1.png")
     });
 
-    $(".itemChecked").click(function () {
+    $(".itemCheck").click(function () {
         const skuId = $(this).attr("skuId");
-        const checked = $(this).prop("checked");
-        location.href = "http://cart.gulimall.com/checkItem?skuId=" + skuId + "&checked=" + (checked ? 1 : 0);
+        const check = $(this).prop("checked");
+        location.href = "http://cart.gulimall.com/checkItem?skuId=" + skuId + "&check=" + (check ? 1 : 0);
     });
 
 

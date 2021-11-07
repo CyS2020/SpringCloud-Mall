@@ -42,7 +42,7 @@ public class Cart {
         if (items == null || items.isEmpty()) {
             return amount;
         }
-        amount = items.stream().map(CartItem::getTotalPrice).reduce(amount, BigDecimal::add);
+        amount = items.stream().filter(CartItem::getCheck).map(CartItem::getTotalPrice).reduce(amount, BigDecimal::add);
         return amount.subtract(reduce);
     }
 }

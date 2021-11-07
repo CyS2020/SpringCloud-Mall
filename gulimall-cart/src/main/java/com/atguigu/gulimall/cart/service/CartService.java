@@ -31,4 +31,19 @@ public interface CartService {
      * 清空购物车数据
      */
     void clearCart(String cartKey);
+
+    /**
+     * 勾选购物项
+     */
+    void checkItem(Long skuId, Integer check);
+
+    /**
+     * 修改购物项数量
+     */
+    void changeItemCount(Long skuId, Integer num);
+
+    /**
+     * 删除购物项
+     */
+    void deleteItem(Long skuId);
 }
