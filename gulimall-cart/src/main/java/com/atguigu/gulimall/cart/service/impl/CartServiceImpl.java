@@ -8,6 +8,7 @@ import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.cart.feign.ProductFeignService;
 import com.atguigu.gulimall.cart.interceptor.CartInterceptor;
 import com.atguigu.gulimall.cart.service.CartService;
+import com.atguigu.gulimall.cart.vo.Cart;
 import com.atguigu.gulimall.cart.vo.CartItem;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 /**
  * @author: CyS2020
@@ -87,6 +89,38 @@ public class CartServiceImpl implements CartService {
         return gson.fromJson(res, CartItem.class);
     }
 
+    @Override
+    public Cart getCart() throws ExecutionException, InterruptedException {
+        Cart cart = new Cart();
+        UserInfoTo userInfoTo = CartInterceptor.threadLocal.get();
+        // 获取临时购物车数据
+        String cartKey = CartConstant.CART_PREFIX + userInfoTo.getUserKey();
+        List<CartItem> tempCartItems = getCartItems(cartKey);
+        cart.setItems(tempCartItems);
+        // 已登录则进行合并
+        if (userInfoTo.getUserId() != null) {
+            String cartId = CartConstant.CART_PREFIX + userInfoTo.getUserId();
+            if (tempCartItems != null) {
+                for (CartItem cartItem : tempCartItems) {
+                    addToCart(cartItem.getSkuId(), cartItem.getCount());
+                }
+                clearCart(cartKey);
+            }
+            List<CartItem> cartItems = getCartItems(cartId);
+            cart.setItems(cartItems);
+        }
+        return cart;
+    }
+
+    private List<CartItem> getCartItems(String cartKey) {
+        BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps(cartKey);
+        List<Object> values = hashOps.values();
+        if (values != null && !values.isEmpty()) {
+            return values.stream().map(obj -> gson.fromJson((String) obj, CartItem.class)).collect(Collectors.toList());
+        }
+        return null;
+    }
+
     /**
      * 获取到指定的购物车
      */
@@ -99,5 +133,10 @@ public class CartServiceImpl implements CartService {
             cartKey = CartConstant.CART_PREFIX + userInfoTo.getUserKey();
         }
         return redisTemplate.boundHashOps(cartKey);
+    }
+
+    @Override
+    public void clearCart(String cartKey) {
+        redisTemplate.delete(cartKey);
     }
 }

@@ -1,6 +1,6 @@
 package com.atguigu.gulimall.cart.vo;
 
-import lombok.Getter;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
  * @date: 2021/11/7
  * 描述：购物车
  */
-@Getter
+@Data
 public class Cart {
 
     private List<CartItem> items;
