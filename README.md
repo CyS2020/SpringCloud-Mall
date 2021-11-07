@@ -448,6 +448,7 @@ https://api.weibo.com/oauth2/access_token?client_id=YOUR_CLIENT_ID&client_secret
 }
 ```
 - 使用获得的Access Token调用API(接口管理中的已有权限); 同一个用户的Access Token一段时间内是不变化的
+- 有关登录问题参考文件: <08、单点登录与社交登录.pdf> 文件
 
 #### cookie session 跨域
 - cookie不安全session安全, 后端开发只操作session, session与cookie不分家, session就是用到了cookie来实现的, cookie是实现Session的一种方式
@@ -471,10 +472,11 @@ cookie(sessionId)  ->   session(HttpSession)
 - 解决办法1: 返回jsessionid的时候设置作用域为父域, 放大作用域
 
 #### 单点登录技术
-- 给中央认证服务器留下登录痕迹, 使用redis保存登录信息, 浏览器cookie中保存token
+- 给中央认证服务器留下登录痕迹, 使用redis保存登录信息, 浏览器cookie中保存token(中央认证服务器的域)
 - 中央认证服务器要将token信息在重定向的时候放在url上面
 - 其他系统服务器要处理url上的token信息, 只要有token就该保存到自己的session中
-- 当前系统将用户保存在自己的会话中; 其他系统访问时会带上浏览器cookie中的token的不需要重新登录了
+- 当前系统将用户保存在自己的会话中; 后面操作无需跳转到中央认证服务器了
+- 其他系统访问时会跳转到中央认证服务且会带上浏览器cookie中的token的不需要重新登录了, 又会重定向到该系统
                                             
 ### 拦路虎
 #### Nacos启动失败

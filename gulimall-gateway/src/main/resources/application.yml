@@ -61,6 +61,10 @@ spring:
           uri: lb://gulimall-auth-server
           predicates:
             - Host=auth.gulimall.com
+        - id: gulimall_cart_route
+          uri: lb://gulimall-cart
+          predicates:
+            - Host=cart.gulimall.com
 
   ## 前端项目发送请求都会带api前缀
   ## 前端发来请求 http://localhost:88/api/captcha.jpg
