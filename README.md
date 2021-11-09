@@ -11,7 +11,7 @@
 - 使用renren-generator工具生成五个微服务的crud的代码: controller; dao; entity; service
 - 配置pom文件解决基本的依赖问题, 配置yml文件启动项目, 测试接口是否正常运行
 
-#### 整合Mybatis-plus依赖
+#### Mybatis-plus依赖
 - 导入依赖
 ```
 <dependency>
@@ -185,7 +185,7 @@
 
 #### ElasticSearch客户端
   - 在docker容器中安装ElasticSearch服务并启动, 并安装Kibana可视化服务
-  - 引入客户端依赖elasticsearch.client
+  - 引入客户端依赖elasticsearch-client
   - 编写配置类能够访问远程的ElasticSearch服务器并向容器中注入RestHighLevelClient
   - 创建mapping映射关系, 即创建表及表中字段类型等, 然后才能增删改查数据
   - 使用RestHighLevelClient类参照API对ElasticSearch进行操作
@@ -377,6 +377,14 @@ protected void doFilterInternal(HttpServletRequest request,
 }
 ```
 
+#### RabbitMQ消息中间件
+- docker安装并启动rabbitmq, 15672端口提供了可视化界面
+- 在yml配置文件中配置连接信息ip地址与端口号以及虚拟主机等信息, 编写配置RabbitMqConfig类设置序列化类型
+- 项目引入依赖amqp依赖, RabbitAutoConfiguration会自动生效
+- 使用SpringBoot自动配置好的RabbitTemplate、amqpAdmin、CachingConnectionFactory、RabbitMessagingTemplate进行操作
+- 使用@EnableRabbit开启RabbitMQ功能
+- 使用amqpAdmin创建Exchange、Queue、Binding; 使用RabbitTemplate发送消息(对象必须实现序列化接口)
+
 
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
@@ -478,6 +486,9 @@ cookie(sessionId)  ->   session(HttpSession)
 - 其他系统服务器要处理url上的token信息, 只要有token就该保存到自己的session中
 - 当前系统将用户保存在自己的会话中; 后面操作无需跳转到中央认证服务器了
 - 其他系统访问时会跳转到中央认证服务且会带上浏览器cookie中的token的不需要重新登录了, 又会重定向到该系统
+
+#### 消息队列RabbitMq
+
                                             
 ### 拦路虎
 #### Nacos启动失败
