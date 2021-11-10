@@ -384,7 +384,20 @@ protected void doFilterInternal(HttpServletRequest request,
 - 使用SpringBoot自动配置好的RabbitTemplate、amqpAdmin、CachingConnectionFactory、RabbitMessagingTemplate进行操作
 - 使用@EnableRabbit开启RabbitMQ功能
 - 使用amqpAdmin创建Exchange、Queue、Binding; 使用RabbitTemplate发送消息(对象必须实现序列化接口)
+- 使用@RabbitListener(queues = "xx", "xxx")监听消息, 必须启用该注解@EnableRabbit; 方法接收参数1. Message、2. T、3. Channel
+- 服务启动多个同一个消息也只能有一个服务进行处理; 一个消息处理结束服务才会接收下一个消息
+- @RabbitListener(类+方法)--监听队列; @RabbitHandler(方法)--重载方法区分不同的消息类型
 
+#### RabbitMQ可靠抵达
+- 服务器收到消息就回调: 开启发送端确认-配置文件 + 设置确认回调-配置类RabbitMqConfig
+```
+spring.rabbitmq.publisher-confirms=true
+```
+- 消息没有正确抵达队列回调: 
+```
+spring.rabbitmq.publisher-returns=true
+spring.rabbitmq.template.mandatory=true
+```
 
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
