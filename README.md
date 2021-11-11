@@ -389,14 +389,23 @@ protected void doFilterInternal(HttpServletRequest request,
 - @RabbitListener(类+方法)--监听队列; @RabbitHandler(方法)--重载方法区分不同的消息类型
 
 #### RabbitMQ可靠抵达
-- 服务器收到消息就回调: 开启发送端确认-配置文件 + 设置确认回调-配置类RabbitMqConfig
+- 服务器收到消息就回调: 配置文件 + 设置确认回调-配置类RabbitMqConfig
 ```
 spring.rabbitmq.publisher-confirms=true
+rabbitTemplate.setConfirmCallback()
 ```
-- 消息没有正确抵达队列回调: 
+- 消息没有正确抵达队列回调: 配置文件 + 设置确认回调-配置类RabbitMqConfig
 ```
 spring.rabbitmq.publisher-returns=true
 spring.rabbitmq.template.mandatory=true
+rabbitTemplate.setReturnCallback()
+```
+- 设置手动ack, 自动确认模式下消息会丢失: 配置文件 + 编码确认逻辑
+```
+spring.rabbitmq.listener.simple.acknowledge-mode=manual
+Channel.basicAck()
+Channel.basicNack()
+Channel.basicReject()
 ```
 
 #### 无需回滚的方式
