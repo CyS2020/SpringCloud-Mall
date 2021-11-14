@@ -493,6 +493,11 @@ https://api.weibo.com/oauth2/access_token?client_id=YOUR_CLIENT_ID&client_secret
 cookie(sessionId)  ->   session(HttpSession)
 ```
 
+#### 登录拦截
+- 编写拦截器实现HandlerInterceptor接口, 并实现preHandle、postHandle等方法
+- 编写配置类实现WebMvcConfigurer接口, 并实现addInterceptors方法, 托管spring
+- 往addInterceptors方法中添加上述编写好的拦截器和拦截路径的规则
+
 #### session共享问题与解决办法
 - 不能跨不同域名共享, 多系统登录的共享问题
 - 解决办法1: 单点登录技术, 使用中央认证服务器
@@ -509,8 +514,11 @@ cookie(sessionId)  ->   session(HttpSession)
 - 当前系统将用户保存在自己的会话中; 后面操作无需跳转到中央认证服务器了
 - 其他系统访问时会跳转到中央认证服务且会带上浏览器cookie中的token的不需要重新登录了, 又会重定向到该系统
 
-#### 消息队列RabbitMq
-
+#### 订单中心
+- 电商系统涉及到3流, 分别时信息流, 资金流, 物流; 而订单系统作为中枢将三者有机的集合起来
+- 订单模块是电商系统的枢纽, 在订单这个环节上需求获取多个模块的数据和信息, 同时对这些信息进行加工处理后流向下个环节, 这一系列就构成了订单的信息流通
+- 订单的状态: 待付款 -> 已付款/待发货 -> 已发货/待收货 -> 已完成 -> 已取消 -> 售后中
+![订单中心信息](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E4%B8%AD%E5%BF%83.PNG?raw=true)
                                             
 ### 拦路虎
 #### Nacos启动失败
@@ -618,6 +626,20 @@ kill -9 143232
 - 而reg.html是使用路径映射的方式做的, 路径映射默认都是GET方式访问的
 - 转发就是原来的请求原封不动转给下个页面, 将一个POST请求转发给了GET请求所以产生这个问题
 - 不使用转发直接渲染界面 return "reg";
+
+#### feign远程调用丢失请求头
+- 浏览器发送请求时请求头自动携带cookie, 而feign是一个崭新的请求
+- feign远程调用的时候创建一个新的request, 无任何请求头
+- 构造请求的时候会调用拦截器丰富feign请求内容添加上feign远程调用的请求拦截器
+- 在拦截器中同步源请求头的数据, 主要是cookie
+```
+Request targetRequest(RequestTemplate template) {
+    for (RequestInterceptor interceptor : requestInterceptors) {
+      interceptor.apply(template);
+    }
+    return target.apply(template);
+  }
+```
 
 ### 规范
 #### REST接口

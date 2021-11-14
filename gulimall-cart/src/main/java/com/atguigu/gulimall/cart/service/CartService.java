@@ -3,6 +3,7 @@ package com.atguigu.gulimall.cart.service;
 import com.atguigu.gulimall.cart.vo.Cart;
 import com.atguigu.gulimall.cart.vo.CartItem;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -46,4 +47,9 @@ public interface CartService {
      * 删除购物项
      */
     void deleteItem(Long skuId);
+
+    /**
+     * 获取购物项列表
+     */
+    List<CartItem> getUserCartItems();
 }
