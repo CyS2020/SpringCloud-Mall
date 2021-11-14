@@ -7,4 +7,4 @@ spring:
     name: gulimall-third-party
 
 server:
-  port: 30000
+  port: 30010
