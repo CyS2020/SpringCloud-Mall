@@ -519,7 +519,8 @@ cookie(sessionId)  ->   session(HttpSession)
 - 订单模块是电商系统的枢纽, 在订单这个环节上需求获取多个模块的数据和信息, 同时对这些信息进行加工处理后流向下个环节, 这一系列就构成了订单的信息流通
 - 订单的状态: 待付款 -> 已付款/待发货 -> 已发货/待收货 -> 已完成 -> 已取消 -> 售后中
 ![订单中心信息](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E4%B8%AD%E5%BF%83.PNG?raw=true)
-                                            
+- 订单流程是指从订单产生到完成整个流转的过程, 从而行程了一套标准流程规则, 可概括如下图
+![订单流程信息](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E6%B5%81%E7%A8%8B.PNG?raw=true)
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件，默认使用集群模式启动，可以将启动模式改为set MODE="standalone"
@@ -640,6 +641,11 @@ Request targetRequest(RequestTemplate template) {
     return target.apply(template);
   }
 ```
+
+#### feign异步情况丢失上下文问题
+- spring中的上下文信息是存储在RequestAttributes存储在ThreadLocal中的
+- 因为是异步情况会开启多个线程但ThreadLocal只能在一个线程中使用, 所以上下文信息就没有了
+- 在异步情况发送feign请求之前, 手动设置下上下文RequestContextHolder.setRequestAttributes(xxx);
 
 ### 规范
 #### REST接口

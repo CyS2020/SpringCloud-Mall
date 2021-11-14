@@ -178,8 +178,9 @@ public class CartServiceImpl implements CartService {
         return cartItems.stream().filter(CartItem::getCheck)
                 .peek(item -> {
                     // 更新最新价格
-                    BigDecimal price = productFeignService.getPrice(item.getSkuId());
-                    item.setPrice(price);
+                    R price = productFeignService.getPrice(item.getSkuId());
+                    String data = (String) price.get("data");
+                    item.setPrice(new BigDecimal(data));
                 }).collect(Collectors.toList());
     }
 }

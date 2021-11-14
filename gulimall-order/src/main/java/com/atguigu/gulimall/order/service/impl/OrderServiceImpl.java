@@ -17,9 +17,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 
 
 @Service("orderService")
@@ -30,6 +35,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     private CartFeignService cartFeignService;
+
+    @Autowired
+    private ThreadPoolExecutor executor;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -42,16 +50,25 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     }
 
     @Override
-    public OrderConfirmVo confirmOrder() {
+    public OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException {
         MemberRespVo memberRespVo = LoginUserInterceptor.loginUser.get();
         OrderConfirmVo confirmVo = new OrderConfirmVo();
-        // 1. 远程查询收货地址
-        List<MemberAddressVo> address = memberFeignService.getAddress(memberRespVo.getId());
-        confirmVo.setAddress(address);
 
-        // 2. 远程查询购物车所有选中的选项
-        List<OrderItemVo> items = cartFeignService.getCurrentUserCartItems();
-        confirmVo.setItems(items);
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+
+        CompletableFuture<Void> getAddressTask = CompletableFuture.runAsync(() -> {
+            // 1. 远程查询收货地址
+            RequestContextHolder.setRequestAttributes(requestAttributes);
+            List<MemberAddressVo> address = memberFeignService.getAddress(memberRespVo.getId());
+            confirmVo.setAddress(address);
+        }, executor);
+
+        CompletableFuture<Void> getCartItemsTask = CompletableFuture.runAsync(() -> {
+            // 2. 远程查询购物车所有选中的选项
+            RequestContextHolder.setRequestAttributes(requestAttributes);
+            List<OrderItemVo> items = cartFeignService.getCurrentUserCartItems();
+            confirmVo.setItems(items);
+        }, executor);
 
         // 3. 查询用户积分
         Integer integration = memberRespVo.getIntegration();
@@ -60,6 +77,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 4. 其他数据自动计算
 
         // TODO 5. 防重令牌
+
+        CompletableFuture.allOf(getAddressTask, getCartItemsTask).get();
         return confirmVo;
     }
 

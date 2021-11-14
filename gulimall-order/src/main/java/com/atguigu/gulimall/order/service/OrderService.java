@@ -6,6 +6,7 @@ import com.atguigu.gulimall.order.vo.OrderConfirmVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * 订单
@@ -21,6 +22,6 @@ public interface OrderService extends IService<OrderEntity> {
     /**
      * 订单确认页返回需要用的数据
      */
-    OrderConfirmVo confirmOrder();
+    OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException;
 }
 

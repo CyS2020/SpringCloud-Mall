@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 
 @Configuration
-public class GuliFeignConfig {
+public class GulimallFeignConfig {
 
     @Bean("requestInterceptor")
     public RequestInterceptor requestInterceptor() {
@@ -23,9 +23,12 @@ public class GuliFeignConfig {
             @Override
             public void apply(RequestTemplate template) {
                 ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-                HttpServletRequest request = attributes.getRequest();
-                String cookie = request.getHeader("Cookie");
-                template.header("Cookie", cookie);
+                if (attributes != null) {
+                    HttpServletRequest request = attributes.getRequest();
+                    String cookie = request.getHeader("Cookie");
+                    template.header("Cookie", cookie);
+                }
+
             }
         };
     }

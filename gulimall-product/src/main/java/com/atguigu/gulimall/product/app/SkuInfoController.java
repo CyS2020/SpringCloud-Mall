@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -32,9 +31,9 @@ public class SkuInfoController {
     private SkuInfoService skuInfoService;
 
     @GetMapping("/{skuId}/price")
-    public BigDecimal getPrice(@PathVariable("skuId") Long skuId) {
+    public R getPrice(@PathVariable("skuId") Long skuId) {
         SkuInfoEntity byId = skuInfoService.getById(skuId);
-        return byId.getPrice();
+        return R.ok().setData(byId.getPrice().toString());
     }
 
     /**
