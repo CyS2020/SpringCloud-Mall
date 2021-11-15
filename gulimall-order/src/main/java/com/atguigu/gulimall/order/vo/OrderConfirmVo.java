@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: CyS2020
@@ -27,14 +28,15 @@ public class OrderConfirmVo {
     // 优惠券信息
     private Integer integration;
 
-    // 订单总额
-    private BigDecimal total;
-
     // 应付价格
     private BigDecimal payPrice;
 
-    // 商品数量
-    private Integer count;
+    // 库存
+    private Map<Long, Boolean> stocks;
+
+    public Integer getCount() {
+        return items.stream().map(OrderItemVo::getCount).reduce(0, Integer::sum);
+    }
 
     public BigDecimal getTotal() {
         BigDecimal amount = new BigDecimal("0");

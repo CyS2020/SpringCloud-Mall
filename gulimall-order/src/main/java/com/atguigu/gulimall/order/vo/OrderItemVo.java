@@ -27,6 +27,8 @@ public class OrderItemVo {
 
     private BigDecimal totalPrice;
 
+    private BigDecimal weight;
+
     public BigDecimal getTotalPrice() {
         return this.price.multiply(new BigDecimal("" + this.count));
     }
