@@ -291,12 +291,15 @@ location / {
 - 删除多个缓存可以使用@Caching组合操作, 可以指定@CacheEvict里面的allEntries参数设为true
 - 最佳实战: 存储同一类型的数据, 都可以指定同一个分区, 可以批量删除
 
-#### 缓存问题
+#### 缓存问题及解决方案
 - 缓存穿透: 将null结果缓存, 并加入短暂的过期时间
 - 缓存雪崩: 在原有的失效时间基础上添加随机值, 例如1-5分钟随机
-- 缓存击穿: 查数据库加本地锁, 查到以后释放锁; 双重检查 + 原子操作(查mysql, 写redis)
-- 分布式锁: 加锁值设置为uuid(唯一id), 并设置过期时间; 解锁使用lua脚本保证原子性; 使用StringRedisTemplate实现
+- 缓存击穿: 先加本地锁查数据库, 查到以后放入缓存并释放锁; 双重检查(获取锁后再去缓存中确定一下) + 原子操作(锁要范围包含查mysql, 写redis)
+- 分布式下加分布式锁: 加锁值设置为uuid(唯一id), 并设置过期时间, 设置成功返回true; 解锁使用lua脚本保证原子性; 使用StringRedisTemplate实现
 ```
+// 加锁与设置过期时间需要保证原子性
+Boolean lock = redisTemplate.opsForValue().setIfAbsent("lock", uuid, 60L, TimeUnit.SECONDS);
+// 解锁(删锁)某个键为lock值uuid的锁, 判断与删除也要保证原子性
 String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
 Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Lists.newArrayList("lock"), uuid);
 ```
@@ -508,11 +511,12 @@ cookie(sessionId)  ->   session(HttpSession)
 - 解决办法1: 返回jsessionid的时候设置作用域为父域, 放大作用域
 
 #### 单点登录技术
-- 给中央认证服务器留下登录痕迹, 使用redis保存登录信息, 浏览器cookie中保存token(中央认证服务器的域)
+- 给中央认证服务器留下登录痕迹, 使用redis保存用户登录信息, 浏览器cookie中保存token(中央认证服务器的域)
 - 中央认证服务器要将token信息在重定向的时候放在url上面
-- 其他系统服务器要处理url上的token信息, 只要有token就该保存到自己的session中
-- 当前系统将用户保存在自己的会话中; 后面操作无需跳转到中央认证服务器了
+- 其他系统服务器要处理url上的token信息, 去中央服务器检验通过后会返回用户信息; 只要有token就该保存到自己的session中
+- 当前系统将用户信息保存在自己的会话中(用户信息由中央服务器返回); 后面操作无需跳转到中央认证服务器了
 - 其他系统访问时会跳转到中央认证服务且会带上浏览器cookie中的token的不需要重新登录了, 又会重定向到该系统
+- 更多详细步骤参见 08、单点登录与社交登录.pdf 文档
 
 #### 订单中心
 - 电商系统涉及到3流, 分别时信息流, 资金流, 物流; 而订单系统作为中枢将三者有机的集合起来
@@ -521,6 +525,16 @@ cookie(sessionId)  ->   session(HttpSession)
 ![订单中心信息](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E4%B8%AD%E5%BF%83.PNG?raw=true)
 - 订单流程是指从订单产生到完成整个流转的过程, 从而行程了一套标准流程规则, 可概括如下图
 ![订单流程信息](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E6%B5%81%E7%A8%8B.PNG?raw=true)
+
+#### 接口幂等性
+- 订单的提交需要保证幂等性, 使用令牌机制来实现幂等性, 前端token(后端生成返给前端的)与后端redis中(后端生成时保存的)的token
+- 校验令牌和删除令牌的时候需要保证原子性, 同分布式缓存中的lua脚本一样, 直接拿来用即可; val为1则成功, 0则失败
+```
+String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Lists.newArrayList("lock"), orderToken);
+```
+- 参见 02、接口幂等性.pdf 文档
+
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件，默认使用集群模式启动，可以将启动模式改为set MODE="standalone"

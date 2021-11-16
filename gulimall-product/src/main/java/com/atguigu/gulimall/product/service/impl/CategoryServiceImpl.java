@@ -107,6 +107,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
     }
 
+    //
     @Cacheable(value = "category", key = "#root.methodName")
     @Override
     public Map<String, List<Catelog2Vo>> getCatalogJson() {
@@ -164,7 +165,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return dataFromDb;
     }
 
-    // 手动加锁cas方式
+    // 手动加锁cas方式, 加锁失败进行递归的
     public Map<String, List<Catelog2Vo>> getCatalogJsonFromDbWithRedisLock() {
         String uuid = UUID.randomUUID().toString();
         Boolean lock = redisTemplate.opsForValue().setIfAbsent("lock", uuid, 60L, TimeUnit.SECONDS);
