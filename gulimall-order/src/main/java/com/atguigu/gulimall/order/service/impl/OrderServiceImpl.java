@@ -18,6 +18,7 @@ import com.atguigu.gulimall.order.interceptor.LoginUserInterceptor;
 import com.atguigu.gulimall.order.service.OrderItemService;
 import com.atguigu.gulimall.order.service.OrderService;
 import com.atguigu.gulimall.order.to.OrderCreateTo;
+import com.atguigu.gulimall.order.to.OrderItemTo;
 import com.atguigu.gulimall.order.vo.FareVo;
 import com.atguigu.gulimall.order.vo.MemberAddressVo;
 import com.atguigu.gulimall.order.vo.OrderConfirmVo;
@@ -167,8 +168,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 锁定库存 订单号，订单项skuId, skuName, num
         WareSkuLockVo lockVo = new WareSkuLockVo();
         lockVo.setOrderSn(order.getOrder().getOrderSn());
-        List<OrderItemVo> itemVos = order.getOrderItems().stream().map(item -> {
-            OrderItemVo itemVo = new OrderItemVo();
+        List<OrderItemTo> itemVos = order.getOrderItems().stream().map(item -> {
+            OrderItemTo itemVo = new OrderItemTo();
             itemVo.setSkuId(item.getSkuId());
             itemVo.setCount(item.getSkuQuantity());
             itemVo.setTitle(item.getSkuName());
@@ -181,7 +182,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             respVo.setCode(2);
             return respVo;
         }
-        respVo.setEntity(order.getOrder());
+        respVo.setOrder(order.getOrder());
         return respVo;
     }
 
@@ -189,14 +190,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         OrderEntity orderEntity = order.getOrder();
         orderEntity.setModifyTime(new Date());
         orderEntity.setCreateTime(new Date());
-        System.out.println("开始保存订单");
         this.save(orderEntity);
-        System.out.println("保存订单成功");
 
         List<OrderItemEntity> orderItems = order.getOrderItems();
-        System.out.println("开始保存订单项");
         orderItemService.saveBatch(orderItems);
-        System.out.println("保存订单项成功");
     }
 
     public OrderCreateTo createOrder() {

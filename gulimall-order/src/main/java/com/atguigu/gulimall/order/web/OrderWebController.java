@@ -39,7 +39,7 @@ public class OrderWebController {
         try {
             SubmitOrderRespVo respVo = orderService.submitOrder(vo);
             if (respVo.getCode() == 0) {
-                model.addAttribute("SubmitOrderResp", respVo);
+                model.addAttribute("submitOrderResp", respVo);
                 return "pay";
             }
             String msg = "下单失败，";

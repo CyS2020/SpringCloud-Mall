@@ -1,5 +1,6 @@
 package com.atguigu.gulimall.order.vo;
 
+import com.atguigu.gulimall.order.to.OrderItemTo;
 import lombok.Data;
 
 import java.util.List;
@@ -14,5 +15,5 @@ public class WareSkuLockVo {
 
     private String orderSn;
 
-    private List<OrderItemVo> locks;
+    private List<OrderItemTo> locks;
 }

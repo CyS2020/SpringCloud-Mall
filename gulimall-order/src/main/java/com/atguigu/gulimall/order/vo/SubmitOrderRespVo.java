@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 public class SubmitOrderRespVo {
 
-    private OrderEntity entity;
+    private OrderEntity order;
 
     // 0 成功，错误码
     private Integer code;
