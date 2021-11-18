@@ -1,11 +1,11 @@
 package com.atguigu.gulimall.ware.controller;
 
 import com.atguigu.common.exception.BizCodeEnum;
+import com.atguigu.common.exception.NoStockException;
 import com.atguigu.common.to.SkuHasStockVo;
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.ware.entity.WareSkuEntity;
-import com.atguigu.gulimall.ware.exception.NoStockException;
 import com.atguigu.gulimall.ware.service.WareSkuService;
 import com.atguigu.gulimall.ware.vo.WareSkuLockVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class WareSkuController {
     public R orderLockStock(@RequestBody WareSkuLockVo vo) {
         try {
             Boolean allLock = wareSkuService.orderLockStock(vo);
-            return R.ok();
+            return R.ok().setData(allLock);
         } catch (NoStockException e) {
             return R.error(BizCodeEnum.NO_STOCK_EXCEPTION.getCode(), BizCodeEnum.NO_STOCK_EXCEPTION.getMsg());
         }

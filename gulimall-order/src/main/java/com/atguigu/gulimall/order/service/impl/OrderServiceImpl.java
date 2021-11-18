@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -134,7 +133,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return confirmVo;
     }
 
-    @Transactional
+//    @Transactional
     @Override
     public SubmitOrderRespVo submitOrder(OrderSubmitVo vo) {
         submitVo.set(vo);
@@ -145,7 +144,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         String orderToken = vo.getOrderToken();
         // 执行lua脚本
         String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-        Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Lists.newArrayList("lock"), orderToken);
+        Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class),
+                Lists.newArrayList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberRespVo.getId()), orderToken);
 
         if (val == null || val == 0L) {
             // 令牌验证不通过
@@ -188,10 +188,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     private void saveOrder(OrderCreateTo order) {
         OrderEntity orderEntity = order.getOrder();
         orderEntity.setModifyTime(new Date());
+        orderEntity.setCreateTime(new Date());
+        System.out.println("开始保存订单");
         this.save(orderEntity);
+        System.out.println("保存订单成功");
 
         List<OrderItemEntity> orderItems = order.getOrderItems();
+        System.out.println("开始保存订单项");
         orderItemService.saveBatch(orderItems);
+        System.out.println("保存订单项成功");
     }
 
     public OrderCreateTo createOrder() {
