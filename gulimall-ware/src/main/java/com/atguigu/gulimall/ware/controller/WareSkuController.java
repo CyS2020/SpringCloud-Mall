@@ -38,7 +38,6 @@ public class WareSkuController {
     @PostMapping("/lock/order")
     public R orderLockStock(@RequestBody WareSkuLockVo vo) {
         try {
-            System.out.println("开始锁库存");
             Boolean allLock = wareSkuService.orderLockStock(vo);
             return R.ok().setData(allLock);
         } catch (NoStockException e) {
@@ -48,7 +47,6 @@ public class WareSkuController {
 
     @PostMapping("/hasstock")
     public R getSkusHasStock(@RequestBody List<Long> skuIds) {
-        System.out.println("开始查库存");
         List<SkuHasStockVo> vos = wareSkuService.getSkusHasStock(skuIds);
         return R.ok().put("data", vos);
     }
