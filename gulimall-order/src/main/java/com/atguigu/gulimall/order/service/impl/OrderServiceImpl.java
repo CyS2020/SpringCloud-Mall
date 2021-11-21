@@ -135,57 +135,60 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return confirmVo;
     }
 
-    @Transactional
-    @Override
-    public SubmitOrderRespVo submitOrder(OrderSubmitVo vo) {
-        submitVo.set(vo);
-        SubmitOrderRespVo respVo = new SubmitOrderRespVo();
-        respVo.setCode(0);
+//    @GlobalTransactional
+@Transactional
+@Override
+public SubmitOrderRespVo submitOrder(OrderSubmitVo vo) {
+    submitVo.set(vo);
+    SubmitOrderRespVo respVo = new SubmitOrderRespVo();
+    respVo.setCode(0);
 
-        MemberRespVo memberRespVo = LoginUserInterceptor.loginUser.get();
-        String orderToken = vo.getOrderToken();
-        // 执行lua脚本
-        String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
-        Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class),
-                Lists.newArrayList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberRespVo.getId()), orderToken);
+    MemberRespVo memberRespVo = LoginUserInterceptor.loginUser.get();
+    String orderToken = vo.getOrderToken();
+    // 执行lua脚本
+    String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+    Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class),
+            Lists.newArrayList(OrderConstant.USER_ORDER_TOKEN_PREFIX + memberRespVo.getId()), orderToken);
 
-        if (val == null || val == 0L) {
-            // 令牌验证不通过
-            respVo.setCode(1);
-            return respVo;
-        }
-        // 创建订单
-        OrderCreateTo order = createOrder();
-        // 金额对比
-        BigDecimal payPriceNow = order.getPayPrice();
-        BigDecimal payPriceOrigin = vo.getPayPrice();
-        if (Math.abs(payPriceNow.subtract(payPriceOrigin).doubleValue()) > 0.01) {
-            // 验价不成功
-            respVo.setCode(2);
-            return respVo;
-        }
-        // 保存到订单
-        saveOrder(order);
-        // 锁定库存 订单号，订单项skuId, skuName, num
-        WareSkuLockVo lockVo = new WareSkuLockVo();
-        lockVo.setOrderSn(order.getOrder().getOrderSn());
-        List<OrderItemTo> itemVos = order.getOrderItems().stream().map(item -> {
-            OrderItemTo itemVo = new OrderItemTo();
-            itemVo.setSkuId(item.getSkuId());
-            itemVo.setCount(item.getSkuQuantity());
-            itemVo.setTitle(item.getSkuName());
-            return itemVo;
-        }).collect(Collectors.toList());
-        lockVo.setLocks(itemVos);
-        R r = wareFeignService.orderLockStock(lockVo);
-        if (r.getCode() != 0) {
-            // 库存锁定失败
-            respVo.setCode(2);
-            return respVo;
-        }
-        respVo.setOrder(order.getOrder());
+    if (val == null || val == 0L) {
+        // 令牌验证不通过
+        respVo.setCode(1);
         return respVo;
     }
+    // 创建订单
+    OrderCreateTo order = createOrder();
+    // 金额对比
+    BigDecimal payPriceNow = order.getPayPrice();
+    BigDecimal payPriceOrigin = vo.getPayPrice();
+    if (Math.abs(payPriceNow.subtract(payPriceOrigin).doubleValue()) > 0.01) {
+        // 验价不成功
+        respVo.setCode(2);
+        return respVo;
+    }
+    // 保存到订单
+    saveOrder(order);
+    // 锁定库存 订单号，订单项skuId, skuName, num
+    WareSkuLockVo lockVo = new WareSkuLockVo();
+    lockVo.setOrderSn(order.getOrder().getOrderSn());
+    List<OrderItemTo> itemVos = order.getOrderItems().stream().map(item -> {
+        OrderItemTo itemVo = new OrderItemTo();
+        itemVo.setSkuId(item.getSkuId());
+        itemVo.setCount(item.getSkuQuantity());
+        itemVo.setTitle(item.getSkuName());
+        return itemVo;
+    }).collect(Collectors.toList());
+    lockVo.setLocks(itemVos);
+    // 远程锁库存
+    R r = wareFeignService.orderLockStock(lockVo);
+    if (r.getCode() != 0) {
+        // 库存锁定失败
+        respVo.setCode(2);
+        return respVo;
+    }
+    int i = 10 / 0;
+    respVo.setOrder(order.getOrder());
+    return respVo;
+}
 
     private void saveOrder(OrderCreateTo order) {
         OrderEntity orderEntity = order.getOrder();

@@ -43,7 +43,7 @@ public class OrderConfirmVo {
         if (items == null || items.isEmpty()) {
             return amount;
         }
-        return items.stream().map(OrderItemVo::getPrice).reduce(amount, BigDecimal::add);
+        return items.stream().map(OrderItemVo::getTotalPrice).reduce(amount, BigDecimal::add);
     }
 
     public BigDecimal getPayPrice() {

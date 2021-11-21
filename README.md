@@ -411,6 +411,54 @@ Channel.basicNack()
 Channel.basicReject()
 ```
 
+#### 分布式事务
+- 使用@Transactional注解开启本地事务，最常使用的三个参数：readOnly、propagation、isolation
+- 本地事务在分布式环境下，只能控制自己的回滚，控制不了其他服务的回滚
+- 产生分布式事务最大原因就是网络问题(抖动) + 分布式机器(无法控制别人的机器)，无法感知远程分布式服务是真失败还是假失败
+
+#### 使用Seata控制分布式事务
+- 每个微服务必须先创建undo_log表(回滚日志表)
+```
+CREATE TABLE `undo_log` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `branch_id` bigint(20) NOT NULL,
+  `xid` varchar(100) NOT NULL,
+  `context` varchar(128) NOT NULL,
+  `rollback_info` longblob NOT NULL,
+  `log_status` int(11) NOT NULL,
+  `log_created` datetime NOT NULL,
+  `log_modified` datetime NOT NULL,
+  `ext` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+```
+- 安装事务协调器: seata-server服务器;
+- 启动之前先配置一下注册中心registry.conf的类型与地址; 与配置中心file.conf的事务存储位置(本项目使用默认配置)
+```
+type = "nacos"
+nacos {
+    serverAddr = "localhost:8848"
+    namespace = "public"
+    cluster = "default"
+  }
+```
+- 项目中引入seata依赖; 并启动seata服务器
+- 所有想要用到分布式事务的微服务使用seata DataSourceProxy进行数据源代理, SeataConfig配置类
+- 每个微服务都要导入registry.conf与file.conf文件, 并在file.conf里配置如下参数
+```
+# 占位符填微服务的名字例如 gulimall-order
+vgroup_mapping.${application.name}-fescar-service-group = "default"
+```
+- 给分布式大事务的入口添加@GlobalTransactional注解, 每一个小事务使用@Transactional即可
+- 注意Seata不同版本或有区别, 使用时请参考官方文档
+
+#### Seata分布式事务模式
+- AT: 在一些无需高并发系统可以使用, 例如后台管理系统的大保存方法public void saveSpuInfo(SpuSaveVo vo)
+- TCC: 也不适合高并发场景
+- 高并发场景: 柔性事务-最大努力通知型方案; 柔性事务-可靠消息+最终一致性方案(异步确保型)
+
+
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
 

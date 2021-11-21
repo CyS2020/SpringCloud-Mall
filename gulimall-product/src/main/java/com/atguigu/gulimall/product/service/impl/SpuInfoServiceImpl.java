@@ -108,6 +108,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     /**
      * TODO 高级部分继续完善
      * 大保存方法
+     * 这里适合使用Seata中的AT模式，不需要支持高并发
      */
     @Transactional
     @Override
