@@ -8,6 +8,8 @@ import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.ware.dao.WareSkuDao;
 import com.atguigu.gulimall.ware.entity.WareSkuEntity;
 import com.atguigu.gulimall.ware.feign.ProductFeignService;
+import com.atguigu.gulimall.ware.service.WareOrderTaskDetailService;
+import com.atguigu.gulimall.ware.service.WareOrderTaskService;
 import com.atguigu.gulimall.ware.service.WareSkuService;
 import com.atguigu.gulimall.ware.vo.OrderItemVo;
 import com.atguigu.gulimall.ware.vo.WareSkuLockVo;
@@ -33,6 +35,12 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
     @Autowired
     ProductFeignService productFeignService;
+
+    @Autowired
+    private WareOrderTaskService orderTaskService;
+
+    @Autowired
+    private WareOrderTaskDetailService orderTaskDetailService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -89,9 +97,19 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         }).collect(Collectors.toList());
     }
 
+    /**
+     * 库存解锁的场景:
+     * 1) 下单成功订单过期没有支付被系统自动取消, 或者被用户手动取消, 都需要解锁库存
+     * 2) 下单成功, 库存锁定成功, 接下来的业务调用失败, 导致订单回滚, 需要自动解锁库存
+     */
     @Transactional
     @Override
     public Boolean orderLockStock(WareSkuLockVo vo) {
+        /**
+         * 保存库存工作单的详情
+         * 追溯
+         */
+
         // 1. 按照下单的收货地址，找到一个就近的仓库，锁定库存
         // 2. 找到每个商品在哪个仓库有库存
         List<OrderItemVo> locks = vo.getLocks();
@@ -115,6 +133,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             for (Long wareId : wareIds) {
                 Long count = wareSkuDao.lockSkuStock(skuId, wareId, hasStock.getNum());
                 if (count == 1) {
+                    // TODO 告诉MQ库存锁定成功
                     skuStocked = true;
                     break;
                 }

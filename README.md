@@ -334,7 +334,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 最佳实战: lock.lock(30, TimeUnit.SECONDS); 省掉续期操作, 并手动解锁
 
 #### 短信验证码
-- 使用阿里云市场中的某个短信服务, 参照文档中的实例代码进行断行验证码的发送
+- 使用阿里云市场中的某个短信服务, 参照文档中的实例代码进行验证码的发送
 - Nacos配置中心里配置好必要的参数 host, path, appcode(最重要), templateId 等
 - 验证码两个问题 
   - 接口防刷
@@ -453,11 +453,11 @@ vgroup_mapping.${application.name}-fescar-service-group = "default"
 - 给分布式大事务的入口添加@GlobalTransactional注解, 每一个小事务使用@Transactional即可
 - 注意Seata不同版本或有区别, 使用时请参考官方文档
 
-#### Seata分布式事务模式
+#### 分布式事务模式
 - AT: 在一些无需高并发系统可以使用, 例如后台管理系统的大保存方法public void saveSpuInfo(SpuSaveVo vo)
 - TCC: 也不适合高并发场景
 - 高并发场景: 柔性事务-最大努力通知型方案; 柔性事务-可靠消息+最终一致性方案(异步确保型)
-
+- 使用RabbitMq延时队列实现: 柔性事务-可靠消息+最终一致性方案(异步确保型)
 
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
@@ -582,6 +582,8 @@ String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call
 Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), Lists.newArrayList("lock"), orderToken);
 ```
 - 参见 02、接口幂等性.pdf 文档
+
+#### 订单系统与库存系统的分布式事务
 
 ### 拦路虎
 #### Nacos启动失败

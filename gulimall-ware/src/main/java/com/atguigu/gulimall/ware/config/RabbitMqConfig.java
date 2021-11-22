@@ -1,6 +1,5 @@
-package com.atguigu.gulimall.order.config;
+package com.atguigu.gulimall.ware.config;
 
-import com.atguigu.gulimall.order.entity.OrderEntity;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
@@ -25,7 +24,6 @@ import java.util.Map;
  * @author: CyS2020
  * @date: 2021/11/9
  * 描述：配置序列化方式
- * TODO 参照 RabbitMQ.pdf 第31页
  */
 
 @Slf4j
@@ -51,46 +49,44 @@ public class RabbitMqConfig {
         });
     }
 
-    @RabbitListener(queues = "order.release.order.queue")
-    public void listener(OrderEntity entity, Channel channel, Message message) throws IOException {
-        log.info("收到过期订单信息, 准备关闭订单 : {}", entity.getOrderSn());
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    @RabbitListener(queues = "stock.release.stock.queue")
+    public void listener(Channel channel, Message message) throws IOException {
+
     }
 
     /**
-     * 将Binding、Queue、Exchange注入到容器中即可生效,
-     * 如果Rabbit服务器中没有这些没有则自动创建, 若有无法覆盖
+     * 将Binding、Queue、Exchange注入到容器中即可生效, 会自从创建
      * x-dead-letter-exchange: order-event-exchange
      * x-dead-letter-routing-key: order.release.order
      * x-message-ttl: 60000
      */
     @Bean
-    public Queue orderDelayQueue() {
+    public Queue stockDelayQueue() {
         Map<String, Object> arguments = new HashMap<>();
-        arguments.put("x-dead-letter-exchange", "order-event-exchange");
-        arguments.put("x-dead-letter-routing-key", "order.release.order");
-        arguments.put("x-message-ttl", 60000);
-        return new Queue("order.delay.queue", true, false, false, arguments);
+        arguments.put("x-dead-letter-exchange", "stock-event-exchange");
+        arguments.put("x-dead-letter-routing-key", "stock.release");
+        arguments.put("x-message-ttl", 120000);
+        return new Queue("stock.delay.queue", true, false, false, arguments);
     }
 
     @Bean
-    public Queue orderReleaseOrderQueue() {
-        return new Queue("order.release.order.queue", true, false, false);
+    public Queue stockReleaseStockQueue() {
+        return new Queue("stock.release.stock.queue", true, false, false);
     }
 
     @Bean
-    public Exchange orderEventExchange() {
-        return new TopicExchange("order-event-exchange", true, false);
+    public Exchange stockEventExchange() {
+        return new TopicExchange("stock-event-exchange", true, false);
     }
 
     @Bean
-    public Binding orderCreateOrderBinding() {
-        return new Binding("order.delay.queue", Binding.DestinationType.QUEUE, "order-event-exchange", "order.create.order", null);
+    public Binding stockReleaseBinding() {
+        return new Binding("stock.release.stock.queue", Binding.DestinationType.QUEUE, "stock-event-exchange", "stock.release.#", null);
     }
 
     @Bean
-    public Binding orderReleaseOrderBinding() {
-        return new Binding("order.release.order.queue", Binding.DestinationType.QUEUE, "order-event-exchange", "order.release.order", null);
+    public Binding stockLockedBinding() {
+        return new Binding("stock.delay.queue", Binding.DestinationType.QUEUE, "stock-event-exchange", "stock.locked", null);
 
     }
 
