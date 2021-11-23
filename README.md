@@ -389,7 +389,7 @@ protected void doFilterInternal(HttpServletRequest request,
 - 使用amqpAdmin创建Exchange、Queue、Binding; 使用RabbitTemplate发送消息(对象必须实现序列化接口)
 - 使用@RabbitListener(queues = "xx", "xxx")监听消息, 必须启用该注解@EnableRabbit; 方法接收参数1. Message、2. T、3. Channel
 - 服务启动多个同一个消息也只能有一个服务进行处理; 一个消息处理结束服务才会接收下一个消息
-- @RabbitListener(类+方法)--监听队列; @RabbitHandler(方法)--重载方法区分不同的消息类型
+- 使用方式: @RabbitListener(类+方法)--监听队列; @RabbitHandler(方法)--重载方法区分不同的消息类型
 
 #### RabbitMQ可靠抵达
 - 服务器收到消息就回调: 配置文件 + 设置确认回调-配置类RabbitMqConfig
@@ -583,7 +583,14 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 ```
 - 参见 02、接口幂等性.pdf 文档
 
-#### 订单系统与库存系统的分布式事务
+#### 订单系统与库存系统的分布式事务 -- 库存解锁的场景
+- 下单成功订单过期没有支付被系统自动取消, 或者被用户手动取消, 都需要解锁库存
+- 下单成功, 库存服务锁定成功, 接下来的业务调用失败(订单服务中的其他业务调用), 导致订单回滚, 需要自动解锁库存
+  - 根据rabbitMQ监听消息中**锁库存工作单的id**查询数据库的这条**锁库存工作单**的记录
+  - 若没有锁库存记录则代表锁库存失败库存也回滚了(库存锁定的修改记录与工作单的新增记录一起回滚了), 但是成功发送了锁库存工作单的消息, 这种情况无需解锁 
+  - 若有锁库存记录也不一定都要解锁: 若订单没有创建则需要解锁库存--库存锁成功了订单创建失败了; 订单状态已取消则需要解锁库存--订单未支付或者手动取消了
+  - 手动确认消息, 解锁成功则会删除该消息, 解锁失败重回消息队列后续在尝试进行解锁操作
+
 
 ### 拦路虎
 #### Nacos启动失败
@@ -696,7 +703,7 @@ kill -9 143232
 - 浏览器发送请求时请求头自动携带cookie, 而feign是一个崭新的请求
 - feign远程调用的时候创建一个新的request, 无任何请求头
 - 构造请求的时候会调用拦截器丰富feign请求内容添加上feign远程调用的请求拦截器
-- 在拦截器中同步源请求头的数据, 主要是cookie
+- 在拦截器中同步源请求头的数据, 主要是cookie; 参考GulimallFeignConfig类
 ```
 Request targetRequest(RequestTemplate template) {
     for (RequestInterceptor interceptor : requestInterceptors) {
