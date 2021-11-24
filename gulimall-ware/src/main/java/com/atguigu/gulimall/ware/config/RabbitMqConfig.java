@@ -1,13 +1,10 @@
 package com.atguigu.gulimall.ware.config;
 
-import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.Exchange;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -16,7 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,10 +45,10 @@ public class RabbitMqConfig {
         });
     }
 
-    @RabbitListener(queues = "stock.release.stock.queue")
-    public void listener(Channel channel, Message message) throws IOException {
-
-    }
+//    @RabbitListener(queues = "stock.release.stock.queue")
+//    public void listener(Channel channel, Message message) throws IOException {
+//
+//    }
 
     /**
      * 将Binding、Queue、Exchange注入到容器中即可生效, 会自从创建

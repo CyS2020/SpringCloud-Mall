@@ -2,6 +2,7 @@ package com.atguigu.gulimall.ware.service.impl;
 
 import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.exception.NoStockException;
+import com.atguigu.common.to.OrderTo;
 import com.atguigu.common.to.SkuHasStockVo;
 import com.atguigu.common.to.mq.StockDetailTo;
 import com.atguigu.common.to.mq.StockLockedTo;
@@ -18,7 +19,6 @@ import com.atguigu.gulimall.ware.service.WareOrderTaskDetailService;
 import com.atguigu.gulimall.ware.service.WareOrderTaskService;
 import com.atguigu.gulimall.ware.service.WareSkuService;
 import com.atguigu.gulimall.ware.vo.OrderItemVo;
-import com.atguigu.gulimall.ware.vo.OrderVo;
 import com.atguigu.gulimall.ware.vo.WareSkuLockVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -59,6 +59,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
     /**
      * 库存自动解锁
      */
+    @Transactional
     public void unLockStock(StockLockedTo to) {
         StockDetailTo detail = to.getDetailTo();
         Long detailId = detail.getId();
@@ -69,10 +70,10 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             String orderSn = taskEntity.getOrderSn(); // 根据订单号查询订单状态
             R r = orderFeignService.getOrderStatus(orderSn);
             if (r.getCode() == 0) {
-                OrderVo data = r.getData(new TypeReference<OrderVo>() {
+                OrderTo data = r.getData(new TypeReference<OrderTo>() {
                 });
-                if (data == null || data.getStatus() == 4) {
-                    // 订单已经被取消了，才能解锁库存
+                // 订单已经被取消了，且为已锁定状态才能解锁库存
+                if ((data == null || data.getStatus() == 4) && byId.getLockStatus() == 1) {
                     unLockStock(detail.getSkuId(), detail.getWareId(), detail.getSkuNum(), detailId);
                 }
             } else {
@@ -81,8 +82,28 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         }
     }
 
+    @Transactional
+    @Override
+    public void unLockStock(OrderTo orderTo) {
+        String orderSn = orderTo.getOrderSn();
+        // 查一下最新的库存状态, 防止重复解锁库存
+        WareOrderTaskEntity task = orderTaskService.getOrderTaskByOrderSn(orderSn);
+        Long id = task.getId();
+        // 按照库存工作单找到所有没有解锁的库存工作单
+        List<WareOrderTaskDetailEntity> entities = orderTaskDetailService.list(new QueryWrapper<WareOrderTaskDetailEntity>().eq("task_id", id).eq("lock_status", 1));
+        for (WareOrderTaskDetailEntity entity : entities) {
+            unLockStock(entity.getSkuId(), entity.getWareId(), entity.getSkuNum(), entity.getId());
+        }
+    }
+
     private void unLockStock(Long skuId, Long wareId, Integer num, Long taskDetailId) {
+        // 解锁库存状态
         wareSkuDao.unLockStock(skuId, wareId, num);
+        // 更新工作单状态
+        WareOrderTaskDetailEntity entity = new WareOrderTaskDetailEntity();
+        entity.setId(taskDetailId);
+        entity.setLockStatus(2);
+        orderTaskDetailService.updateById(entity);
     }
 
     @Override
@@ -181,7 +202,6 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             for (Long wareId : wareIds) {
                 Long count = wareSkuDao.lockSkuStock(skuId, wareId, hasStock.getNum());
                 if (count == 1) {
-                    // TODO 告诉MQ库存锁定成功
                     WareOrderTaskDetailEntity entity = new WareOrderTaskDetailEntity(null, skuId, "", hasStock.getNum(), taskEntity.getId(), wareId, 1);
                     orderTaskDetailService.save(entity);
                     StockLockedTo lockedTo = new StockLockedTo();
@@ -189,6 +209,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
                     StockDetailTo stockDetailTo = new StockDetailTo();
                     BeanUtils.copyProperties(entity, stockDetailTo);
                     lockedTo.setDetailTo(stockDetailTo);
+                    // TODO 锁定库存成功则发消息给MQ
                     rabbitTemplate.convertAndSend("stock-event-exchange", "stock.locked", lockedTo);
                     skuStocked = true;
                     break;

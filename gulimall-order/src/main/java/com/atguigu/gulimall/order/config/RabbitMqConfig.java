@@ -1,14 +1,10 @@
 package com.atguigu.gulimall.order.config;
 
-import com.atguigu.gulimall.order.entity.OrderEntity;
-import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.Exchange;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -17,7 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,12 +44,6 @@ public class RabbitMqConfig {
         rabbitTemplate.setReturnCallback((message, replayCode, replyText, exchange, routingKey) -> {
             log.info("队列没有收到消息");
         });
-    }
-
-    @RabbitListener(queues = "order.release.order.queue")
-    public void listener(OrderEntity entity, Channel channel, Message message) throws IOException {
-        log.info("收到过期订单信息, 准备关闭订单 : {}", entity.getOrderSn());
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
 
     /**
@@ -91,6 +80,15 @@ public class RabbitMqConfig {
     @Bean
     public Binding orderReleaseOrderBinding() {
         return new Binding("order.release.order.queue", Binding.DestinationType.QUEUE, "order-event-exchange", "order.release.order", null);
+
+    }
+
+    /**
+     * 订单释放直接和库存释放进行绑定
+     */
+    @Bean
+    public Binding orderReleaseOther() {
+        return new Binding("stock.release.stock.queue", Binding.DestinationType.QUEUE, "order-event-exchange", "order.release.other.#", null);
 
     }
 

@@ -1,6 +1,6 @@
 ### 谷粒商城
 
-![项目架构图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%B0%B7%E7%B2%92%E5%95%86%E5%9F%8E-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg?raw=true)
+![谷粒商城-微服务架构图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%B0%B7%E7%B2%92%E5%95%86%E5%9F%8E-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg?raw=true)
 
 #### 关于项目
 - 关于项目中所需要的数据库创建代码均放在data/sql目录下
@@ -46,14 +46,14 @@
 - 浏览器 -> nginx -> 网关集群 -> 微服务 -> tomcat -> 调用程序
 
 #### 技术搭配方案
-- SpringCloud Alibaba - Nacos：注册中心（服务发现/注册）
-- SpringCloud Alibaba - Nacos：配置中心（动态配置管理）
-- SpringCloud - Ribbon：负载均衡
-- SpringCloud - Feign：声明式 HTTP 客户端（调用远程服务）
-- SpringCloud Alibaba - Sentinel：服务容错（限流、降级、熔断）
-- SpringCloud - Gateway：API 网关（webflux 编程模式）
-- SpringCloud - Sleuth：调用链监控
-- SpringCloud Alibaba - Seata：原 Fescar，即分布式事务解决方案
+- SpringCloud Alibaba - Nacos: 注册中心(服务发现/注册)
+- SpringCloud Alibaba - Nacos: 配置中心(动态配置管理)
+- SpringCloud - Ribbon: 负载均衡
+- SpringCloud - Feign: 声明式 HTTP 客户端(调用远程服务)
+- SpringCloud Alibaba - Sentinel: 服务容错(限流、降级、熔断)
+- SpringCloud - Gateway: API 网关(webflux 编程模式)
+- SpringCloud - Sleuth: 调用链监控
+- SpringCloud Alibaba - Seata: 原 Fescar, 即分布式事务解决方案
 
 #### Nacos服务注册
 - 搭建服务注册所需的服务器, 提供了可视化界面
@@ -102,7 +102,7 @@
 - 启动失败是因为公共组件有Mybatis-plus因此需要配置数据源, 可以再启动项目的地方exclude掉
 
 #### GateWay技术细节
-- 功能：路由, 鉴权, 限流
+- 功能: 路由, 鉴权, 限流
 - Route: 网关的基本构建块即路由规则. 它由ID, 目标URI, 谓词集合和过滤器集合定义, 如果聚合谓词为真, 则匹配路由
 - Predicate: 这是一个Java 8函数谓词，这使您可以匹配来自HTTP请求的任何内容, 例如标头或参数
 - Filter: 这些是GatewayFilter使用特定工厂构建的实例. 在这里您可以在发送下游请求之前或之后修改请求和响应
@@ -390,6 +390,7 @@ protected void doFilterInternal(HttpServletRequest request,
 - 使用@RabbitListener(queues = "xx", "xxx")监听消息, 必须启用该注解@EnableRabbit; 方法接收参数1. Message、2. T、3. Channel
 - 服务启动多个同一个消息也只能有一个服务进行处理; 一个消息处理结束服务才会接收下一个消息
 - 使用方式: @RabbitListener(类+方法)--监听队列; @RabbitHandler(方法)--重载方法区分不同的消息类型
+![RabbitMQ原理](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/RabbitMQ%E5%8E%9F%E7%90%86.PNG?raw=true)
 
 #### RabbitMQ可靠抵达
 - 服务器收到消息就回调: 配置文件 + 设置确认回调-配置类RabbitMqConfig
@@ -412,7 +413,7 @@ Channel.basicReject()
 ```
 
 #### 分布式事务
-- 使用@Transactional注解开启本地事务，最常使用的三个参数：readOnly、propagation、isolation
+- 使用@Transactional注解开启本地事务，最常使用的三个参数: readOnly、propagation、isolation
 - 本地事务在分布式环境下，只能控制自己的回滚，控制不了其他服务的回滚
 - 产生分布式事务最大原因就是网络问题(抖动) + 分布式机器(无法控制别人的机器)，无法感知远程分布式服务是真失败还是假失败
 
@@ -452,6 +453,7 @@ vgroup_mapping.${application.name}-fescar-service-group = "default"
 ```
 - 给分布式大事务的入口添加@GlobalTransactional注解, 每一个小事务使用@Transactional即可
 - 注意Seata不同版本或有区别, 使用时请参考官方文档
+![Seata原理](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Seata%E5%8E%9F%E7%90%86.PNG?raw=true)
 
 #### 分布式事务模式
 - AT: 在一些无需高并发系统可以使用, 例如后台管理系统的大保存方法public void saveSpuInfo(SpuSaveVo vo)
@@ -570,9 +572,9 @@ cookie(sessionId)  ->   session(HttpSession)
 - 电商系统涉及到3流, 分别时信息流, 资金流, 物流; 而订单系统作为中枢将三者有机的集合起来
 - 订单模块是电商系统的枢纽, 在订单这个环节上需求获取多个模块的数据和信息, 同时对这些信息进行加工处理后流向下个环节, 这一系列就构成了订单的信息流通
 - 订单的状态: 待付款 -> 已付款/待发货 -> 已发货/待收货 -> 已完成 -> 已取消 -> 售后中
-![订单中心信息](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E4%B8%AD%E5%BF%83.PNG?raw=true)
+![订单中心](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E4%B8%AD%E5%BF%83.PNG?raw=true)
 - 订单流程是指从订单产生到完成整个流转的过程, 从而行程了一套标准流程规则, 可概括如下图
-![订单流程信息](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E6%B5%81%E7%A8%8B.PNG?raw=true)
+![订单流程](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E6%B5%81%E7%A8%8B.PNG?raw=true)
 
 #### 接口幂等性
 - 订单的提交需要保证幂等性, 使用令牌机制来实现幂等性, 前端token(后端生成返给前端的)与后端redis中(后端生成时保存的)的token
@@ -583,14 +585,24 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 ```
 - 参见 02、接口幂等性.pdf 文档
 
-#### 订单系统与库存系统的分布式事务 -- 库存解锁的场景
-- 下单成功订单过期没有支付被系统自动取消, 或者被用户手动取消, 都需要解锁库存
-- 下单成功, 库存服务锁定成功, 接下来的业务调用失败(订单服务中的其他业务调用), 导致订单回滚, 需要自动解锁库存
+#### 使用RabbitMQ实现定时关单与库存解锁的分布式事务
+- 发送消息的时机: 1. 订单创建成功后就会发送(不管会不会支付), 2. 库存锁定成功后就会发送(不管整个事务是否成功) 
+- 下单成功订单过期没有支付被系统自动取消, 或者被用户手动取消, 都需要关闭订单;OrderCloseListener类
+  - 根据rabbitMQ监听消息中**订单信息**查询数据库的这条**订单信息对应**的记录
+  - 若当前数据库订单状态为**待付款**状态, 则将订单状态改为**已取消**状态, 便于库存服务根据该状态解锁库存
+  - 定时关单的延时为30min, 若30min内未支付则默认状态一直为**待付款**, 到达时间就会修改数据库的订单状态为**已取消**
+  - 库存解锁的延时为50min, 因此库存来查询订单的状态的时候若为已取消则进行自动解锁
+- 下单成功, 库存服务锁定成功, 接下来的业务调用失败(事务中的其他业务调用), 导致订单回滚, 需要自动解锁库存;StockReleaseListener类
   - 根据rabbitMQ监听消息中**锁库存工作单的id**查询数据库的这条**锁库存工作单**的记录
   - 若没有锁库存记录则代表锁库存失败库存也回滚了(库存锁定的修改记录与工作单的新增记录一起回滚了), 但是成功发送了锁库存工作单的消息, 这种情况无需解锁 
-  - 若有锁库存记录也不一定都要解锁: 若订单没有创建则需要解锁库存--库存锁成功了订单创建失败了; 订单状态已取消则需要解锁库存--订单未支付或者手动取消了
+  - 若有锁库存记录也不一定都要解锁: 若订单没有创建则需要解锁库存--库存锁成功了订单创建失败了; 订单状态**已取消**则需要解锁库存--订单未支付或者手动取消了
   - 手动确认消息, 解锁成功则会删除该消息, 解锁失败重回消息队列后续在尝试进行解锁操作
+- 若因为机器卡顿网络延迟等问题造成库存解锁消息先执行, 定时关单后执行那么该订单的库存, 库存查询订单状态为待支付则不解锁, 该订单库存则永远也无法解锁了
+- 在定时关单成功后, 再发一个消息给解锁库存的消息队列中, 解锁库存有两种消息一个是定时关单时候发的一个是下单成功时候发的
+- 定时关单发的消息是解锁库存的主要逻辑, 下单成功发送的消息是解锁库存的补偿逻辑; 补偿逻辑解锁库存前会检查库存工作单是否已解锁, 若已解锁则啥也不做
 
+#### RabbitMQ业务的应用
+![消息队列流程](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E6%B5%81%E7%A8%8B.jpg?raw=true)
 
 ### 拦路虎
 #### Nacos启动失败

@@ -1,4 +1,4 @@
-package com.atguigu.gulimall.ware.vo;
+package com.atguigu.common.to;
 
 import lombok.Data;
 
@@ -13,7 +13,7 @@ import java.util.Date;
  * @date 2021-08-17 22:16:50
  */
 @Data
-public class OrderVo {
+public class OrderTo {
 
     /**
      * id
