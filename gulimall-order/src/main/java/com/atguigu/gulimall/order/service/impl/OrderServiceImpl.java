@@ -25,6 +25,7 @@ import com.atguigu.gulimall.order.vo.MemberAddressVo;
 import com.atguigu.gulimall.order.vo.OrderConfirmVo;
 import com.atguigu.gulimall.order.vo.OrderItemVo;
 import com.atguigu.gulimall.order.vo.OrderSubmitVo;
+import com.atguigu.gulimall.order.vo.PayVo;
 import com.atguigu.gulimall.order.vo.SkuHasStockVo;
 import com.atguigu.gulimall.order.vo.SpuInfoVo;
 import com.atguigu.gulimall.order.vo.SubmitOrderRespVo;
@@ -214,8 +215,46 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             // 主动给解锁库存发送消息
             OrderTo orderTo = new OrderTo();
             BeanUtils.copyProperties(orderEntity, orderTo);
-            rabbitTemplate.convertAndSend("order-event-exchange", "order.release.other", orderTo);
+            try {
+                // TODO 保证消息一定会发送成功
+                rabbitTemplate.convertAndSend("order-event-exchange", "order.release.other", orderTo);
+            } catch (Exception e) {
+
+            }
         }
+    }
+
+    @Override
+    public PayVo getOrderPay(String orderSn) {
+        PayVo payVo = new PayVo();
+        OrderEntity order = this.getOrderByOrderSn(orderSn);
+        BigDecimal payAmount = order.getPayAmount().setScale(2, BigDecimal.ROUND_UP);
+        payVo.setTotal_amount(payAmount.toString());
+        payVo.setOut_trade_no(order.getOrderSn());
+
+        List<OrderItemEntity> itemEntities = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", orderSn));
+        OrderItemEntity itemEntity = itemEntities.get(0);
+        payVo.setSubject(itemEntity.getSkuName());
+        payVo.setBody(itemEntity.getSkuAttrsVals());
+        return payVo;
+    }
+
+    @Override
+    public PageUtils queryPageWithItem(Map<String, Object> params) {
+
+        MemberRespVo memberRespVo = LoginUserInterceptor.loginUser.get();
+
+        IPage<OrderEntity> page = this.page(
+                new Query<OrderEntity>().getPage(params),
+                new QueryWrapper<OrderEntity>().eq("member_id", memberRespVo.getId()).orderByDesc("id")
+        );
+
+        page.getRecords().forEach(order -> {
+            List<OrderItemEntity> itemEntities = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", order.getOrderSn()));
+            order.setItemEntities(itemEntities);
+
+        });
+        return new PageUtils(page);
     }
 
     private void saveOrder(OrderCreateTo order) {

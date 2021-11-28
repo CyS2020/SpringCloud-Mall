@@ -4,6 +4,7 @@ import com.atguigu.common.utils.PageUtils;
 import com.atguigu.gulimall.order.entity.OrderEntity;
 import com.atguigu.gulimall.order.vo.OrderConfirmVo;
 import com.atguigu.gulimall.order.vo.OrderSubmitVo;
+import com.atguigu.gulimall.order.vo.PayVo;
 import com.atguigu.gulimall.order.vo.SubmitOrderRespVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -35,5 +36,12 @@ public interface OrderService extends IService<OrderEntity> {
     OrderEntity getOrderByOrderSn(String orderSn);
 
     void closeOrder(OrderEntity entity);
+
+    PayVo getOrderPay(String orderSn);
+
+    /**
+     * 查询当前登录用户的所有订单信息
+     */
+    PageUtils queryPageWithItem(Map<String, Object> params);
 }
 

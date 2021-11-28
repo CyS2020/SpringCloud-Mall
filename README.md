@@ -730,6 +730,14 @@ Request targetRequest(RequestTemplate template) {
 - 因为是异步情况会开启多个线程但ThreadLocal只能在一个线程中使用, 所以上下文信息就没有了
 - 在异步情况发送feign请求之前, 手动设置下上下文RequestContextHolder.setRequestAttributes(xxx);
 
+#### RabbitMQ消息一直unack
+- 在进行消息监听的时候出现异常, 消息从ready变为unack状态, 是因为传入对象与接受的对象不一致造成的
+- 在手动确认的模式下, 消息的unack状态不会变为ready状态, 重启或者断开连接就能够从新回到ready状态了
+
+#### 支付宝沙箱功能，存在钓鱼风险提示页面
+- 换一个浏览器就可以了, 或者清除支付宝相关网页的cookie即可
+- nglnku1452@sandbox.com
+
 ### 规范
 #### REST接口
 - Controller处理请求, 接收和校验数据
