@@ -528,7 +528,7 @@
         <div class="yun1" th:each="item:${orderConfirmData.items}">
             <img th:src="${item.image}" class="yun"/>
             <div class="mi">
-                <p>[[${item.title}]]<span style="color: red;" th:text="'￥' + ${#numbers.formatDecimal(item.price,3,2)}"> ￥ 499.00</span>
+                <p>[[${item.title}]]<span style="color: red;" th:text="'￥' + ${#numbers.formatDecimal(item.price,1,2)}"> ￥ 499.00</span>
                     <span> x[[${item.count}]] </span> <span> [[${orderConfirmData.stocks[item.skuId]?"有货":"无货"}]]</span>
                 </p>
                 <p class="tui-1"><img src="/static/order/confirm/img/i_07.png"/>支持7天无理由退货</p>
