@@ -1,6 +1,5 @@
 package com.atguigu.gulimall.member.web;
 
-import com.alibaba.fastjson.JSON;
 import com.atguigu.common.utils.R;
 import com.atguigu.gulimall.member.feign.ProductFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,6 @@ public class MemberWebController {
         Map<String, Object> page = new HashMap<>();
         page.put("page", pageNum.toString());
         R r = productFeignService.listWithItem(page);
-        System.out.println(JSON.toJSONString(r));
         model.addAttribute("orders", r);
         return "orderList";
     }

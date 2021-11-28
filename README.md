@@ -604,6 +604,9 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 #### RabbitMQ业务的应用
 ![消息队列流程](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E6%B5%81%E7%A8%8B.jpg?raw=true)
 
+#### 支付异步通知的验签
+
+
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件，默认使用集群模式启动，可以将启动模式改为set MODE="standalone"
@@ -736,7 +739,18 @@ Request targetRequest(RequestTemplate template) {
 
 #### 支付宝沙箱功能，存在钓鱼风险提示页面
 - 换一个浏览器就可以了, 或者清除支付宝相关网页的cookie即可
-- nglnku1452@sandbox.com
+
+#### 异步通知无法访问订单服务
+- 使用了内网穿透工具, 请求头host并不是order.gulimall.com, 而是外网地址http://cys-mall.natapp1.cc/
+- conf.d文件夹添加代理配置gulimall.conf, 该文件夹下的所有配置文件都回包含在总配置文件中
+```
+server_name  gulimall.com  *.gulimall.com cys-mall.natapp1.cc;
+
+location /payed/ {
+    proxy_set_head Host order.gulimall.com;
+    proxy_pass http://gulimall;
+}
+```
 
 ### 规范
 #### REST接口
