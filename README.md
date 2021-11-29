@@ -605,7 +605,12 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 ![消息队列流程](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E6%B5%81%E7%A8%8B.jpg?raw=true)
 
 #### 支付异步通知的验签
-
+- 接收支付宝发来的异步通知以及验签使用OrderPayedListener类
+- 支付宝异步通知地址为`http://cys-mall.natapp1.cc/payed/notify`
+- 有内网穿透工具`Forwarding http://cys-mall.natapp1.cc -> order.gulimall.com:80`
+- 请求达到主机, 结合本地配置的etc/hosts域名地址, 将order.gulimall.com映射到虚拟机ip上
+- 虚拟机收到请求转给nginx, 在nginx修改请求头(一定要配置), nginx转给网关, 网关转给订单服务
+- 订单服务收到后先进行验签后进行业务操作
 
 ### 拦路虎
 #### Nacos启动失败
@@ -751,6 +756,9 @@ location /payed/ {
     proxy_pass http://gulimall;
 }
 ```
+
+#### 远程主机强迫关闭了一个现有的连接
+- 与某些服务失去连接, redis、mysql等中间件; 检查服务是否能够连接, 有可能是网络波动引起的(玄学)
 
 ### 规范
 #### REST接口
