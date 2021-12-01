@@ -461,6 +461,28 @@ vgroup_mapping.${application.name}-fescar-service-group = "default"
 - 高并发场景: 柔性事务-最大努力通知型方案; 柔性事务-可靠消息+最终一致性方案(异步确保型)
 - 使用RabbitMq延时队列实现: 柔性事务-可靠消息+最终一致性方案(异步确保型)
 
+#### 定时任务
+- spring中定时任务由六位组成, 不允许第七位的年
+- 在周的位置 1-7 代表周一至周日; 也可以使用MON-SUN
+- 定时任务不应该阻塞, 默认是阻塞的;
+  - 让业务以异步的方式执行, 提交到某个线程池中
+  - 提交到定时任务线程池: 设置TaskSchedulingProperties配置项 `spring.task.scheduling.pool.size=5`
+- 定时任务自动配置类: TaskSchedulingAutoConfiguration; 属性绑定TaskSchedulingProperties
+- 定时任务 + 异步任务实现 = 定时任务不阻塞功能
+
+#### 异步任务
+- 让定时任务异步执行: 使用@EnableAsync开启异步执行功能, 方法上使用@Async进行异步执行
+- 异步任务自动配置类: TaskExecutionAutoConfiguration; 属性绑定TaskExecutionProperties
+```
+spring.task.execution.pool.core-size=5
+spring.task.execution.pool.max-size=50
+```
+
+#### 秒杀服务
+- 需要商品随机码, 只有拿到随机码才能参与秒杀服务, 防止恶意请求
+- 分布式信号量进行限流, 商品秒杀总量作为分布式信号量
+- 分布式锁处理幂等性问题, 多个微服务的定时任务只有一个执行
+
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
 
