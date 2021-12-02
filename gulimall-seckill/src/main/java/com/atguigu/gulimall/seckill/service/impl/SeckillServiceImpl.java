@@ -18,7 +18,9 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -44,7 +46,7 @@ public class SeckillServiceImpl implements SeckillService {
 
     private final String SESSION_CACHE_PREFIX = "seckill:sessions:";
 
-    private final String SKUKILL_CACHE_PREFIX = "seckill:skus:";
+    private final String SKUKILL_CACHE_PREFIX = "seckill:skus";
 
     private final String SKU_STOCK_SEMAPHORE = "seckill:stock:"; // 加商品随机码
 
@@ -60,6 +62,39 @@ public class SeckillServiceImpl implements SeckillService {
             // 缓存商品信息
             saveSessionSkuInfos(sessionData);
         }
+    }
+
+    @Override
+    public List<SecKillSkuRedisTo> getCurrentSeckillSkus() {
+        // 1. 确定当前时间属于哪个秒杀场次
+        long time = new Date().getTime();
+        Set<String> keys = redisTemplate.keys(SESSION_CACHE_PREFIX + "*");
+        if (keys == null) {
+            return null;
+        }
+        for (String key : keys) {
+            String replace = key.replace(SESSION_CACHE_PREFIX, "");
+            String[] s = replace.split("_");
+            long start = Long.parseLong(s[0]);
+            long end = Long.parseLong(s[1]);
+            if (start <= time && time <= end) {
+                // 获取这个秒杀场次需要的所有商品信息
+                List<String> range = redisTemplate.opsForList().range(key, -100, 100);
+                if (range == null) {
+                    break;
+                }
+                BoundHashOperations<String, String, String> ops = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
+                List<String> list = ops.multiGet(range);
+                if (list != null) {
+                    return list.stream().map(item -> {
+                        Gson gson = new Gson();
+                        return gson.fromJson(item, SecKillSkuRedisTo.class);
+                    }).collect(Collectors.toList());
+                }
+                break;
+            }
+        }
+        return null;
     }
 
     private void saveSessionInfos(List<SeckillSessionsWithSkus> sessions) {

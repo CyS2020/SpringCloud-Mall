@@ -73,6 +73,10 @@ spring:
           uri: lb://gulimall-member
           predicates:
             - Host=member.gulimall.com
+        - id: gulimall_seckill_route
+          uri: lb://gulimall-seckill
+          predicates:
+            - Host=seckill.gulimall.com
 
   ## 前端项目发送请求都会带api前缀
   ## 前端发来请求 http://localhost:88/api/captcha.jpg
