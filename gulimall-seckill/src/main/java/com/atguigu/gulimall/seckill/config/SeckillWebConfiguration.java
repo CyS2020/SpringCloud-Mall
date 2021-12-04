@@ -1,0 +1,25 @@
+package com.atguigu.gulimall.seckill.config;
+
+import com.atguigu.gulimall.seckill.intercepter.LoginUserInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+/**
+ * @author: CyS2020
+ * @date: 2021/11/14
+ * 描述：配置拦截器
+ */
+
+@Configuration
+public class SeckillWebConfiguration implements WebMvcConfigurer {
+
+    @Autowired
+    private LoginUserInterceptor loginUserInterceptor;
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(loginUserInterceptor).addPathPatterns("/**");
+    }
+}
