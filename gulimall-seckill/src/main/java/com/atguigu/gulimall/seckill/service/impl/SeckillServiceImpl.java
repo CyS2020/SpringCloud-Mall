@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -92,6 +93,30 @@ public class SeckillServiceImpl implements SeckillService {
                     }).collect(Collectors.toList());
                 }
                 break;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public SecKillSkuRedisTo getSkuSeckillInfo(Long skuId) {
+        BoundHashOperations<String, String, String> hashOps = redisTemplate.boundHashOps(SKUKILL_CACHE_PREFIX);
+        Set<String> keys = hashOps.keys();
+        if (keys != null && !keys.isEmpty()) {
+            String regx = "\\d_" + skuId;
+            for (String key : keys) {
+                if (Pattern.matches(regx, key)) {
+                    String json = hashOps.get(key);
+                    Gson gson = new Gson();
+                    SecKillSkuRedisTo skuRedisTo = gson.fromJson(json, SecKillSkuRedisTo.class);
+                    Long startTime = skuRedisTo.getStartTime();
+                    Long endTime = skuRedisTo.getEndTime();
+                    long currentTime = new Date().getTime();
+                    if (startTime > currentTime || currentTime > endTime) {
+                        skuRedisTo.setRandomCode(null);
+                    }
+                    return skuRedisTo;
+                }
             }
         }
         return null;

@@ -32,4 +32,7 @@ public class SkuItemVo {
 
     // 6. 有货无货信息
     private boolean hasStock = true;
+
+    // 7. 秒杀优惠信息
+    private SecKillInfoVo seckillInfo;
 }
