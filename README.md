@@ -21,7 +21,7 @@
 </dependency>
 ```
 - 配置信息
-    - 导入mysql驱动的依赖，放在gulimall-common模块了
+    - 导入mysql驱动的依赖, 放在gulimall-common模块了
     - 在application.yml配置mysql数据源相关信息
     - 配置mybatis-plus: 配置@MapperScan扫描的包路径(项目启动类)
     - 配置mybatis-plus: 配置classpath扫描的xml文件路径(配置文件)
@@ -38,7 +38,7 @@
     - this.baseMapper就是实现了dao层接口的实例, 由框架自动注入进来的, 不需要我们手动实例化; (dao == mapper)
 
 #### 微服务
-- 注册中心: 每一个微服务上线后注册到注册中心，对外提供服务;
+- 注册中心: 每一个微服务上线后注册到注册中心, 对外提供服务;
 - 配置中心: 每一个微服务的配置都很多, 集群环境需要一个个修改, 通过配置中心来管理修改;
 - 网关: 前端请求通过网关进行 鉴权; 过滤; 路由. 由网关抵达微服务;
 - nginx: 用户首先访问nginx, 将数据转发给网关, 静态资源存放在nginx里实现动静分离
@@ -66,13 +66,13 @@
 - 微服务中引入nacos-config依赖
 - 配置中心创建命名空间(可以省略, 使用默认的命名空间),
 - 本地resource中创建bootstrap.properties文件配置 配置中心的服务器地址; 命名空间等--本地的
-- 配置中心添加一个名叫 xxx.properties 的数据集，服务名.properties(默认规则)--配置中心的
+- 配置中心添加一个名叫 xxx.properties 的数据集, 服务名.properties(默认规则)--配置中心的
 - bootstrap.properties文件可以配置初始加载文件(配置中心的某个文件)
 - java代码中配置类动态刷新@RefreshScope, 获取某个配置的值@Value("${配置项}")
 - 如果配置中心与本地配置文件中的冲突, 优先使用配置中心的配置
 
 #### Nacos配置中心细节
-- 命名空间: 用于进行租户粒度的配置隔离. 不同的命名空间下，可以存在相同的Group或Data ID的配置; 默认public; 
+- 命名空间: 用于进行租户粒度的配置隔离. 不同的命名空间下, 可以存在相同的Group或Data ID的配置; 默认public; 
 开发, 测试, 生产中利用命名空间做环境隔离. 在bootstrap.properties配置命名空间的id
 - 配置集: 一组相关或者不相关的配置项的集合称为配置集
 - 配置集ID: 类似于以前的配置文件名application.yml
@@ -83,10 +83,10 @@
 
 #### OpenFeign远程调用
 - 引入openfeign依赖
-- 编写接口，告诉springCloud这个接口需要调用的那个微服务
-- 声明方法，调用微服务的那个请求，访问路径需要写全
+- 编写接口, 告诉springCloud这个接口需要调用的那个微服务
+- 声明方法, 调用微服务的那个请求, 访问路径需要写全
     - 访问路径写法有两种一种是过网关(网关微服务 + /api/xx/xxx), 一种是不过网关(指定微服务 + /xx/xxx)
-- 开启远程调用功能，@EnableFeignClients并传入扫描的包路径
+- 开启远程调用功能, @EnableFeignClients并传入扫描的包路径
 - SpringCloud整个远程调用的逻辑
     - 如果有个Service调用了feign的Service, 并且传入了对象
     - 若有@RequestBody则将这个对象转为json
@@ -104,9 +104,9 @@
 #### GateWay技术细节
 - 功能: 路由, 鉴权, 限流
 - Route: 网关的基本构建块即路由规则. 它由ID, 目标URI, 谓词集合和过滤器集合定义, 如果聚合谓词为真, 则匹配路由
-- Predicate: 这是一个Java 8函数谓词，这使您可以匹配来自HTTP请求的任何内容, 例如标头或参数
+- Predicate: 这是一个Java 8函数谓词, 这使您可以匹配来自HTTP请求的任何内容, 例如标头或参数
 - Filter: 这些是GatewayFilter使用特定工厂构建的实例. 在这里您可以在发送下游请求之前或之后修改请求和响应
-- Predicate如果满足某种规则才进行路由，Filter对谓词中的内容进行判断分析处理不是狭义的过滤, 可以是增删改操作
+- Predicate如果满足某种规则才进行路由, Filter对谓词中的内容进行判断分析处理不是狭义的过滤, 可以是增删改操作
 
 #### 网关路由与Nacos路由
 - 不使用Nacos的时候, 网关路由规则uri后面直接写ip与端口, 使用了Nacos后面写微服务的名称
@@ -144,7 +144,7 @@
 - 编写异常处理类, 可以直接使用@RestControllerAdvice, 设置basePackages处理某些包
 - 编写异常处理方法, 使用@ExceptionHandler, 设置value参数处理一种类型的异常
 - 思想就是统一捕获异常然后处理无需try/catch了; 注意需要为不同的异常编写不同的错误码, 返回给前端;
-- RestControllerAdvice会自动帮助catch,并匹配相应的ExceptionHandler, 然后重新封装异常信息, 返回值, 统一格式返回给前端。
+- RestControllerAdvice会自动帮助catch,并匹配相应的ExceptionHandler, 然后重新封装异常信息, 返回值, 统一格式返回给前端. 
 
 #### ElasticSearch搜索和数据分析引擎
 - 基本概念
@@ -173,7 +173,7 @@
   - Mapping 是用来定义一个文档document, 以及它所包含的属性(field)是如何存储和索引的
   - 注释: 在7.0及以后得版本不支持type了数据直接保存在索引下边
 - 分词器
-  - 一个 tokenizer(分词器)接收一个字符流, 将之分割为独立的tokens(词元，通常是独立的单词)，然后输出tokens流
+  - 一个 tokenizer(分词器)接收一个字符流, 将之分割为独立的tokens(词元, 通常是独立的单词), 然后输出tokens流
   - 使用中文分词器: 安装插件elasticsearch-analysis-ik, 下载解压到elasticsearch/plugins/ik文件夹下
   - 自定义词库: 使用nginx服务器来存储自定义的字典, 然后修改/usr/share/elasticsearch/plugins/ik/config/中的 IKAnalyzer.cfg.xml中配置远程扩展字典地址
       ```
@@ -413,9 +413,9 @@ Channel.basicReject()
 ```
 
 #### 分布式事务
-- 使用@Transactional注解开启本地事务，最常使用的三个参数: readOnly、propagation、isolation
-- 本地事务在分布式环境下，只能控制自己的回滚，控制不了其他服务的回滚
-- 产生分布式事务最大原因就是网络问题(抖动) + 分布式机器(无法控制别人的机器)，无法感知远程分布式服务是真失败还是假失败
+- 使用@Transactional注解开启本地事务, 最常使用的三个参数: readOnly、propagation、isolation
+- 本地事务在分布式环境下, 只能控制自己的回滚, 控制不了其他服务的回滚
+- 产生分布式事务最大原因就是网络问题(抖动) + 分布式机器(无法控制别人的机器), 无法感知远程分布式服务是真失败还是假失败
 
 #### 使用Seata控制分布式事务
 - 每个微服务必须先创建undo_log表(回滚日志表)
@@ -483,6 +483,16 @@ spring.task.execution.pool.max-size=50
 - 分布式锁来处理上架幂等性问题, 多个微服务的定时任务防止重复上架
 - 分布式信号量进行限流, 商品秒杀总量作为分布式信号量, 上架时设置信号量
 
+#### 秒杀系统设计
+- 服务单一职责 + 独立部署: 秒杀服务即使自己扛不住压力挂掉, 不要影响别人
+- 秒杀链接加密: 防止恶意攻击, 模拟秒杀请求, 1000次/s攻击; 防止链接暴露, 自己工作人员, 提前秒杀商品(随机码就在这用)
+- 库存预热 + 快速扣减: 秒杀读多写少, 无需每次实时校验库存, 我们库存预热, 放到redis中, 信号量控制进来秒杀的请求(分布式信号量)
+- 动静分离: nginx做好动静分离. 保证秒杀和商品详情页的动态请求才打到后端的服务集群. 使用CDN网络, 分担本集群压力
+- 恶意请求拦截: 识别非法攻击请求并进行拦截, 网关层进行拦截
+- 流量错峰: 使用各种手段, 将流量分担到更大宽度的时间点。比如验证码, 加入购物车等
+- 限流&熔断&降级: 前端限流 + 后端限流限制次数. 限制总量, 快速失败降级运行, 熔断隔离防止雪崩
+- 队列削峰值: 1万个商品, 每个1000件秒杀. 双11所有秒杀成功的请求, 进入队列, 慢慢创建订单, 扣减库存即可
+
 #### 无需回滚的方式
 - 自己在方法内部catch掉, 异常不往外抛出
 
@@ -499,7 +509,7 @@ spring.task.execution.pool.max-size=50
 - PO(persistent object)--持久对象
   - PO 就是对应数据库中某个表中的一条记录, 多个记录可以用PO的集合, PO中应该不包含任何对数据库的操作
 - DO(Domain Object)--领域对象
-  - 就是从现实世界中抽象出来的有形或无形的业务实体。
+  - 就是从现实世界中抽象出来的有形或无形的业务实体. 
 - TO(Transfer Object)--数据传输对象
   - 不同应用程序之间传输的对象
 - DTO(Data Transfer Object)--数据传输对象
@@ -507,7 +517,7 @@ spring.task.execution.pool.max-size=50
 - VO(View Object)--视图对象
   - 接受页面传递来的数据封装对象; 将业务处理完成的对象封装成页面要用的数据
 - BO(business Object)--业务对象
-  - 主要作用是把业务逻辑封装为一个对象。这个对象可以包括一个或多个其它的对象
+  - 主要作用是把业务逻辑封装为一个对象. 这个对象可以包括一个或多个其它的对象
 - POJO(Plain Ordinary Java Object)--简单无规则java对象
   - 我的理解就是最基本的java Bean, 只有属性字段及setter和getter方法, POJO是DO/DTO/BO/VO的统称
 - DAO(Data Access Object)--数据访问对象
@@ -540,7 +550,7 @@ spring.task.execution.pool.max-size=50
 https://api.weibo.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=YOUR_REGISTERED_REDIRECT_URI
 ```
 - 如果用户同意授权, 页面跳转至YOUR_REGISTERED_REDIRECT_URI/?code=CODE; 获取Code只能使用一次
-- Code换取Access Token, 其中client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET可以使用basic方式加入header中，返回值
+- Code换取Access Token, 其中client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET可以使用basic方式加入header中, 返回值
 ```
 // post请求
 https://api.weibo.com/oauth2/access_token?client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET&grant_type=authorization_code&redirect_uri=YOUR_REGISTERED_REDIRECT_URI&code=CODE
@@ -561,7 +571,7 @@ https://api.weibo.com/oauth2/access_token?client_id=YOUR_CLIENT_ID&client_secret
 - 服务端需要通过session来识别具体的用户, 服务端要为特定用户创建特定的session, 用于标识这个用户并且跟踪
 - 那么问题来了session如何来识别具体的用户呢？客户端会将cookie信息发送到服务端, cookie里面记录一个Session ID(字段jsessionid)
 - session是抽象的概念, cookie是具体的概念, cookie是session一种具体的实现方式
-- 会话跟踪cookie与session，可以理解为cookie是一个箱子，里面可以填内容信息；如果填具体信息那就是cookie客户端机制，如果是填sessionId具体信息存在服务器则是session机制
+- 会话跟踪cookie与session, 可以理解为cookie是一个箱子, 里面可以填内容信息；如果填具体信息那就是cookie客户端机制, 如果是填sessionId具体信息存在服务器则是session机制
 - 在很多操作中都需要检查用户是否登录因此通过在代码中编写拦截器进行预检查(实现HandlerInterceptor.preHandle())还需配置拦截哪些url; 另外还可以用AOP的方式拦截
 ```
        前端        ->           后端
@@ -634,9 +644,19 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 虚拟机收到请求转给nginx, 在nginx修改请求头(一定要配置), nginx转给网关, 网关转给订单服务
 - 订单服务收到后先进行验签后进行业务操作
 
+#### 支付收单
+- 订单在支付页, 不支付, 一直刷新, 订单过期了才支付, 订单状态改为已支付了, 但是库存解锁了
+  - 使用支付宝自动收单功能解决timeout参数. 只要一段时间不支付, 就不能支付了
+- 由于时延等问题. 订单解锁完成, 正在解锁库存的时候, 异步通知才到
+  - 订单解锁, 手动调用收单
+- 网络阻塞问题, 订单支付成功的异步通知一直不到达
+  - 查询订单列表时, ajax获取当前未支付的订单状态, 查询订单状态时, 再获取一下支付宝此订单的状态
+- 其他各种问题
+  - 每天晚上闲时下载支付宝对账单, 一一进行对账
+
 ### 拦路虎
 #### Nacos启动失败
-- 修改startup.cmd文件，默认使用集群模式启动，可以将启动模式改为set MODE="standalone"
+- 修改startup.cmd文件, 默认使用集群模式启动, 可以将启动模式改为set MODE="standalone"
 
 #### 前后端的访问
 - 1.前端会配置请求的前缀(网关的地址和端口), 例如前端发来请求 http://localhost:88/api/captcha.jpg
@@ -764,7 +784,7 @@ Request targetRequest(RequestTemplate template) {
 - 在进行消息监听的时候出现异常, 消息从ready变为unack状态, 是因为传入对象与接受的对象不一致造成的
 - 在手动确认的模式下, 消息的unack状态不会变为ready状态, 重启或者断开连接就能够从新回到ready状态了
 
-#### 支付宝沙箱功能，存在钓鱼风险提示页面
+#### 支付宝沙箱功能, 存在钓鱼风险提示页面
 - 换一个浏览器就可以了, 或者清除支付宝相关网页的cookie即可
 
 #### 异步通知无法访问订单服务
