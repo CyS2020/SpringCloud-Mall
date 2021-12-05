@@ -37,7 +37,6 @@ public class BrandController {
      * 列表
      */
     @RequestMapping("/list")
-    //@RequiresPermissions("product:brand:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = brandService.queryPage(params);
 
@@ -49,7 +48,6 @@ public class BrandController {
      * 信息
      */
     @RequestMapping("/info/{brandId}")
-    //@RequiresPermissions("product:brand:info")
     public R info(@PathVariable("brandId") Long brandId){
 		BrandEntity brand = brandService.getById(brandId);
 
@@ -60,7 +58,6 @@ public class BrandController {
      * 保存
      */
     @RequestMapping("/save")
-    //@RequiresPermissions("product:brand:save")
     public R save(@Validated({AddGroup.class}) @RequestBody BrandEntity brand/*, BindingResult result*/) {
 //        if (result.hasErrors()) {
 //            Map<String, String> map = new HashMap<>();
@@ -82,7 +79,6 @@ public class BrandController {
      * 修改
      */
     @RequestMapping("/update")
-    //@RequiresPermissions("product:brand:update")
     public R update(@Validated(UpdateGroup.class) @RequestBody BrandEntity brand) {
         brandService.updateDetail(brand);
 
@@ -93,7 +89,6 @@ public class BrandController {
      * 修改状态
      */
     @RequestMapping("/update/status")
-    //@RequiresPermissions("product:brand:update")
     public R updateStatus(@Validated(UpdateStatusGroup.class) @RequestBody BrandEntity brand) {
         brandService.updateById(brand);
 
@@ -104,7 +99,6 @@ public class BrandController {
      * 删除
      */
     @RequestMapping("/delete")
-    //@RequiresPermissions("product:brand:delete")
     public R delete(@RequestBody Long[] brandIds) {
         brandService.removeByIds(Arrays.asList(brandIds));
 
