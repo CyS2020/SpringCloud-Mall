@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author: CyS2020
@@ -33,6 +34,12 @@ public class SeckillController {
     @ResponseBody
     @GetMapping("/sku/seckill/{skuId}")
     public R getSkuSeckillInfo(@PathVariable("skuId") Long skuId) {
+        try {
+            // TODO 测试feign降级用
+            TimeUnit.MILLISECONDS.sleep(300);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         SecKillSkuRedisTo secKillSkuRedisTo = seckillService.getSkuSeckillInfo(skuId);
         return R.ok().setData(secKillSkuRedisTo);
     }
