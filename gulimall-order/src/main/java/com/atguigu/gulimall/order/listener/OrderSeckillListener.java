@@ -1,6 +1,6 @@
 package com.atguigu.gulimall.order.listener;
 
-import com.atguigu.gulimall.order.entity.OrderEntity;
+import com.atguigu.common.to.mq.SeckillOrderTo;
 import com.atguigu.gulimall.order.service.OrderService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -8,31 +8,33 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
 /**
  * @author: CyS2020
- * @date: 2021/11/24
+ * @date: 2021/12/5
  */
+
 @Slf4j
-@Service
-@RabbitListener(queues = "order.release.order.queue")
-public class OrderCloseListener {
+@Component
+@RabbitListener(queues = "order.seckill.order.queue")
+public class OrderSeckillListener {
 
     @Autowired
     private OrderService orderService;
 
     @RabbitHandler
-    public void listener(OrderEntity entity, Channel channel, Message message) throws IOException {
-        log.info("收到过期订单信息, 准备关闭订单 : {}", entity.getOrderSn());
+    public void listener(SeckillOrderTo seckillOrderTo, Channel channel, Message message) throws IOException {
+        log.info("准备创建秒杀单的详细信息...");
         try {
-            orderService.closeOrder(entity);
-            // TODO 手动调用支付宝收单
+            orderService.createSeckillOrder(seckillOrderTo);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception e) {
             channel.basicReject(message.getMessageProperties().getDeliveryTag(), true);
         }
     }
+
+
 }

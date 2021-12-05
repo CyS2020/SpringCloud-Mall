@@ -604,6 +604,7 @@ cookie(sessionId)  ->   session(HttpSession)
 - 电商系统涉及到3流, 分别时信息流, 资金流, 物流; 而订单系统作为中枢将三者有机的集合起来
 - 订单模块是电商系统的枢纽, 在订单这个环节上需求获取多个模块的数据和信息, 同时对这些信息进行加工处理后流向下个环节, 这一系列就构成了订单的信息流通
 - 订单的状态: 待付款 -> 已付款/待发货 -> 已发货/待收货 -> 已完成 -> 已取消 -> 售后中
+- 订单Id等各种Id生成可以使用mybatis中的IdWorker类进行生成, 底层原理为雪花算法
 ![订单中心](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E4%B8%AD%E5%BF%83.PNG?raw=true)
 - 订单流程是指从订单产生到完成整个流转的过程, 从而行程了一套标准流程规则, 可概括如下图
 ![订单流程](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E6%B5%81%E7%A8%8B.PNG?raw=true)
@@ -648,11 +649,18 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 订单在支付页, 不支付, 一直刷新, 订单过期了才支付, 订单状态改为已支付了, 但是库存解锁了
   - 使用支付宝自动收单功能解决timeout参数. 只要一段时间不支付, 就不能支付了
 - 由于时延等问题. 订单解锁完成, 正在解锁库存的时候, 异步通知才到
-  - 订单解锁, 手动调用收单
+  - 订单解锁, 手动调用收单, 不再允许支付了
 - 网络阻塞问题, 订单支付成功的异步通知一直不到达
   - 查询订单列表时, ajax获取当前未支付的订单状态, 查询订单状态时, 再获取一下支付宝此订单的状态
 - 其他各种问题
   - 每天晚上闲时下载支付宝对账单, 一一进行对账
+  
+#### 秒杀业务流程
+- 秒杀只是商品优惠显示信息, 价格做了优惠, 流程和正常购买一致; 优点是流量比较分散, 业务也比较统一; 缺点是流量级联的传递到其他系统
+![秒杀业务流程1](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E7%A7%92%E6%9D%80%E4%B8%9A%E5%8A%A1%E6%B5%81%E7%A8%8B1.png?raw=true)
+- 秒杀系统拥有一套独立的业务流程, 且不操作数据库; 优点是能抗住高并发, 缺点是系统需要一套独立的业务处理流程
+- 耗时统计在10ms, 一秒一个线程可以处理100个请求, tomcat最大线程数若为500, 那么每秒则能处理5万并发量; 20个单机集群就能处理100万的并发了
+![秒杀业务流程2](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E7%A7%92%E6%9D%80%E4%B8%9A%E5%8A%A1%E6%B5%81%E7%A8%8B2.PNG?raw=true)
 
 ### 拦路虎
 #### Nacos启动失败
@@ -807,6 +815,10 @@ location /payed/ {
 - Controller处理请求, 接收和校验数据
 - Service处理controller传来的数据, 进行业务处理
 - Controller接收Service处理完的数据, 封装页面指定的VO
+
+#### vo与to(本项目中)
+- 不同应用进行传输的为vo, 前后端, 微服务等调用
+- 用于中间件传输的为to, rabbitMq, redis等
 
 #### 耗时
 - http(请求微信api) > 内网 + 磁盘(mysql) > 内存
