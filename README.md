@@ -662,6 +662,14 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 耗时统计在10ms, 一秒一个线程可以处理100个请求, tomcat最大线程数若为500, 那么每秒则能处理5万并发量; 20个单机集群就能处理100万的并发了
 ![秒杀业务流程2](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E7%A7%92%E6%9D%80%E4%B8%9A%E5%8A%A1%E6%B5%81%E7%A8%8B2.PNG?raw=true)
 
+#### Sentinel熔断&降级&限流
+- 项目中引入依赖sentinel, 本项目每个微服务都需要因此在common里引入
+- 下载sentinel控制台(版本对应上), 以jar包形式运行
+- 在控制台中调整参数, 设置流控、降级、授权、热点等流控规则; 默认所有设置保存在微服务内存中, 重启失效
+- sentinel控制台的实时监控没有图表数据, 自定义请求限流以后返回的数据
+  - 项目中引入依赖actuator(springBoot高版本自带), 并在配置中允许Endpoints的访问: `management.endpoints.web.exposure.include=*`
+  - 添加配置类SentinelConfig, 自定义请求限流后的返回数据
+
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件, 默认使用集群模式启动, 可以将启动模式改为set MODE="standalone"
