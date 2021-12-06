@@ -670,12 +670,16 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
   - 项目中引入依赖actuator(springBoot高版本自带), 并在配置中允许Endpoints的访问: `management.endpoints.web.exposure.include=*`
   - 添加配置类SentinelConfig, 自定义请求限流后的返回数据
 - sentinel Dashboard配置**流控**规则: 资源名、针对来源、阈值类型、单机阈值、是否集群、流控模式、流控效果
-- 项目中引入sentinel和openfeign, **调用方**配置sentinel对feign的支持: `feign.sentinel.enabled=true`
-- 实现远程调用接口SeckillFeignServiceFallback, 实现熔断回调方法, 在远程调用失败的时候返回熔断数据--**熔断**保护
+  - 项目中引入sentinel和openfeign, **调用方**配置sentinel对feign的支持: `feign.sentinel.enabled=true`
+  - 实现远程调用接口SeckillFeignServiceFallback, 实现熔断回调方法, 在远程调用失败的时候返回熔断数据--**熔断**保护
 - sentinel Dashboard配置**降级**规则: 资源名、降级策略、RT、时间窗口; 
-- 通过上述配置调用方手动指定服务降级策略, 远程服务被降级处理触发熔断回调方法
-- **被调用方**即服务的提供方, 在应对超大并发量的时候, 也可以指定降级规则; 提供方服务在运行中, 但不运行业务逻辑, 返回降级数据(限流数据)
+  - 通过上述配置调用方手动指定服务降级策略, 远程服务被降级处理触发熔断回调方法
+  - **被调用方**即服务的提供方, 在应对超大并发量的时候, 也可以指定降级规则; 提供方服务在运行中, 但不运行业务逻辑, 返回降级数据(限流数据)
 - 熔断主要是在调用方控制, 降级是在提供方控制. 熔断主要是防止提供方宕机, 降级则是提供方为了解压, 给调用方提供了一些简单的数据
+- 使用方法自定义受保护的形式时, try-catch还是@SentinelResource都需要定义限流后的返回数据; url请求可以使用统一的返回SentinelConfig
+  - 自定义受保护资源一: try(Entry entry = SphU.entry("资源名")){}catch ((BlockException e)){}
+  - 自定义受保护资源二: @SentinelResource 注解定义资源并配置blockHandler和fallback函数来进行限流之后的处理
+- 网关项目中引入依赖sentinel且引入依赖sentinel-gateway, 就可以从网关的层面进行限流
 
 ### 拦路虎
 #### Nacos启动失败
