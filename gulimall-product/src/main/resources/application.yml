@@ -32,4 +32,6 @@ server:
 
 logging:
   level:
-    com.atguigu.gulimall: info
+    com.atguigu.gulimall: error
+    org.springframework.cloud.openfeign: debug
+    org.springframework.cloud.sleuth: debug

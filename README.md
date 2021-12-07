@@ -681,6 +681,14 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
   - 自定义受保护资源二: @SentinelResource 注解定义资源并配置blockHandler和fallback函数来进行限流之后的处理
 - 网关项目中引入依赖sentinel且引入依赖sentinel-gateway, 就可以从网关的层面进行限流
 
+#### Sleuth与Zipkin服务链路追踪
+- 项目中引入依赖sleuth, 本项目每个微服务都需要因此在common里引入, 配置日志打印级别即可在日志文件查看调用链日志
+- 项目中引入依赖zipkin, 本项目每个微服务都需要因此在common里引入, 在docker中安装zipkin服务, 链路追踪数据会汇报给该服务器
+- Sleuth主要服务链追踪原理图
+![Sleuth链路追踪](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Sleuth%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA.png?raw=true)
+- Zipkin可视化观察原理图
+![Zipkin原理图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Zipkin%E5%8E%9F%E7%90%86%E5%9B%BE.PNG?raw=true)
+
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件, 默认使用集群模式启动, 可以将启动模式改为set MODE="standalone"
@@ -751,6 +759,7 @@ kill -9 143232
 #### 数据库突然连接不上去了
 - 虚拟机中的ip地址与无线网的ip地址冲突了, 修改下虚拟机中的ip地址即可
 - 修改完成ip地址都互相ping通过的情况下, 发现还是连接不上数据库, 关闭下防火墙(虽然之前没关闭也能用--玄学)
+- 达到最大连接数量了, 修改数据库配置my.cnf; `max_connections=1000`
 
 #### 网站突然访问不了
 - 由于无线网的ip地址一直变化, 需要重新重启这些微服务
