@@ -690,6 +690,11 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - Zipkin可视化观察原理图
 ![Zipkin原理图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Zipkin%E5%8E%9F%E7%90%86%E5%9B%BE.PNG?raw=true)
 
+### 集群运维
+#### K8S + KubeSphere应用
+- 建立多租户系统; 创建DevOps工程; 创建并部署WordPress;(快速入门文档)
+![kubesphere用户系统]()
+
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件, 默认使用集群模式启动, 可以将启动模式改为set MODE="standalone"
