@@ -691,9 +691,26 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 ![Zipkin原理图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Zipkin%E5%8E%9F%E7%90%86%E5%9B%BE.PNG?raw=true)
 
 ### 集群运维
-#### K8S + KubeSphere应用
+#### K8S + KubeSphere(master)应用入门
 - 建立多租户系统; 创建DevOps工程; 创建并部署WordPress;(快速入门文档)
-![kubesphere用户系统]()
+![kubesphere用户系统](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/kubesphere%E7%94%A8%E6%88%B7%E7%B3%BB%E7%BB%9F.png?raw=true)
+
+#### DevOps
+- DevOps看作开发(软件工程)、技术运营和质量保障(QA)三者的交集; 开发-部署-测试
+- CI&CD: 持续集成(Continuous Integration); 持续交付(Continuous Delivery); 持续部署(Continuous Deployment)
+- 持续交付工具链: 合作开发 -> 构建 -> 测试 -> 部署 -> 运行
+![持续交付工具链图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E6%8C%81%E7%BB%AD%E4%BA%A4%E4%BB%98%E5%B7%A5%E5%85%B7%E9%93%BE%E5%9B%BE.jpeg?raw=true)
+
+### Jenkins流水线
+- 使用KubeSphere创建DevOps工程, 通过流水线实现持续集成和持续交付的功能
+- 使用Jenkins创建CI&CD, 创建Jenkins流水线就是编写Jenkinsfile文件, 有KubeSphere可视化就不用编写Jenkinsfile文件这么复杂了
+- 代码源(github/gerrit) -> 单元测试 -> 代码质量分析 -> 构建并推送镜像 -> 制品 -> 部署至开发环境
+![流水线概览.png](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E6%B5%81%E6%B0%B4%E7%BA%BF%E6%A6%82%E8%A7%88.png?raw=true)
+- 使用KubeSphere图形化构建流水线步骤
+  - 创建凭证: Docker Hub; GitHub; KubeConfig(用于访问接入正在运行的Kubernetes); SonarQube;
+  - 在您自己的GitHub仓库项目中编辑Jenkinsfile-online, 编辑环境变量(配置刚创建好的凭证)
+  - 
+  
 
 ### 拦路虎
 #### Nacos启动失败
