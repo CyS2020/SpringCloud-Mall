@@ -710,7 +710,8 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 使用KubeSphere图形化构建流水线步骤
   - 创建凭证: Docker Hub; GitHub; KubeConfig(用于访问接入正在运行的Kubernetes); SonarQube;
   - Fork项目并在您自己的GitHub仓库项目中编辑Jenkinsfile-online, 编辑环境变量(配置刚创建好的凭证)
-  - Jenkinsfile-online文件长这个样子: `https://github.com/kubesphere/devops-maven-sample/blob/master/Jenkinsfile-online`
+  - Jenkinsfile-online文件长这个样子: 
+    `https://github.com/kubesphere/devops-maven-sample/blob/master/Jenkinsfile-online`
   - 创建项目xxx-dev, xxx-prod, 并邀请成员(维护人员); 创建DevOps项目(用于创建流水线)
   - 创建流水线, 选择代码源从哪里拉取; 选择有流水线文件的项目(Jenkinsfile-online); 
   - 高级设置中配置一些信息: GitHub配置Webhooks--代码已提交到GitHub就通知Jenkins进行CI&CD
@@ -719,6 +720,20 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
   - DEPLOY TO DEV: 将当前版本部署到xxx-dev项目上, 从Docker Hub拉取快照镜像进行部署
   - PUSH THE TAG: 发布一个版本-v0.0.2; GitHub上release一个版本(代码), Docker Hub上release一个版本(镜像)
   - DEPLOY TO PRODUCTION: 将当前版本部署到xxx-prod项目上, 从Docker Hub拉取release镜像进行部署
+
+#### 集群的目标
+- 高可用: 当一台服务器停止服务后, 对于业务及用户毫无影响. 单点问题
+- 突破数据量限制: 一台服务器不能存储大量的数据, 需要多台分担; 每个存储一部分共同存储整个集群项目; 最好互相备份
+- 数据备份容灾: 单点故障后, 存储的数据仍然能从别的地方拉起
+- 压力分担: 由于多个服务器都能完成各自一部分工作, 避免了单点压力的存在
+![集群的形式](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E9%9B%86%E7%BE%A4%E7%9A%84%E5%BD%A2%E5%BC%8F.PNG?raw=true)
+
+#### MySQL集群
+- MySQL-MMM: 主主复制管理器; MySQL-MHA: master高可用机制; MySQL-InnoDB Cluster: 完全高可用的数据库解决方案;
+- MySQL-InnoDB Cluster: Failover, 强一致性, 读写分离, 读库高可用, 读请求负载均衡, 横向扩展
+![MySQL集群](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/MySQL%E9%9B%86%E7%BE%A4.jpg?raw=true)
+- 企业常用数据库集群解决方案
+![企业数据库集群方案](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E4%BC%81%E4%B8%9A%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88.PNG?raw=true)
 
 ### 拦路虎
 #### Nacos启动失败
