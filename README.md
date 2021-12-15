@@ -704,13 +704,21 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 ### Jenkins流水线
 - 使用KubeSphere创建DevOps工程, 通过流水线实现持续集成和持续交付的功能
 - 使用Jenkins创建CI&CD, 创建Jenkins流水线就是编写Jenkinsfile文件, 有KubeSphere可视化就不用编写Jenkinsfile文件这么复杂了
-- 代码源(github/gerrit) -> 单元测试 -> 代码质量分析 -> 构建并推送镜像 -> 制品 -> 部署至开发环境
+- 流水线是一些列插件的集合，可以通过组合他们实现持续集成和持续交付的功能
+- 代码源(github/gerrit) -> 单元测试 -> 代码质量分析 -> 构建并推送快照镜像 -> 推送最新镜像 -> 部署至开发环境
 ![流水线概览.png](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E6%B5%81%E6%B0%B4%E7%BA%BF%E6%A6%82%E8%A7%88.png?raw=true)
 - 使用KubeSphere图形化构建流水线步骤
   - 创建凭证: Docker Hub; GitHub; KubeConfig(用于访问接入正在运行的Kubernetes); SonarQube;
-  - 在您自己的GitHub仓库项目中编辑Jenkinsfile-online, 编辑环境变量(配置刚创建好的凭证)
-  - 
-  
+  - Fork项目并在您自己的GitHub仓库项目中编辑Jenkinsfile-online, 编辑环境变量(配置刚创建好的凭证)
+  - Jenkinsfile-online文件长这个样子: `https://github.com/kubesphere/devops-maven-sample/blob/master/Jenkinsfile-online`
+  - 创建项目xxx-dev, xxx-prod, 并邀请成员(维护人员); 创建DevOps项目(用于创建流水线)
+  - 创建流水线, 选择代码源从哪里拉取; 选择有流水线文件的项目(Jenkinsfile-online); 
+  - 高级设置中配置一些信息: GitHub配置Webhooks--代码已提交到GitHub就通知Jenkins进行CI&CD
+  - 开始运行后, 就开始根据Jenkinsfile-online文件配置的流水线开始执行了, 如上图所示
+  - 第四步与第五步: 会推送当前构建版本的快照镜像和最新版本的快照镜像
+  - DEPLOY TO DEV: 将当前版本部署到xxx-dev项目上, 从Docker Hub拉取快照镜像进行部署
+  - PUSH THE TAG: 发布一个版本-v0.0.2; GitHub上release一个版本(代码), Docker Hub上release一个版本(镜像)
+  - DEPLOY TO PRODUCTION: 将当前版本部署到xxx-prod项目上, 从Docker Hub拉取release镜像进行部署
 
 ### 拦路虎
 #### Nacos启动失败
