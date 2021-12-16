@@ -734,6 +734,16 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 ![MySQL集群](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/MySQL%E9%9B%86%E7%BE%A4.jpg?raw=true)
 - 企业常用数据库集群解决方案
 ![企业数据库集群方案](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E4%BC%81%E4%B8%9A%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88.PNG?raw=true)
+- 根据文档: Docker安装模拟MySQL主从复制集群; 配置my.cnf; 主授权, 备同步
+![MySQL集群实践](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/MySQL%E9%9B%86%E7%BE%A4%E5%AE%9E%E8%B7%B5.PNG?raw=true)
+- 使用Sharding-Proxy分库分表, 且使用主从复制集群; 分库分表均为水平切分
+  - 下载二进制压缩包, 加压后, 配置conf文件夹下的yaml文件
+  - 根据规则配置Sharding-Proxy: 认证与连接属性(server.yaml) + 数据分片(config-sharding.yaml) + 读写分离(config-master_slave.yaml)
+  - 主从复制要自己配置MySQL数据库, 参照上方图片; 主服务器有两个数据库, 备服务器也有两个数据库, 都要同步起来
+  - 如果后端连接MySQL数据库下载相应的驱动, mysql-connector-java-5.1.47.jar拷贝到${sharding-proxy}\lib目录
+  - 启动服务${sharding-proxy}\bin\start.bat
+![Sharding-Proxy分库分表](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Sharding-Proxy%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8.PNG?raw=true) 
+
 
 ### 拦路虎
 #### Nacos启动失败
