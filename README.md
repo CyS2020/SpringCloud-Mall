@@ -744,6 +744,8 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
   - 启动服务${sharding-proxy}\bin\start.bat
 ![Sharding-Proxy分库分表](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Sharding-Proxy%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8.PNG?raw=true) 
 
+#### Redis集群
+- redis-cluster: 一组Redis Cluster是由多个Redis实例组成, 官方推荐我们使用6实例, 其中3个为主节点, 3个为从结点
 
 ### 拦路虎
 #### Nacos启动失败
