@@ -745,21 +745,21 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 ![Sharding-Proxy分库分表](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Sharding-Proxy%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8.PNG?raw=true) 
 
 #### Redis集群
-- redis-cluster: 一组Redis Cluster是由多个Redis实例组成, 官方推荐我们使用6实例, 其中3个为主节点, 3个为从结点 
+- redis-cluster: 一组Redis Cluster是由多个Redis实例组成, 官方推荐我们使用6实例, 其中3个为主节点, 3个为从结点 <br/>
 ![redis集群实践](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/redis%E9%9B%86%E7%BE%A4%E5%AE%9E%E8%B7%B5.PNG?raw=true)
-- 数据分区存储1: 把所有的数据划分为16384个不同的槽位, 可以根据机器的性能把不同的槽位分配给不同的Redis实例 
+- 数据分区存储1: 把所有的数据划分为16384个不同的槽位, 可以根据机器的性能把不同的槽位分配给不同的Redis实例 <br/>
 ![redis槽位分区存储](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/redis%E6%A7%BD%E4%BD%8D%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8.PNG?raw=true)
-- 数据分区存储2: 可以将所有的存储节点排列在收尾相接的Hash环上, 每个key在计算Hash后会顺时针找到临接的存储节点存放 
+- 数据分区存储2: 可以将所有的存储节点排列在收尾相接的Hash环上, 每个key在计算Hash后会顺时针找到临接的存储节点存放 <br/>
 ![redis哈希分区存储](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/redis%E5%93%88%E5%B8%8C%E5%88%86%E5%8C%BA%E5%AD%98%E5%82%A8.PNG?raw=true)
 
 #### Elasticsearch集群
 - 一个运行中的Elasticsearch实例称为一个节点, 而集群是由一个或者多个拥有相同cluster.name配置的节点组成
 - 当一个节点被选举成为主节点时, 它将负责管理集群范围内的所有变更, 只作为控制节点, 不操作数据. 由数据节点负责执行
 - 节点: 主节点, 候选主节点, 数据节点, 客户端节点
-- 当有节点加入集群中或者从集群中移除节点时, 集群将会重新平均分布所有的数据, 它们共同承担数据和负载的压力 
+- 当有节点加入集群中或者从集群中移除节点时, 集群将会重新平均分布所有的数据, 它们共同承担数据和负载的压力 <br/>
 ![ES负载均衡](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/ES%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1.PNG?raw=true)
 - Elasticsearch是在同一服务器内做分片; redis分区存储是在不同服务器上; mysql试服务器内分表, 服务器间分库(水平分库分表的场景)
-- 每个服务器装两个实例一个用于主节点, 一个用于数据节点, 如果豪横的化呢, 有六台服务器就一个服务器一个节点 
+- 每个服务器装两个实例一个用于主节点, 一个用于数据节点, 如果豪横的化呢, 有六台服务器就一个服务器一个节点 <br/>
 ![ES集群实践](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/ES%E9%9B%86%E7%BE%A4%E5%AE%9E%E8%B7%B5.PNG?raw=true)
 
 ### 拦路虎
