@@ -759,7 +759,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 当有节点加入集群中或者从集群中移除节点时, 集群将会重新平均分布所有的数据, 它们共同承担数据和负载的压力
 ![ES负载均衡](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/ES%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1.PNG?raw=true)
 - Elasticsearch是在同一服务器内做分片; redis分区存储是在不同服务器上; mysql试服务器内分表, 服务器间分库(水平分库分表的场景)
-- 每个服务器装两个实例一个用于主节点, 一个用于数据节点, 如果豪横的化呢, 有六台服务器就一个服务器装一个节点
+- 每个服务器装两个实例一个用于主节点, 一个用于数据节点, 如果豪横的化呢, 有六台服务器就一个服务器一个节点
 ![ES集群实践](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/ES%E9%9B%86%E7%BE%A4%E5%AE%9E%E8%B7%B5.PNG?raw=true)
 
 ### 拦路虎
