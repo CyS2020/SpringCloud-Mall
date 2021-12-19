@@ -684,14 +684,14 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 
 #### Sleuth与Zipkin服务链路追踪
 - 项目中引入依赖sleuth, 本项目每个微服务都需要因此在common里引入, 配置日志打印级别即可在日志文件查看调用链日志
-- 项目中引入依赖zipkin, 本项目每个微服务都需要因此在common里引入, 在docker中安装zipkin服务, 链路追踪数据会汇报给该服务器
+- 项目中引入依赖zipkin(内部已依赖sleuth), 本项目每个微服务都需要因此在common里引入, 在docker中安装zipkin服务, 链路追踪数据会汇报给该服务器
 - Sleuth主要服务链追踪原理图
 ![Sleuth链路追踪](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Sleuth%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA.png?raw=true)
 - Zipkin可视化观察原理图
 ![Zipkin原理图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Zipkin%E5%8E%9F%E7%90%86%E5%9B%BE.PNG?raw=true)
 
 ### 集群运维
-#### K8S + KubeSphere(master)应用入门
+#### K8S + KubeSphere(master节点)应用入门
 - 建立多租户系统; 创建DevOps工程; 创建并部署WordPress;(快速入门文档)
 ![kubesphere用户系统](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/kubesphere%E7%94%A8%E6%88%B7%E7%B3%BB%E7%BB%9F.png?raw=true)
 
@@ -710,7 +710,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 使用KubeSphere图形化构建流水线步骤
   - 创建凭证: Docker Hub; GitHub; KubeConfig(用于访问接入正在运行的Kubernetes); SonarQube;
   - Fork项目并在您自己的GitHub仓库项目中编辑Jenkinsfile-online, 编辑环境变量(配置刚创建好的凭证)
-  - Jenkinsfile-online文件长这个样子: 
+  - Jenkinsfile-online文件长这个样子: <br/>
     `https://github.com/kubesphere/devops-maven-sample/blob/master/Jenkinsfile-online`
   - 创建项目xxx-dev, xxx-prod, 并邀请成员(维护人员); 创建DevOps项目(用于创建流水线)
   - 创建流水线, 选择代码源从哪里拉取; 选择有流水线文件的项目(Jenkinsfile-online); 
@@ -773,6 +773,28 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 服务集群内访问使用DNS提供的稳定域名
 - 可以使用kubesphere, 快速搭建MySQL环境; 主授权, 备同步(不可缺少该步骤)
 ![K8S部署MySQL集群](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/K8S%E9%83%A8%E7%BD%B2MySQL%E9%9B%86%E7%BE%A4.PNG)
+
+#### Kubernetes部署中间件
+- 有状态: MySQL, Redis, Elasticsearch, RabbitMQ, Nacos
+- 无状态: Kibana, Zipkin, Sentinel
+- 有状态服务集群内使用域名访问, 无状态服务对外暴露端口进行访问; 外部访问有状态服务需要再映射一个能通过域名访问的服务(内部域名 + 外部端口)
+- port: docker容器port -> k8s-pod-port -> k8s-service-port -> k8s-node-port 
+![组件Port套娃]()
+
+#### Kubernetes部署中间件
+- 主要步骤: 部署使用的中间件; 编写每个应用的Dockerfile文件; 编写每个应用的deploy(Deployment + Service)文件;
+```
+# Dockerfile文件内容
+FROM java:8
+EXPOSE 8080
+
+VOLUME /tmp
+ADD target/*.jar  /app.jar
+RUN bash -c 'touch /app.jar'
+ENTRYPOINT ["java","-jar","/app.jar","--spring.profiles.active=prod"]
+```
+- deploy文件参照: `https://github.com/kubesphere/devops-maven-sample/tree/master/deploy`
+![K8S部署商城应用](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/K8S%E9%83%A8%E7%BD%B2%E5%95%86%E5%9F%8E%E5%BA%94%E7%94%A8.PNG?raw=true)
 
 ### 拦路虎
 #### Nacos启动失败
