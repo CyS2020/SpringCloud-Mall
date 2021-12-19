@@ -779,7 +779,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 无状态: Kibana, Zipkin, Sentinel
 - 有状态服务集群内使用域名访问, 无状态服务对外暴露端口进行访问; 外部访问有状态服务需要再映射一个能通过域名访问的服务(内部域名 + 外部端口)
 - port: docker容器port -> k8s-pod-port -> k8s-service-port -> k8s-node-port 
-![组件Port套娃]()
+![组件Port套娃](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E7%BB%84%E4%BB%B6Port%E5%A5%97%E5%A8%83.PNG?raw=true)
 
 #### Kubernetes部署中间件
 - 主要步骤: 部署使用的中间件; 编写每个应用的Dockerfile文件; 编写每个应用的deploy(Deployment + Service)文件;
