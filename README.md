@@ -758,9 +758,14 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 节点: 主节点, 候选主节点, 数据节点, 客户端节点
 - 当有节点加入集群中或者从集群中移除节点时, 集群将会重新平均分布所有的数据, 它们共同承担数据和负载的压力 <br/>
 ![ES负载均衡](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/ES%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1.PNG?raw=true)
-- Elasticsearch是在同一服务器内做分片; redis分区存储是在不同服务器上; mysql试服务器内分表, 服务器间分库(水平分库分表的场景)
+- Elasticsearch是在同一服务器内做分片; redis分区存储是在不同服务器上; mysql是服务器内分表, 服务器间分库(水平分库分表的场景)
 - 每个服务器装两个实例一个用于主节点, 一个用于数据节点, 如果豪横的化呢, 有六台服务器就一个服务器一个节点 <br/>
 ![ES集群实践](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/ES%E9%9B%86%E7%BE%A4%E5%AE%9E%E8%B7%B5.PNG?raw=true)
+
+#### RabbitMQ集群
+- RabbitMQ集群中节点包括内存节点(RAM), 磁盘节点(Disk-消息持久化), 集群中至少有一个Disk节点
+- 集群模式: 普通模式--数据分片; 镜像模式--主从复制
+![RabbitMQ集群实战](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/RabbitMQ%E9%9B%86%E7%BE%A4%E5%AE%9E%E6%88%98.PNG?raw=true)
 
 ### 拦路虎
 #### Nacos启动失败
