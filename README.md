@@ -767,6 +767,13 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 集群模式: 普通模式--数据分片; 镜像模式--主从复制
 ![RabbitMQ集群实战](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/RabbitMQ%E9%9B%86%E7%BE%A4%E5%AE%9E%E6%88%98.PNG?raw=true)
 
+#### Kubernetes有状态服务部署
+- 有状态服务抽取配置为ConfigMap
+- 有状态服务必须使用pvc持久化数据
+- 服务集群内访问使用DNS提供的稳定域名
+- 可以使用kubesphere, 快速搭建MySQL环境; 主授权, 备同步(不可缺少该步骤)
+![K8S部署MySQL集群](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/K8S%E9%83%A8%E7%BD%B2MySQL%E9%9B%86%E7%BE%A4.PNG)
+
 ### 拦路虎
 #### Nacos启动失败
 - 修改startup.cmd文件, 默认使用集群模式启动, 可以将启动模式改为set MODE="standalone"
