@@ -707,7 +707,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 流水线是一些列插件的集合，可以通过组合他们实现持续集成和持续交付的功能
 - 代码源(github/gerrit) -> 单元测试 -> 代码质量分析 -> 构建并推送快照镜像 -> 推送最新镜像 -> 部署至开发环境
 ![流水线概览.png](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E6%B5%81%E6%B0%B4%E7%BA%BF%E6%A6%82%E8%A7%88.png?raw=true)
-- 使用KubeSphere图形化构建流水线步骤
+- 使用KubeSphere图形化构建流水线Demo步骤
   - 创建凭证: Docker Hub; GitHub; KubeConfig(用于访问接入正在运行的Kubernetes); SonarQube;
   - Fork项目并在您自己的GitHub仓库项目中编辑Jenkinsfile-online, 编辑环境变量(配置刚创建好的凭证)
   - Jenkinsfile-online文件长这个样子: <br/>
@@ -781,8 +781,19 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - port: docker容器port -> k8s-pod-port -> k8s-service-port -> k8s-node-port 
 ![组件Port套娃](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E7%BB%84%E4%BB%B6Port%E5%A5%97%E5%A8%83.PNG?raw=true)
 
-#### Kubernetes部署中间件
-- 主要步骤: 部署使用的中间件; 编写每个应用的Dockerfile文件; 编写每个应用的deploy(Deployment + Service)文件;
+#### Kubernetes部署项目实战
+- 主要步骤: 
+  - 按照上述部署使用的中间件; 有状态, 无状态 
+  - 编写每个应用的Dockerfile文件
+  - 编写每个应用的deploy(Deployment + Service)文件 
+  - 项目文件的pom.xml文件中配置mvn, sonar, jacoco
+  - 整个项目编写一个Jenkinsfile流水线文件; 参数化构建
+    - 拉取代码
+    - 运行ut
+    - sonar代码质量分析
+    - 构建&推送镜像
+    - 部署到k8s
+    - 发布版本
 ```
 # Dockerfile文件内容
 FROM java:8
@@ -794,6 +805,8 @@ RUN bash -c 'touch /app.jar'
 ENTRYPOINT ["java","-jar","/app.jar","--spring.profiles.active=prod"]
 ```
 - deploy文件参照: `https://github.com/kubesphere/devops-maven-sample/tree/master/deploy`
+- pom.xml文件参照: `https://github.com/kubesphere/devops-maven-sample/blob/master/pom.xml`
+- Jenkinsfile文件参照: `https://github.com/kubesphere/devops-maven-sample/blob/master/Jenkinsfile-online`
 ![K8S部署商城应用](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/K8S%E9%83%A8%E7%BD%B2%E5%95%86%E5%9F%8E%E5%BA%94%E7%94%A8.PNG?raw=true)
 
 ### 拦路虎
