@@ -726,6 +726,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 突破数据量限制: 一台服务器不能存储大量的数据, 需要多台分担; 每个存储一部分共同存储整个集群项目; 最好互相备份
 - 数据备份容灾: 单点故障后, 存储的数据仍然能从别的地方拉起
 - 压力分担: 由于多个服务器都能完成各自一部分工作, 避免了单点压力的存在
+- 高可用有三宝: 主从; 分片; 选领导;
 ![集群的形式](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E9%9B%86%E7%BE%A4%E7%9A%84%E5%BD%A2%E5%BC%8F.PNG?raw=true)
 
 #### MySQL集群
@@ -783,7 +784,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 
 #### Kubernetes部署项目实战
 - 主要步骤: 
-  - 按照上述部署使用的中间件; 有状态, 无状态 
+  - 按照上述部署使用的中间件; 有状态, 无状态; 数据库移植
   - 编写每个应用的Dockerfile文件
   - 编写每个应用的deploy(Deployment + Service)文件 
   - 项目文件的pom.xml文件中配置mvn, sonar, jacoco
@@ -794,6 +795,10 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
     - 构建&推送镜像
     - 部署到k8s
     - 发布版本
+  - 编写好的文件连同代码提交到GitHub上
+  - 使用Devops工程创建流水线, 设置好代码地址就ok; 运行即可
+  - 部署各个项目的各个微服务; 代码仓库, 镜像仓库公司自己搭建
+  ![K8S部署项目微服务](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/K8S%E9%83%A8%E7%BD%B2%E9%A1%B9%E7%9B%AE%E5%BE%AE%E6%9C%8D%E5%8A%A1.PNG?raw=true)
 ```
 # Dockerfile文件内容
 FROM java:8
@@ -802,8 +807,9 @@ EXPOSE 8080
 VOLUME /tmp
 ADD target/*.jar  /app.jar
 RUN bash -c 'touch /app.jar'
-ENTRYPOINT ["java","-jar","/app.jar","--spring.profiles.active=prod"]
+ENTRYPOINT ["java","-jar","-Xms128m","-Xmx300m","/app.jar","--spring.profiles.active=prod"]
 ```
+- Dockerfile文件参照: `https://github.com/kubesphere/devops-maven-sample/blob/master/Dockerfile-online`
 - deploy文件参照: `https://github.com/kubesphere/devops-maven-sample/tree/master/deploy`
 - pom.xml文件参照: `https://github.com/kubesphere/devops-maven-sample/blob/master/pom.xml`
 - Jenkinsfile文件参照: `https://github.com/kubesphere/devops-maven-sample/blob/master/Jenkinsfile-online`
