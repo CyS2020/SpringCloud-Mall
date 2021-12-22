@@ -2,9 +2,6 @@
 
 ![谷粒商城-微服务架构图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%B0%B7%E7%B2%92%E5%95%86%E5%9F%8E-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg?raw=true)
 
-### 总结
-
-
 #### 关于项目
 - 关于项目中所需要的数据库创建代码均放在data/sql目录下
 - renren_fast与renren-generator是从码云上人人开源clone下来的, 时间2021.08.13
