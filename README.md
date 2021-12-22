@@ -56,7 +56,7 @@
 - SpringCloud - Feign: 声明式 HTTP 客户端(调用远程服务)
 - SpringCloud - Gateway: API 网关(webflux 编程模式)
 - SpringCloud - Sleuth: 调用链监控
-- 有状态: MySQL, Redis, Elasticsearch, RabbitMQ, Nacos
+- 有状态: MySQL(Mybatis), Redis, Elasticsearch, RabbitMQ, Nacos
 - 无状态: Kibana, Zipkin, Sentinel
 - 第三方: OSS, 短信验证码服务
 
