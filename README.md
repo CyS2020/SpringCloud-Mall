@@ -58,6 +58,7 @@
 - SpringCloud - Sleuth: 调用链监控
 - 有状态: MySQL, Redis, Elasticsearch, RabbitMQ, Nacos
 - 无状态: Kibana, Zipkin, Sentinel
+- 第三方: OSS, 短信验证码服务
 
 #### Nacos服务注册
 - 搭建服务注册所需的服务器, 提供了可视化界面
