@@ -55,7 +55,7 @@
 - SpringCloud - Sleuth: 调用链监控
 - 有状态: MySQL(Mybatis), Redis, Elasticsearch, RabbitMQ, Nacos
 - 无状态: Kibana, Zipkin, Sentinel
-- 框架依赖: springCache, springSession, Redisson, thymeleaf 
+- 框架依赖: springCache, springSession, Redisson, thymeleaf, devtools
 - 第三方: OSS, 短信验证码服务
 
 #### Nacos服务注册
@@ -130,13 +130,6 @@
 
 #### GateWay技术细节
 - 功能: 路由, 鉴权, 限流
-```
-#网关限流
-<dependency>
-    <groupId>com.alibaba.cloud</groupId>
-    <artifactId>spring-cloud-alibaba-sentinel-gateway</artifactId>
-</dependency>
-```
 - Route: 网关的基本构建块即路由规则. 它由ID, 目标URI, 谓词集合和过滤器集合定义, 如果聚合谓词为真, 则匹配路由
 - Predicate: 这是一个Java 8函数谓词, 这使您可以匹配来自HTTP请求的任何内容, 例如标头或参数
 - Filter: 这些是GatewayFilter使用特定工厂构建的实例. 在这里您可以在发送下游请求之前或之后修改请求和响应
@@ -247,7 +240,15 @@
 ```
 - 静态资源都放在static文件夹下就按照路径直接访问
 - 页面放在templates文件夹下是可以直接访问的, springBoot访问项目时默认会找index.html; 其他html需要编写Controller返回
-- 页面修改无需重启服务器需要额外引入dev-tools依赖, 然后ctrl + shift + f9自动重新编译页面
+- 页面修改无需重启服务器需要额外引入devtools依赖, 然后ctrl + shift + f9自动重新编译页面
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-devtools</artifactId>
+    <scope>runtime</scope>
+    <optional>true</optional>
+</dependency>
+```
 - yml配置文件中关闭thymeleaf缓存; 
 
 #### nginx + windows搭建域名访问环境
@@ -774,6 +775,12 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
   - 自定义受保护资源一: try(Entry entry = SphU.entry("资源名")){}catch ((BlockException e)){}
   - 自定义受保护资源二: @SentinelResource 注解定义资源并配置blockHandler和fallback函数来进行限流之后的处理
 - 网关项目中引入依赖sentinel且引入依赖sentinel-gateway, 就可以从网关的层面进行限流
+```
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-alibaba-sentinel-gateway</artifactId>
+</dependency>
+```
 
 #### Sleuth与Zipkin服务链路追踪
 - 项目中引入依赖sleuth, 本项目每个微服务都需要因此在common里引入, 配置日志打印级别即可在日志文件查看调用链日志
