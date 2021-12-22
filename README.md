@@ -2,6 +2,9 @@
 
 ![谷粒商城-微服务架构图](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%B0%B7%E7%B2%92%E5%95%86%E5%9F%8E-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%E5%9B%BE.jpg?raw=true)
 
+### 总结
+
+
 #### 关于项目
 - 关于项目中所需要的数据库创建代码均放在data/sql目录下
 - renren_fast与renren-generator是从码云上人人开源clone下来的, 时间2021.08.13
@@ -17,7 +20,6 @@
 <dependency>
     <groupId>com.baomidou</groupId>
     <artifactId>mybatis-plus-boot-starter</artifactId>
-    <version>3.2.0</version>
 </dependency>
 ```
 - 配置信息
@@ -48,22 +50,36 @@
 #### 技术搭配方案
 - SpringCloud Alibaba - Nacos: 注册中心(服务发现/注册)
 - SpringCloud Alibaba - Nacos: 配置中心(动态配置管理)
+- SpringCloud Alibaba - Seata: 原 Fescar, 即分布式事务解决方案
+- SpringCloud Alibaba - Sentinel: 服务容错(限流、降级、熔断)
 - SpringCloud - Ribbon: 负载均衡
 - SpringCloud - Feign: 声明式 HTTP 客户端(调用远程服务)
-- SpringCloud Alibaba - Sentinel: 服务容错(限流、降级、熔断)
 - SpringCloud - Gateway: API 网关(webflux 编程模式)
 - SpringCloud - Sleuth: 调用链监控
-- SpringCloud Alibaba - Seata: 原 Fescar, 即分布式事务解决方案
+- 有状态: MySQL, Redis, Elasticsearch, RabbitMQ, Nacos
+- 无状态: Kibana, Zipkin, Sentinel
 
 #### Nacos服务注册
 - 搭建服务注册所需的服务器, 提供了可视化界面
 - 微服务中引入nacos-discovery依赖
+```
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+</dependency>
+```
 - 微服务需要在yml文件中配置服务注册的服务器地址; 以及当前服务的名称
 - 开启服务注册功能@EnableDiscoveryClient(可省略)
 
 #### Nacos配置中心
 - 和服务注册公用的服务器
 - 微服务中引入nacos-config依赖
+```
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+</dependency>
+```
 - 配置中心创建命名空间(可以省略, 使用默认的命名空间),
 - 本地resource中创建bootstrap.properties文件配置 配置中心的服务器地址; 命名空间等--本地的
 - 配置中心添加一个名叫 xxx.properties 的数据集, 服务名.properties(默认规则)--配置中心的
@@ -83,6 +99,12 @@
 
 #### OpenFeign远程调用
 - 引入openfeign依赖
+```
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-openfeign</artifactId>
+</dependency>
+```
 - 编写接口, 告诉springCloud这个接口需要调用的那个微服务
 - 声明方法, 调用微服务的那个请求, 访问路径需要写全
     - 访问路径写法有两种一种是过网关(网关微服务 + /api/xx/xxx), 一种是不过网关(指定微服务 + /xx/xxx)
@@ -100,6 +122,12 @@
 - 开启服务注册功能@EnableDiscoveryClient(可省略)
 - 使用配置中心功能并进行配置与其他项目一样
 - 启动失败是因为公共组件有Mybatis-plus因此需要配置数据源, 可以再启动项目的地方exclude掉
+```
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-gateway</artifactId>
+</dependency>
+```
 
 #### GateWay技术细节
 - 功能: 路由, 鉴权, 限流
@@ -118,6 +146,12 @@
 
 #### 对象存储OSS
 - 引入alicloud-oss依赖
+```
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alicloud-oss</artifactId>
+</dependency>
+```
 - 配置文件中配置key, secret, endpoint等相关信息
 - 自动注入OSSClient对象进行相关操作
 
@@ -184,15 +218,27 @@
       ```
 
 #### ElasticSearch客户端
-  - 在docker容器中安装ElasticSearch服务并启动, 并安装Kibana可视化服务
-  - 引入客户端依赖elasticsearch-client
-  - 编写配置类能够访问远程的ElasticSearch服务器并向容器中注入RestHighLevelClient
-  - 创建mapping映射关系, 即创建表及表中字段类型等, 然后才能增删改查数据
-  - 使用RestHighLevelClient类参照API对ElasticSearch进行操作
-  - `https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high.html`
+- 在docker容器中安装ElasticSearch服务并启动, 并安装Kibana可视化服务
+- 引入客户端依赖elasticsearch-client
+```
+<dependency>
+    <groupId>org.elasticsearch.client</groupId>
+    <artifactId>elasticsearch-rest-high-level-client</artifactId>
+</dependency>
+```
+- 编写配置类能够访问远程的ElasticSearch服务器并向容器中注入RestHighLevelClient
+- 创建mapping映射关系, 即创建表及表中字段类型等, 然后才能增删改查数据
+- 使用RestHighLevelClient类参照API对ElasticSearch进行操作
+- `https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high.html`
   
 #### 模板引擎
 - 引入thymeleaf的starter依赖, 并在配置文件中关闭缓存
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+```
 - 静态资源都放在static文件夹下就按照路径直接访问
 - 页面放在templates文件夹下是可以直接访问的, springBoot访问项目时默认会找index.html; 其他html需要编写Controller返回
 - 页面修改无需重启服务器需要额外引入dev-tools依赖, 然后ctrl + shift + f9自动重新编译页面
@@ -260,13 +306,24 @@ location / {
 #### Redis缓存
 - 适合放入缓存的数据: 即时性, 数据一致性要求不高的; 访问大, 更新频率不高的(读多, 写少)
 - docker容器安装并启动redis, 同时下载Another Redis Desktop Manager客户端进行可视化操作
-- 项目中引入依赖data-redis, 并在yml配置文件中配置数据源ip地址与端口号
+- 项目中引入依赖data-redis(lettuce-core有bug使用jedis), 并在yml配置文件中配置数据源ip地址与端口号
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+```
 - 使用SpringBoot自动配置好的StringRedisTemplate进行操作, opsForXXX, boundXXXOps等操作
 - redis中的数据类型其实是针对于K-V中的V来说的, V可以为Value, Hash, List, Set, ZSet
-- 
 
 #### SpringCache管理缓存
 - 项目中引入依赖data-redis与cache, 均为starter组件
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-cache</artifactId>
+</dependency>
+```
 - 自动配置中CacheAutoConfiguration会导入RedisCacheConfiguration, 自动配置了缓存管理器RedisCacheManager
 - 所以我们只需要在yaml配置spring.cache.type=redis; 使用redis作为缓存
 - 开启缓存功能@EnableCaching; 并在方法上添加注解对返回结果进行相应的缓存操作
@@ -322,6 +379,12 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 
 #### Redisson分布式锁
 - 项目中引入redisson依赖, 并进行配置RedissonConfig
+```
+<dependency>
+    <groupId>org.redisson</groupId>
+    <artifactId>redisson</artifactId>
+</dependency>
+```
 - 使用RedissonClient作为客户端对Redis进行操作
 - 可以使用该组件当做分布式的juc包, 本项目不会直接使用该组件处理缓存一致性
 
@@ -349,6 +412,12 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 
 #### springSession管理session
 - 引入session-data-redis依赖, 所有需要使用session的模块都要依赖并且配置
+```
+<dependency>
+    <groupId>org.springframework.session</groupId>
+    <artifactId>spring-session-data-redis</artifactId>
+</dependency>
+```
 - 配置session存储类型为redis, 过期时间30m等各种配置项
 - @EnableRedisHttpSession开启springSession功能, 并在controller里面设置session属性值
 - 设置其他配置属性GulimallSessionConfig, 包括序列化方式, 修改作用域为父域等配置
@@ -384,6 +453,12 @@ protected void doFilterInternal(HttpServletRequest request,
 - docker安装并启动rabbitmq, 15672端口提供了可视化界面
 - 在yml配置文件中配置连接信息ip地址与端口号以及虚拟主机等信息, 编写配置RabbitMqConfig类设置序列化类型
 - 项目引入依赖amqp依赖, RabbitAutoConfiguration会自动生效
+```
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-amqp</artifactId>
+</dependency>
+```
 - 使用SpringBoot自动配置好的RabbitTemplate、amqpAdmin、CachingConnectionFactory、RabbitMessagingTemplate进行操作
 - 使用@EnableRabbit开启RabbitMQ功能
 - 使用amqpAdmin创建Exchange、Queue、Binding; 使用RabbitTemplate发送消息(对象必须实现序列化接口)
@@ -445,6 +520,12 @@ nacos {
   }
 ```
 - 项目中引入seata依赖; 并启动seata服务器
+```
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+</dependency>
+```
 - 所有想要用到分布式事务的微服务使用seata DataSourceProxy进行数据源代理, SeataConfig配置类
 - 每个微服务都要导入registry.conf与file.conf文件, 并在file.conf里配置如下参数
 ```
@@ -665,6 +746,12 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 
 #### Sentinel熔断&降级&限流
 - 项目中引入依赖sentinel, 本项目每个微服务都需要因此在common里引入
+```
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+</dependency>
+```
 - 下载sentinel Dashboard控制台(版本对应上), 以jar包形式运行
 - 在控制台中调整参数, 设置`流控`、`降级`、`授权`、`热点`等流控规则; 默认所有设置保存在微服务内存中, 重启失效
 - sentinel控制台的实时监控没有图表数据, 自定义请求限流以后返回的降级数据
@@ -684,7 +771,19 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 
 #### Sleuth与Zipkin服务链路追踪
 - 项目中引入依赖sleuth, 本项目每个微服务都需要因此在common里引入, 配置日志打印级别即可在日志文件查看调用链日志
+```
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-sleuth</artifactId>
+</dependency>
+```
 - 项目中引入依赖zipkin(内部已依赖sleuth), 本项目每个微服务都需要因此在common里引入, 在docker中安装zipkin服务, 链路追踪数据会汇报给该服务器
+```
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-zipkin</artifactId>
+</dependency>
+```
 - Sleuth主要服务链追踪原理图
 ![Sleuth链路追踪](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Sleuth%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA.png?raw=true)
 - Zipkin可视化观察原理图
