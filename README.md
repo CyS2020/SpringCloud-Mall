@@ -55,6 +55,7 @@
 - SpringCloud - Sleuth: 调用链监控
 - 有状态: MySQL(Mybatis), Redis, Elasticsearch, RabbitMQ, Nacos
 - 无状态: Kibana, Zipkin, Sentinel
+- 框架依赖: springCache, springSession, Redisson, thymeleaf 
 - 第三方: OSS, 短信验证码服务
 
 #### Nacos服务注册
@@ -129,6 +130,13 @@
 
 #### GateWay技术细节
 - 功能: 路由, 鉴权, 限流
+```
+#网关限流
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-alibaba-sentinel-gateway</artifactId>
+</dependency>
+```
 - Route: 网关的基本构建块即路由规则. 它由ID, 目标URI, 谓词集合和过滤器集合定义, 如果聚合谓词为真, 则匹配路由
 - Predicate: 这是一个Java 8函数谓词, 这使您可以匹配来自HTTP请求的任何内容, 例如标头或参数
 - Filter: 这些是GatewayFilter使用特定工厂构建的实例. 在这里您可以在发送下游请求之前或之后修改请求和响应
