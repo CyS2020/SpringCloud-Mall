@@ -58,6 +58,18 @@
 - 框架依赖: springCache, springSession, Redisson, thymeleaf, devtools
 - 第三方: OSS, 短信验证码服务
 
+#### 分布式的弊端
+- 分布式微服务
+  - 分布式事务: Seata/柔性事务
+  - 微服务通信: Rpc/Openfeign
+  - 分布式锁: Redis/Redisson
+  - Session会话: Redis存储/中央认证
+- 分布式集群
+  - 唯一主键: 雪花算法
+  - 数据一致性: raft算法
+  - 负载均衡: 加权轮询
+  - 分布式存储: 一致性哈希
+
 #### Nacos服务注册
 - 搭建服务注册所需的服务器, 提供了可视化界面
 - 微服务中引入nacos-discovery依赖
