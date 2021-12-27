@@ -28,6 +28,7 @@ public class LoginUserInterceptor implements HandlerInterceptor {
         }
         MemberRespVo attribute = (MemberRespVo) request.getSession().getAttribute(AuthServerConstant.LOGIN_USER);
         if (attribute == null) {
+            // 登录页会取出该信息并进行显示, 参考login.html
             request.getSession().setAttribute("msg", "请先登录");
             response.sendRedirect("http://auth.gulimall.com/login.html");
             return false;

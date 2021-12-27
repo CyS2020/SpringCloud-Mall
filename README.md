@@ -381,17 +381,18 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 ```
 
 #### 缓存数据一致性
+- 用户维度那么没有这么高的并发量, 基础数据对数据实时性要求不高, 都可以通过缓存 + 过期时间足够用了; 如果觉得不够用再用分布式**读写锁**就好了
+- 遇到实时性一致性高的场景就应该查数据库, 即使慢点
 - 双写模式: 修改数据库, 然后修改缓存
 - 失效模式: 修改数据库, 删除缓存
-- 用户维度那么没有这么高的并发量, 基础数据对数据实时性要求不高, 都可以通过缓存 + 过期时间足够用了; 如果觉得不够用再用分布式读写锁就好了
-- 遇到实时性一致性高的场景就应该查数据库, 即使慢点
 - 完美解决: 数据异步同步, mysql会将操作记录在Binary log日志中, 通过canal去监听数据库日志二进制文件, 解析log日志, 同步到redis中进行增删改操作
-- 注释: 关于canal还可以解决数据异构的问题, 监听不同用户的访问记录生成用户推荐表
+- 注释: canal是一个模拟从数据库的中间件, 同步主数据库binlog; 关于canal还可以解决数据异构的问题, 监听不同用户的访问记录生成用户推荐表
+![Canal应用场景](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Canal%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.PNG?raw=true)
 
 #### springCache不足
 - 读模式
   - 缓存穿透: 缓存空数据, yml配置spring.cache.redis.cache-null-values=true
-  - 缓存击穿: 加锁, @Cacheable中参数sync = true控制this锁
+  - 缓存击穿: 加锁, @Cacheable中参数sync = true控制this锁, this锁适用单体环境(集群环境下需要分布式锁)
   - 缓存雪崩: 加上过期时间(不用随机), yml配置spring.cache.redis.time-to-live=3600000
 - 写模式(数据一致性), springCache并没有考虑
 - 总结: 常规数据(读多写少, 即时性, 实时性要求不高的数据), 完全可以使用springCache; 特殊数据需要特殊设计
@@ -404,7 +405,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
     <artifactId>redisson</artifactId>
 </dependency>
 ```
-- 使用RedissonClient作为客户端对Redis进行操作
+- 使用RedissonClient作为客户端获取juc中的锁、同步工具、原子类、线程安全集合等
 - 可以使用该组件当做分布式的juc包, 本项目不会直接使用该组件处理缓存一致性
 
 #### Redisson分布式锁细节
@@ -528,7 +529,7 @@ CREATE TABLE `undo_log` (
   UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 ```
-- 安装事务协调器: seata-server服务器;
+- 安装事务协调器: seata-server服务器; 并找到conf目录下进行配置
 - 启动之前先配置一下注册中心registry.conf的类型与地址; 与配置中心file.conf的事务存储位置(本项目使用默认配置)
 ```
 type = "nacos"
@@ -538,7 +539,7 @@ nacos {
     cluster = "default"
   }
 ```
-- 项目中引入seata依赖; 并启动seata服务器
+- 项目中引入seata依赖; 并启动seata服务器, bin目录下运行seata-server.bat
 ```
 <dependency>
     <groupId>com.alibaba.cloud</groupId>
@@ -580,13 +581,14 @@ spring.task.execution.pool.max-size=50
 
 #### 秒杀服务
 - 需要商品随机码, 只有拿到随机码才能参与秒杀服务, 防止非公平抢购
+- 随机码在上架时生成, 非秒杀时间获取商品信息时并不返给前端, 秒杀时间到用户获取商品信息时返给前端, 秒杀时校验随机码
 - 分布式锁来处理上架幂等性问题, 多个微服务的定时任务防止重复上架
 - 分布式信号量进行限流, 商品秒杀总量作为分布式信号量, 上架时设置信号量
 
 #### 秒杀系统设计
 - 服务单一职责 + 独立部署: 秒杀服务即使自己扛不住压力挂掉, 不要影响别人
 - 秒杀链接加密: 防止恶意攻击, 模拟秒杀请求, 1000次/s攻击; 防止链接暴露, 自己工作人员, 提前秒杀商品(随机码就在这用)
-- 库存预热 + 快速扣减: 秒杀读多写少, 无需每次实时校验库存, 我们库存预热, 放到redis中, 信号量控制进来秒杀的请求(分布式信号量)
+- 库存预热 + 快速扣减: 秒杀读多写少, 无需每次实时校验库存, 我们库存预热, 以信号量的形式放到redis中, 信号量控制进来秒杀的请求(分布式信号量)
 - 动静分离: nginx做好动静分离. 保证秒杀和商品详情页的动态请求才打到后端的服务集群. 使用CDN网络, 分担本集群压力
 - 恶意请求拦截: 识别非法攻击请求并进行拦截, 网关层进行拦截
 - 流量错峰: 使用各种手段, 将流量分担到更大宽度的时间点。比如验证码, 加入购物车等
@@ -594,8 +596,13 @@ spring.task.execution.pool.max-size=50
 - 队列削峰值: 1万个商品, 每个1000件秒杀. 双11所有秒杀成功的请求, 进入队列, 慢慢创建订单, 扣减库存即可
 - 高并发有三宝: 缓存; 异步; 队排好;
 
-#### 无需回滚的方式
-- 自己在方法内部catch掉, 异常不往外抛出
+#### spring事务失效的种场景
+- 方法中调用同类的方法(自身调用)
+- 自己在方法内部catch掉, 异常不往外抛出(异常被踹)
+- 异常类型错误或格式配置错误(抛出异常类型不对)
+- 底层数据库引擎不支持事务, 数据源没有配置事务管理器
+- 在非public修饰的方法使用
+- 没有被Spring容器管理
 
 ### 业务知识
 #### spu与sku
