@@ -610,26 +610,26 @@ spring.task.execution.pool.max-size=50
 - SKU(Stock Keeping Unit): 即库存进出计量的基本单元, 可以是以件,盒,托盘等为单位; SKU这是对于大型连锁超市配送中心物流管理的一个必要的方法. 现在已经被引申为产品统一编号的简称, 每种产品均对应有唯一的SKU号
 - 基本属性(商品介绍、规格与包装)都是spu属性; 销售属性是sku属性; 且规格参数可以提供检索
 - 属性与属性的分组都是以三级分类组织起来的, 每个三级分类下的商品共享规则参数与销售属性, 不一定全部用到
-- 三级分类下的商品有着共同的spu, sku属性key, 不同的是spu, sku属性的value;
+- 三级分类下的商品有着共同的spu, sku属性key(cpu, 内存, 像素), 不同的是spu, sku属性的value(骁龙888, 8G, 1200W)
 - 三级分类表 -> 属性分组表 -> (属性分组&属性关联表)-> 属性表; 商品的属性值存储在商品属性值表、销售属性值表里
 
 #### Object 划分
 - PO(persistent object)--持久对象
   - PO 就是对应数据库中某个表中的一条记录, 多个记录可以用PO的集合, PO中应该不包含任何对数据库的操作
 - DO(Domain Object)--领域对象
-  - 就是从现实世界中抽象出来的有形或无形的业务实体. 
+  - 就是从现实世界中抽象出来的有形或无形的业务实体
 - TO(Transfer Object)--数据传输对象
-  - 不同应用程序之间传输的对象
+  - 不同应用程序之间传输的对象; **中间件之间的传输**
 - DTO(Data Transfer Object)--数据传输对象
   - 泛指用于展示层与服务层之间的数据传输对象
 - VO(View Object)--视图对象
-  - 接受页面传递来的数据封装对象; 将业务处理完成的对象封装成页面要用的数据
+  - 接受页面传递来的数据封装对象; 将业务处理完成的对象封装成页面要用的数据; **前后端微服务之间的传输**
 - BO(business Object)--业务对象
   - 主要作用是把业务逻辑封装为一个对象. 这个对象可以包括一个或多个其它的对象
 - POJO(Plain Ordinary Java Object)--简单无规则java对象
   - 我的理解就是最基本的java Bean, 只有属性字段及setter和getter方法, POJO是DO/DTO/BO/VO的统称
 - DAO(Data Access Object)--数据访问对象
-  - DAO中包含了各种数据库的操作方法, 通过它的方法结合PO对数据库进行相关的操作, 夹在业务逻辑与数据库资源中间配合VO, 提供数据库的CRUD操作
+  - DAO中包含了各种数据库的操作方法, 通过它的方法结合PO对数据库进行相关的操作, 夹在业务逻辑与数据库资源中间配合VO, **数据库的CRUD操作**
 
 #### 数据库表
 - 三级分类 -> spu -> sku -> 属性分组 -> 具体属性 -> 具体属性的值
@@ -675,7 +675,7 @@ https://api.weibo.com/oauth2/access_token?client_id=YOUR_CLIENT_ID&client_secret
 - 有关登录问题参考文件: <08、单点登录与社交登录.pdf> 文件
 
 #### cookie session 跨域
-- cookie不安全session安全, 后端开发只操作session, session与cookie不分家, session就是用到了cookie来实现的, cookie是实现Session的一种方式
+- cookie不安全session安全, 后端开发只操作session, session与cookie不分家, session就是用到了cookie来实现的, cookie是实现session的一种方式
 - 服务端需要通过session来识别具体的用户, 服务端要为特定用户创建特定的session, 用于标识这个用户并且跟踪
 - 那么问题来了session如何来识别具体的用户呢？客户端会将cookie信息发送到服务端, cookie里面记录一个Session ID(字段jsessionid)
 - session是抽象的概念, cookie是具体的概念, cookie是session一种具体的实现方式
@@ -718,7 +718,7 @@ cookie(sessionId)  ->   session(HttpSession)
 ![订单流程](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%AE%A2%E5%8D%95%E6%B5%81%E7%A8%8B.PNG?raw=true)
 
 #### 接口幂等性
-- 订单的提交需要保证幂等性, 使用令牌机制来实现幂等性, 前端token(后端生成返给前端的)与后端redis中(后端生成时保存的)的token
+- 订单的提交需要保证幂等性, 使用令牌机制来实现幂等性, 前端token(后端生成返给前端的)与后端redis中(后端生成时保存的)的token, 用完即删
 - 校验令牌和删除令牌的时候需要保证原子性, 同分布式缓存中的lua脚本一样, 直接拿来用即可; val为1则成功, 0则失败
 ```
 String script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
@@ -727,7 +727,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 参见 02、接口幂等性.pdf 文档
 
 #### 使用RabbitMQ实现定时关单与库存解锁的分布式事务
-- 发送消息的时机: 1. 订单创建成功后就会发送(不管会不会支付), 2. 库存锁定成功后就会发送(不管整个事务是否成功) 
+- 发送消息的时机: 1. 订单创建成功后就会发送到order.delay.queue(不管会不会支付), 2. 库存锁定成功后就会发送stock.delay.queue(不管整个事务是否成功) 
 - 下单成功订单过期没有支付被系统自动取消, 或者被用户手动取消, 都需要关闭订单;OrderCloseListener类
   - 根据rabbitMQ监听消息中**订单信息**查询数据库的这条**订单信息对应**的记录
   - 若当前数据库订单状态为**待付款**状态, 则将订单状态改为**已取消**状态, 便于库存服务根据该状态解锁库存
@@ -738,9 +738,9 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
   - 若没有锁库存记录则代表锁库存失败库存也回滚了(库存锁定的修改记录与工作单的新增记录一起回滚了), 但是成功发送了锁库存工作单的消息, 这种情况无需解锁 
   - 若有锁库存记录也不一定都要解锁: 若订单没有创建则需要解锁库存--库存锁成功了订单创建失败了; 订单状态**已取消**则需要解锁库存--订单未支付或者手动取消了
   - 手动确认消息, 解锁成功则会删除该消息, 解锁失败重回消息队列后续在尝试进行解锁操作
-- 若因为机器卡顿网络延迟等问题造成库存解锁消息先执行, 定时关单后执行那么该订单的库存, 库存查询订单状态为待支付则不解锁, 该订单库存则永远也无法解锁了
-- 在定时关单成功后, 再发一个消息给解锁库存的消息队列中, 解锁库存有两种消息一个是定时关单时候发的一个是下单成功时候发的
-- 定时关单发的消息是解锁库存的主要逻辑, 下单成功发送的消息是解锁库存的补偿逻辑; 补偿逻辑解锁库存前会检查库存工作单是否已解锁, 若已解锁则啥也不做
+- 若因为机器卡顿网络延迟等问题造成库存解锁消息先执行, 定时关单后执行, 那么该订单的库存, 先执行库存查询订单状态为待支付则不解锁, 该订单库存则永远也无法解锁了
+- 在定时关单成功后, 再发一个消息给解锁库存的消息队列中, 那么解锁库存就有两种消息一个是定时关单时候发的一个是库存锁定成功时候发的
+- 定时关单发的消息是解锁库存的主要逻辑, 库存锁定成功时候发的消息是解锁库存的补偿逻辑; 补偿逻辑解锁库存前会检查库存工作单是否已解锁, 若已解锁则啥也不做
 
 #### RabbitMQ业务的应用
 ![消息队列流程](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E6%B5%81%E7%A8%8B.jpg?raw=true)
@@ -787,7 +787,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
   - 项目中引入sentinel和openfeign, **调用方**配置sentinel对feign的支持: `feign.sentinel.enabled=true`
   - 实现远程调用接口SeckillFeignServiceFallback, 实现熔断回调方法, 在远程调用失败的时候返回熔断数据--**熔断**保护
 - sentinel Dashboard配置**降级**规则: 资源名、降级策略、RT、时间窗口; 
-  - 通过上述配置调用方手动指定服务降级策略, 远程服务被降级处理触发熔断回调方法
+  - 通过上述配置**调用方**手动指定服务降级策略, 远程服务被降级处理触发熔断回调方法
   - **被调用方**即服务的提供方, 在应对超大并发量的时候, 也可以指定降级规则; 提供方服务在运行中, 但不运行业务逻辑, 返回降级数据(限流数据)
 - 熔断主要是在调用方控制, 降级是在提供方控制. 熔断主要是防止提供方宕机, 降级则是提供方为了解压, 给调用方提供了一些简单的数据
 - 使用方法自定义受保护的形式时, try-catch还是@SentinelResource都需要定义限流后的返回数据; url请求可以使用统一的返回SentinelConfig
