@@ -990,7 +990,7 @@ server:
 - 浏览器请求前端开发服务器, 请求css、js, 前端开发服务器会返回一个页面, 浏览器会渲染页面, 请求到的js里面会有一个ajax请求, 这个请求的是另外一个服务器
 - 参考文档: `https://blog.csdn.net/weixin_53341042/article/details/117537182`
 - spring支持跨域的各种配置就是根据request往response中增加header; 一般在网关中配置这些跨域请求
-![]()
+![跨域原理](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E8%B7%A8%E5%9F%9F%E5%8E%9F%E7%90%86.png?raw=true)
     
 #### 启动失败
 - springBoot启动失败多半是因为配置文件没有配置好造成的
@@ -1055,7 +1055,7 @@ kill -9 143232
 - 在该项目中 /regist 请求是POST请求, 注册出错后转发到注册页面; return "forward:/reg.html";
 - 而reg.html是使用路径映射的方式做的, 路径映射默认都是GET方式访问的
 - 转发就是原来的请求原封不动转给下个页面, 将一个POST请求转发给了GET请求所以产生这个问题
-- 不使用转发直接渲染界面 return "reg";
+- 不使用转发直接渲染界面(重定向) return "redirect:/reg.html";
 
 #### feign远程调用丢失请求头
 - 浏览器发送请求时请求头自动携带cookie, 而feign是一个崭新的请求
@@ -1073,7 +1073,7 @@ Request targetRequest(RequestTemplate template) {
 
 #### feign异步情况丢失上下文问题
 - spring中的上下文信息是存储在RequestAttributes存储在ThreadLocal中的
-- 因为是异步情况会开启多个线程但ThreadLocal只能在一个线程中使用, 所以上下文信息就没有了
+- 因为是异步情况会开启多个线程但ThreadLocal只能在同一个线程中使用, 所以上下文信息就没有了
 - 在异步情况发送feign请求之前, 手动设置下上下文RequestContextHolder.setRequestAttributes(xxx);
 
 #### RabbitMQ消息一直unack
