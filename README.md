@@ -887,7 +887,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 #### Elasticsearch集群
 - 一个运行中的Elasticsearch实例称为一个节点, 而集群是由一个或者多个拥有相同cluster.name配置的节点组成
 - 当一个节点被选举成为主节点时, 它将负责管理集群范围内的所有变更, 只作为控制节点, 不操作数据. 由数据节点负责执行
-- 节点: 主节点, 候选主节点, 数据节点, 客户端节点
+- 节点: 主节点(管理集群), 候选主节点(参与竞选), 数据节点(CRUD), 客户端节点(负载均衡); 
 - 当有节点加入集群中或者从集群中移除节点时, 集群将会重新平均分布所有的数据, 它们共同承担数据和负载的压力; 索引现在拥有9个分片3个主分片和6个副本分片
 ![ES负载均衡](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/ES%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1.PNG?raw=true)
 - Elasticsearch是在同一服务器内做分片; redis分区存储是在不同服务器上; mysql是服务器内分表, 服务器间分库(水平分库分表的场景)
@@ -909,7 +909,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 #### Kubernetes部署中间件
 - 有状态: MySQL, Redis, Elasticsearch, RabbitMQ, Nacos
 - 无状态: Kibana, Zipkin, Sentinel
-- 有状态服务集群内使用域名访问, 无状态服务对外暴露端口进行访问; 外部访问有状态服务需要再映射一个能通过域名访问的服务(内部域名 + 外部端口)
+- 有状态服务集群内使用域名访问, 无状态服务对外暴露端口进行访问; 外部访问有状态服务需要再映射一个能通过域名访问的服务--应用路由(内部域名 + 外部端口)
 - port: docker容器port -> k8s-pod-port -> k8s-service-port -> k8s-node-port 
 ![组件Port套娃](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E7%BB%84%E4%BB%B6Port%E5%A5%97%E5%A8%83.PNG?raw=true)
 
@@ -928,7 +928,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
     - 发布版本
   - 编写好的文件连同代码提交到GitHub上
   - 使用Devops工程创建流水线, 设置好代码地址就ok; 运行即可
-  - 部署各个项目的各个微服务; 代码仓库, 镜像仓库公司自己搭建
+  - 部署各个项目的各个微服务; 代码仓库, 镜像仓库公司可以自己搭建
   ![K8S部署项目微服务](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/K8S%E9%83%A8%E7%BD%B2%E9%A1%B9%E7%9B%AE%E5%BE%AE%E6%9C%8D%E5%8A%A1.PNG?raw=true)
 ```
 # Dockerfile文件内容
@@ -984,10 +984,13 @@ server:
     - 浏览器 --- 3. 发送真实数据 --> 服务器
     - 浏览器 <-- 4. 响应数据    --- 服务器
 - 解决方案:
-    - 使用nginx部署为同一个域
-    - 配置当次请求允许跨域
-- 跨域报错: 后端收到请求并且成功返回, 只不过浏览器把结果返回拦截并报错, 满足同源策略浏览器才能读到服务端的响应
+    - 使用nginx部署前后端为同一个域
+    - 后端代码中配置当次请求允许跨域
+- 跨域报错: 后端收到请求并且成功返回, 只不过浏览器把结果返回拦截并报错, 满足同源策略浏览器才能读到服务端的响应; 不是我的(浏览器输入的地址)我不要
+- 浏览器请求前端开发服务器, 请求css、js, 前端开发服务器会返回一个页面, 浏览器会渲染页面, 请求到的js里面会有一个ajax请求, 这个请求的是另外一个服务器
+- 参考文档: `https://blog.csdn.net/weixin_53341042/article/details/117537182`
 - spring支持跨域的各种配置就是根据request往response中增加header; 一般在网关中配置这些跨域请求
+![]()
     
 #### 启动失败
 - springBoot启动失败多半是因为配置文件没有配置好造成的
