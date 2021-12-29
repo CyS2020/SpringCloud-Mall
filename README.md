@@ -864,7 +864,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - MySQL-MMM: 主主复制管理器; MySQL-MHA: master高可用机制; MySQL-InnoDB Cluster: 完全高可用的数据库解决方案;
 - MySQL-InnoDB Cluster: Failover, 强一致性, 读写分离, 读库高可用, 读请求负载均衡, 横向扩展
 ![MySQL集群](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/MySQL%E9%9B%86%E7%BE%A4.jpg?raw=true)
-- 企业常用数据库集群解决方案
+- 企业常用数据库集群解决方案, 双主从复制
 ![企业数据库集群方案](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/%E4%BC%81%E4%B8%9A%E6%95%B0%E6%8D%AE%E5%BA%93%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88.PNG?raw=true)
 - 根据文档: Docker安装模拟MySQL主从复制集群; 配置my.cnf; 主授权, 备同步
 ![MySQL集群实践](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/MySQL%E9%9B%86%E7%BE%A4%E5%AE%9E%E8%B7%B5.PNG?raw=true)
@@ -888,7 +888,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 一个运行中的Elasticsearch实例称为一个节点, 而集群是由一个或者多个拥有相同cluster.name配置的节点组成
 - 当一个节点被选举成为主节点时, 它将负责管理集群范围内的所有变更, 只作为控制节点, 不操作数据. 由数据节点负责执行
 - 节点: 主节点, 候选主节点, 数据节点, 客户端节点
-- 当有节点加入集群中或者从集群中移除节点时, 集群将会重新平均分布所有的数据, 它们共同承担数据和负载的压力 <br/>
+- 当有节点加入集群中或者从集群中移除节点时, 集群将会重新平均分布所有的数据, 它们共同承担数据和负载的压力; 索引现在拥有9个分片3个主分片和6个副本分片
 ![ES负载均衡](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/ES%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1.PNG?raw=true)
 - Elasticsearch是在同一服务器内做分片; redis分区存储是在不同服务器上; mysql是服务器内分表, 服务器间分库(水平分库分表的场景)
 - 每个服务器装两个实例一个用于主节点, 一个用于数据节点, 如果豪横的化呢, 有六台服务器就一个服务器一个节点 <br/>
