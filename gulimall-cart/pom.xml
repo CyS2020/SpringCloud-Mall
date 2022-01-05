@@ -8,7 +8,7 @@
 		<version>2.1.12.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.atguigu</groupId>
+	<groupId>com.atguigu.gulimall</groupId>
 	<artifactId>gulimall-cart</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>gulimall-cart</name>
