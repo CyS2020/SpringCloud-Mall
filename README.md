@@ -35,6 +35,8 @@
     - dao层接口继承BaseMapper<Entity>, 就是service层里的那个baseMapper; 拥有继承来的CRUD, 和自己定义的复杂交互方法
     - dao继承BaseMapper<T>该接口后,无需编写mapper.xml文件, 即可获得CRUD功能; 复杂的逻辑仍需最好还是编写xml文件
     - this.baseMapper就是实现了dao层接口的实例, 由框架自动注入进来的, 不需要我们手动实例化; (dao == mapper)
+- 唯一Id
+   - 使用toolkit包下的IdWorker生成唯一Id
 
 #### 微服务
 - 注册中心: 每一个微服务上线后注册到注册中心, 对外提供服务
@@ -64,11 +66,14 @@
   - 微服务通信: Rpc/Openfeign
   - 分布式锁: Redis/Redisson
   - Session会话: Redis存储/中央认证
+  - 链路追踪: Zipkin + Sleuth
 - 分布式集群
   - 唯一主键: 雪花算法
   - 数据一致性: raft算法
-  - 负载均衡: 加权轮询
   - 分布式存储: 一致性哈希
+  - 服务发现: Nacos
+  - 服务容错: Sentinel
+  - 负载均衡: Ribbon
 
 #### Nacos服务注册
 - 搭建服务注册所需的服务器, 提供了可视化界面
