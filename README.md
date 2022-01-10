@@ -67,6 +67,7 @@
   - 分布式锁: Redis/Redisson
   - Session会话: Redis存储/中央认证
   - 链路追踪: Zipkin + Sleuth
+  - 网关路由: GateWay
 - 分布式集群
   - 唯一主键: 雪花算法
   - 数据一致性: raft算法
