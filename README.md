@@ -11,7 +11,7 @@
 - 使用renren-generator工具生成五个微服务的crud的代码: controller; dao; entity; service
 - 配置pom文件解决基本的依赖问题, 配置yml文件启动项目, 测试接口是否正常运行
 
-#### Mybatis-plus依赖
+#### Mybatis-Plus依赖
 - 导入依赖
 ```
 <dependency>
@@ -31,8 +31,8 @@
 - 分页插件
     - 给项目添加MybatisConfig分页功能的配置项
 - 数据库交互
-    - service层实现类继承ServiceImpl<Dao, Entity>使用其baseMapper对象编写增删改查java代码与数据库交互
-    - dao层接口继承BaseMapper<Entity>, 就是service层里的那个baseMapper; 拥有继承来的CRUD, 和自己定义的复杂交互方法
+    - service层实现类继承ServiceImpl<Dao, Entity>使用其`protected Dao baseMapper;`对象编写增删改查java代码与数据库交互
+    - dao层接口(@Mapper)继承BaseMapper<Entity>, 就是service层里的那个baseMapper; 拥有继承来的CRUD, 和自己定义的复杂交互方法
     - dao继承BaseMapper<T>该接口后,无需编写mapper.xml文件, 即可获得CRUD功能; 复杂的逻辑仍需最好还是编写xml文件
     - this.baseMapper就是实现了dao层接口的实例, 由框架自动注入进来的, 不需要我们手动实例化; (dao == mapper)
 - 唯一Id
