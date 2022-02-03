@@ -31,7 +31,7 @@
 - 分页插件
     - 给项目添加MybatisConfig分页功能的配置项
 - 数据库交互
-    - dao层接口(@Mapper)继承BaseMapper<Entity>, 就是service层里的那个baseMapper; 拥有继承来的CRUD, 和自己定义的复杂交互方法
+    - dao层接口(@Mapper)继承`BaseMapper<T>`, 就是service层里的那个baseMapper; 拥有继承来的CRUD, 和自己定义的复杂交互方法
     - 也可以从Service接口层面继承`IService<T>`， 然后从Service实现类层面继承`ServiceImpl<M extends BaseMapper<T>, T>`从而拥有CRUD能力
     - dao继承BaseMapper<T>该接口后,无需编写mapper.xml文件, 即可获得CRUD功能; 复杂的逻辑仍需最好还是编写xml文件
     - this.baseMapper就是实现了dao层接口的实例, 由框架自动注入进来的, 不需要我们手动实例化; (dao == mapper)
