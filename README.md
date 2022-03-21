@@ -455,7 +455,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 原始的request, response都被包装成如下对象; 以后获取session都要获取request.getSession()相当于调用的wrappedRequest.getSession()
 - wrappedRequest.getSession()是从RedisOperationsSessionRepository中获取的, 就是从redis中获取的; 主要是装饰者设计模式
 - 网站交互session自动续期, 浏览器关闭session在设定的过期时间内过期
-- 浏览器第一次请求服务器时, 服务器会生成一个sessionId, 并返回给浏览器; 作为key、HttpSession作为value保存在redis中
+- 浏览器第一次请求服务器时, 服务器会生成一个sessionId, 并返回给浏览器; sessionId作为key、HttpSession作为value保存在redis中
 ```
 protected void doFilterInternal(HttpServletRequest request,
         HttpServletResponse response, FilterChain filterChain)
