@@ -339,7 +339,7 @@ location / {
 </dependency>
 ```
 - 使用SpringBoot自动配置好的StringRedisTemplate进行操作, opsForXXX, boundXXXOps等操作
-- redis中的数据类型其实是针对于K-V中的V来说的, V可以为Value, Hash, List, Set, ZSet
+- redis中的数据类型其实是针对于K-V中的V来说的, V可以为String, Hash, List, Set, ZSet
 
 #### SpringCache管理缓存
 - 项目中引入依赖data-redis与cache, 均为starter组件
