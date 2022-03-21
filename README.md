@@ -392,7 +392,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 双写模式: 修改数据库, 然后修改缓存
 - 失效模式: 修改数据库, 删除缓存
 - 完美解决: 数据异步同步, mysql会将操作记录在Binary log日志中, 通过canal去监听数据库日志二进制文件, 解析log日志, 同步到redis中进行增删改操作
-- 注释: canal是一个模拟从数据库的中间件, 同步主数据库binlog; 关于canal还可以解决数据异构的问题, 监听不同用户的访问记录生成用户推荐表
+- 注释: canal是一个模拟从数据库的中间件, 同步主数据库binlog; 关于canal还可以解决数据异构的问题, 监听不同用户的访问记录生成用户推荐表<br/>
 ![Canal应用场景](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Canal%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.PNG?raw=true)
 
 #### springCache不足
