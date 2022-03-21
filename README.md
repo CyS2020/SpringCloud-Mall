@@ -479,7 +479,7 @@ protected void doFilterInternal(HttpServletRequest request,
 #### RabbitMQ消息中间件
 - docker安装并启动rabbitmq, 15672端口提供了可视化界面
 - 在yml配置文件中配置连接信息ip地址与端口号以及虚拟主机等信息, 编写配置RabbitMqConfig类设置序列化类型
-- 项目引入依赖amqp依赖, RabbitAutoConfiguration会自动生效
+- 项目引入依赖amqp依赖, RabbitAutoConfiguration会自动生效, 会往容器中注入下面需要使用的实例类
 ```
 <dependency>
     <groupId>org.springframework.boot</groupId>
