@@ -200,7 +200,7 @@
 #### ElasticSearch搜索和数据分析引擎
 - 基本概念
   - Index索引: 类似于mysql中的Database
-  - Type类型: 类似于mysql中的Table
+  - Type类型: 类似于mysql中的Table, 高版本已删除Type
   - Document文档: 类似于mysql中的一条记录, json格式
   - 属性与属性值: 就是列名与列值
   - 倒排索引: 记录每个词条出现在哪些文档中, 检索时计算相关性得分
