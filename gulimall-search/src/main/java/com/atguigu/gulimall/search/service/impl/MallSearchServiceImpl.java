@@ -83,10 +83,10 @@ public class MallSearchServiceImpl implements MallSearchService {
      * 完成功能: 模糊匹配, 过滤(按照属性, 分类, 品牌, 价格区间, 库存), 排序, 分页, 高亮功能, 聚合分析
      */
     private SearchRequest buildSearchRequest(SearchParam param) {
-        // 1. 构建bool - query
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
 
+        // 1. 构建bool - query
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         // 1.1 must - 模糊匹配
         if (!StringUtils.isEmpty(param.getKeyword())) {
             boolQuery.must(QueryBuilders.matchQuery("skuTitle", param.getKeyword()));
@@ -180,7 +180,7 @@ public class MallSearchServiceImpl implements MallSearchService {
         attrAgg.subAggregation(attrIdAgg);
         sourceBuilder.aggregation(attrAgg);
 
-        log.info("成功构建DSL: {}", sourceBuilder.toString());
+        log.info("成功构建DSL: {}", sourceBuilder);
         return new SearchRequest(new String[]{EsConstant.PRODUCT_INDEX}, sourceBuilder);
     }
 
