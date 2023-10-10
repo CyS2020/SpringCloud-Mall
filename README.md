@@ -377,7 +377,7 @@ location / {
 #### 缓存问题及解决方案
 - 缓存穿透: 将null结果缓存, 并加入短暂的过期时间
 - 缓存雪崩: 在原有的失效时间基础上添加随机值, 例如1-5分钟随机
-- 缓存击穿: 先加本地锁查数据库, 查到以后放入缓存并释放锁; 双重检查(获取锁后再去缓存中确定一下) + 原子操作(锁要范围包含查mysql, 写redis)
+- 缓存击穿: 先加本地锁查数据库, 查到以后放入缓存并释放锁; 双重检查(获取锁后再去缓存中确定一下) + 原子操作(锁的范围要包含查mysql, 写redis)
 - 分布式下加分布式锁: 加锁值设置为uuid(唯一id), 并设置过期时间, 设置成功返回true; 解锁使用lua脚本保证原子性; 使用StringRedisTemplate实现
 ```
 // 加锁与设置过期时间需要保证原子性
@@ -392,7 +392,7 @@ Long val = redisTemplate.execute(new DefaultRedisScript<>(script, Long.class), L
 - 遇到实时性一致性高的场景就应该查数据库, 即使慢点
 - 双写模式: 修改数据库, 然后修改缓存
 - 失效模式: 修改数据库, 删除缓存
-- 完美解决: 数据异步同步, mysql会将操作记录在Binary log日志中, 通过canal去监听数据库日志二进制文件, 解析log日志, 同步到redis中进行增删改操作
+- 完美解决: 数据异步同步, redis会将操作记录在Binary log日志中, 通过canal去监听数据库日志二进制文件, 解析log日志, 同步到redis中进行增删改操作
 - 注释: canal是一个模拟从数据库的中间件, 同步主数据库binlog; 关于canal还可以解决数据异构的问题, 监听不同用户的访问记录生成用户推荐表<br/>
 ![Canal应用场景](https://github.com/CyS2020/SpringCloud-Mall/blob/main/resources/Canal%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF.PNG?raw=true)
 
