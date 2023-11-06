@@ -88,6 +88,7 @@
 ```
 - 微服务需要在yml文件中配置服务注册的服务器地址; 以及当前服务的名称
 - 开启服务注册功能@EnableDiscoveryClient(可省略)
+- https://juejin.cn/post/6992097137194614821#heading-11
 
 #### Nacos配置中心
 - 和服务注册公用的服务器
